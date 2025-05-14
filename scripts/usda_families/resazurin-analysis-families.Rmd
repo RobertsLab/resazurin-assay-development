@@ -159,7 +159,7 @@ Plot the raw data.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -179,7 +179,7 @@ Plot again.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -233,7 +233,7 @@ Plot again.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -257,7 +257,7 @@ Plot by area normalized.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -268,7 +268,7 @@ Plot by length
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=value.mm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -333,7 +333,8 @@ full_data<-full_data%>%
     timepoint=="2" ~ 2,
     timepoint=="3" ~ 3,
     timepoint=="4" ~ 1,
-    timepoint=="5" ~ 2
+    timepoint=="5" ~ 2,
+    timepoint=="6" ~ 3
   ))
 
 #replicate data from time point 3 as time of exposure 0 for 42C treatment and time of exposure 3 for 18C treatment
@@ -424,7 +425,7 @@ Plot linear model for each sample.
 ggplot(segment_data, aes(x = time_exposure, y = value.mm2, color=temperature)) +
   geom_point() +
   geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
-  facet_wrap(~ sample, scales = "free_y") +
+  facet_wrap(~ sample*date, scales = "free_y") +
   scale_colour_manual(values=c("darkblue", "darkred"))+
   theme_classic()
 ```
@@ -435,13 +436,36 @@ Plot slope by temperature for each family.
 ```{r}
 ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   geom_point() +
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_line(aes(group=sample, color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()
 ```
 
+```{r}
+ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
+  geom_point() +
+  facet_wrap(~family)+
+  geom_line(aes(group=interaction(sample, date), color=family)) +
+  scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
+  theme_classic()
+```
+
 Plot the percent change in slope for each family from ambient to high temperature. 
+```{r}
+ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
+  geom_point() +
+  geom_text(aes(label = paste(date, sample, sep = "\n")), 
+            vjust = 0.5, size = 3, show.legend = FALSE) +
+  geom_hline(yintercept=0, linetype="dashed")+
+  scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
+  theme_classic()
+```
+
+No oysters died on 20250506. Oysters A3, A5, B3, and B5 died on 20250513. B3 and A5 had the highest rates and those are ones that died.  
+
+Plot again without labels.  
+
 ```{r}
 ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   geom_point() +
@@ -477,8 +501,6 @@ summary(model2)
 anova(model2)
 qqPlot(model2$residuals)
 ```
-
-Residuals meet assumptions.  
 
 View posthoc effects. 
 
@@ -874,7 +896,7 @@ Plot linear model for each sample.
 ggplot(segment_data, aes(x = time_exposure, y = value.mm2, color=temperature)) +
   geom_point() +
   geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
-  facet_wrap(~ sample, scales = "free_y") +
+  facet_wrap(~ sample*date, scales = "free_y") +
   scale_colour_manual(values=c("darkblue", "darkred"))+
   theme_classic()
 ```
@@ -883,7 +905,7 @@ Plot slope by temperature for each family.
 ```{r}
 ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   geom_point() +
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_line(aes(group=sample, color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()
