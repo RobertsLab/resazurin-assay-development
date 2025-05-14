@@ -510,6 +510,7 @@ pairs(emm)
 ```
 
 
+
 # Absorbance 
 
 ## Load data 
@@ -909,6 +910,13 @@ ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   geom_line(aes(group=sample, color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()
+
+ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
+  geom_point() +
+  facet_wrap(~family)+
+  geom_line(aes(group=interaction(date, sample), color=family)) +
+  scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
+  theme_classic()
 ```
 
 Plot the percent change in slope for each family from ambient to high temperature. 
@@ -957,4 +965,6 @@ View posthoc effects.
 emm<-emmeans(model2, ~family)
 pairs(emm)
 ```
+
+
 
