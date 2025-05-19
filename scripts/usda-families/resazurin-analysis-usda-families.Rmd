@@ -311,14 +311,16 @@ full_data%>%
 ```
 
 ```{r}
-full_data%>%
+plot1<-full_data%>%
   ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
   scale_colour_manual(values=c("darkblue", "darkred"))+
   geom_line()+
-  theme_classic()
+  theme_classic();plot1
+
+ggsave(plot1, filename="figures/usda-families/fl_family_trajectories.png", width=8, height=8, units="in")
 ```
 
 ## Calculate change due to temperature exposure   
@@ -443,12 +445,14 @@ ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
 ```
 
 ```{r}
-ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
+plot2<-ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   geom_point() +
   facet_wrap(~family)+
   geom_line(aes(group=interaction(sample, date), color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
-  theme_classic()
+  theme_classic(); plot2
+
+ggsave(plot2, filename="figures/usda-families/fl_family_slopes.png", width=8, height=8, units="in")
 ```
 
 Plot the percent change in slope for each family from ambient to high temperature. 
@@ -467,11 +471,13 @@ No oysters died on 20250506. Oysters A3, A5, B3, and B5 died on 20250513. B3 and
 Plot again without labels.  
 
 ```{r}
-ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
+plot3<-ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   geom_point() +
   geom_hline(yintercept=0, linetype="dashed")+
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
-  theme_classic()
+  theme_classic();plot3
+
+ggsave(plot3, filename="figures/usda-families/fl_family_percent_change.png", width=6, height=6, units="in")
 ```
 
 Run a model to evaluate the significance of changes in slope between temperatures. 
@@ -508,8 +514,6 @@ View posthoc effects.
 emm<-emmeans(model2, ~family)
 pairs(emm)
 ```
-
-
 
 # Absorbance 
 
@@ -728,13 +732,15 @@ Plot again.
 
 Plot by area normalized. 
 ```{r}
-full_data%>%
+plot1a<-full_data%>%
   ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+  theme_classic(); plot1a
+
+ggsave(plot1a, filename="figures/usda-families/ab_family_trajectories.png", width=8, height=8, units="in")
 ```
 
 Plot by length
@@ -911,22 +917,26 @@ ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()
 
-ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
+plot2a<-ggplot(slopes, aes(x = temperature, y = slope, color=family)) +
   geom_point() +
   facet_wrap(~family)+
   geom_line(aes(group=interaction(date, sample), color=family)) +
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
-  theme_classic()
+  theme_classic(); plot2a
+
+ggsave(plot2a, filename="figures/usda-families/ab_family_slopes.png", width=8, height=8, units="in")
 ```
 
 Plot the percent change in slope for each family from ambient to high temperature. 
 ```{r}
-ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
+plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   geom_point() +
   geom_hline(yintercept=0, linetype="dashed")+
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()+
-  ylim(-500,200) #removing an outlier 
+  ylim(-900,2000);plot3a #removing an outlier 
+
+ggsave(plot3a, filename="figures/usda-families/ab_family_percent_change.png", width=8, height=8, units="in")
 ```
 
 Run a model to evaluate the significance of changes in slope between temperatures. 
