@@ -23,7 +23,6 @@ Interpretations tl;dr:
 - We can measure changes in metabolism using resazurin assay  
 - Metabolic rates can predict mortality at subsequent time point   
 
-
 # Set up 
 
 Set up workspace, set options, and load required packages.    
@@ -52,7 +51,7 @@ library(pROC)
 Read in resazurin data
 ```{r}
 #read in files
-main_data <- read_csv("data/resazurin/resazurin_data.csv")
+main_data <- read_csv("data/10k-seed/resazurin_data.csv")
 
 main_data<-main_data%>%
   pivot_longer(names_to="time", values_to="fluorescence", cols=`0`:`4`)%>%
@@ -61,7 +60,7 @@ main_data<-main_data%>%
 
 Read in survival data 
 ```{r}
-surv<-read_excel("data/survival/survival_resazurin.xlsx")
+surv<-read_excel("data/10k-seed/survival_resazurin.xlsx")
 
 surv<-surv%>%
   pivot_longer(names_to="time", values_to="status", cols=`0`:`24`)%>%
@@ -72,7 +71,7 @@ surv<-surv%>%
 
 Read in size data 
 ```{r}
-size <- read_csv("data/resazurin/resazurin-size.csv")%>%select(!notes)%>%mutate(sample=as.character(sample))
+size <- read_csv("data/10k-seed/resazurin-size.csv")%>%select(!notes)%>%mutate(sample=as.character(sample))
 ```
 
 Combine data
@@ -509,7 +508,7 @@ plot1<-alive_4h_data%>%
   ylab(expression(paste(Delta, " Fluorescence mm" ^-2)))+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/hardening_temperature_alive4h_oysters.png", width=8, height=6)
+ggsave(plot1, filename="figures/10k-seed/hardening_temperature_alive4h_oysters.png", width=8, height=6)
 
 plot1a<-alive_4h_data%>%
 
@@ -522,7 +521,7 @@ plot1a<-alive_4h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/hardening_temperature_alive4h_oysters-2.png", width=8, height=6)
+ggsave(plot1a, filename="figures/10k-seed/hardening_temperature_alive4h_oysters-2.png", width=8, height=6)
 ```
 
 Next plot with mean and sem for each group. 
@@ -690,7 +689,7 @@ plot1a<-dead_4h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/hardening_42C_dead4h.png", width=6, height=4)
+ggsave(plot1a, filename="figures/10k-seed/hardening_42C_dead4h.png", width=6, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -827,7 +826,7 @@ plot1a<-high_4h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/hardening_42C_mortality_dead4h.png", width=8, height=4)
+ggsave(plot1a, filename="figures/10k-seed/hardening_42C_mortality_dead4h.png", width=8, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -970,7 +969,7 @@ plot12<-ggplot(model_data, aes(x = value.mm3, y = predicted_mortality, color = h
   ) +
   theme_classic();plot12
 
-ggsave(plot12, filename="figures/resazurin/hardening_mortality-risk_42C_dead4h.png", width=8, height=4)
+ggsave(plot12, filename="figures/10k-seed/hardening_mortality-risk_42C_dead4h.png", width=8, height=4)
 ```
 
 Fresh water temperature hardened oysters may have been more metabolically susceptible to stress. 
@@ -1077,7 +1076,7 @@ plot1<-alive_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/hardening_temperature_alive24h.png", width=8, height=4)
+ggsave(plot1, filename="figures/10k-seed/hardening_temperature_alive24h.png", width=8, height=4)
 
 plot1a<-alive_24h_data%>%
 
@@ -1090,7 +1089,7 @@ plot1a<-alive_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/hardening_temperature_alive24h-2.png", width=8, height=4)
+ggsave(plot1a, filename="figures/10k-seed/hardening_temperature_alive24h-2.png", width=8, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -1252,7 +1251,7 @@ plot1<-dead_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/hardening_temperature_alive4h-dead24h.png", width=8, height=4)
+ggsave(plot1, filename="figures/10k-seed/hardening_temperature_alive4h-dead24h.png", width=8, height=4)
 
 plot1a<-dead_24h_data%>%
 
@@ -1265,7 +1264,7 @@ plot1a<-dead_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/hardening_temperature_alive4h-dead24h-1.png", width=8, height=4)
+ggsave(plot1a, filename="figures/10k-seed/hardening_temperature_alive4h-dead24h-1.png", width=8, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -1414,7 +1413,7 @@ plot12<-ggplot(data_lag, aes(x = value.mm3, y = predicted_mortality, color = har
   ) +
   theme_classic();plot12
 
-ggsave(plot12, filename="figures/resazurin/hardening_mortality-risk_dead24h.png", width=10, height=5)
+ggsave(plot12, filename="figures/10k-seed/hardening_mortality-risk_dead24h.png", width=10, height=5)
 
 ```
 
@@ -1526,7 +1525,7 @@ plot1<-alive_4h_data%>%
   ylab(expression(paste(Delta, " Fluorescence mm" ^-2)))+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/temperature_alive4h.png", width=5, height=4)
+ggsave(plot1, filename="figures/10k-seed/temperature_alive4h.png", width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -1665,7 +1664,7 @@ plot1a<-dead_4h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(filename="figures/resazurin/tempreature_dead4h.png", plot1a, width=5, height=4)
+ggsave(filename="figures/10k-seed/tempreature_dead4h.png", plot1a, width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -1798,7 +1797,7 @@ plot1a<-high_4h_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/temperature_mortality_4h.png", width=5, height=4)
+ggsave(plot1a, filename="figures/10k-seed/temperature_mortality_4h.png", width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -1914,7 +1913,7 @@ plot12<-ggplot(model_data, aes(x = value.mm3, y = predicted_mortality)) +
   ) +
   theme_classic();plot12
 
-ggsave(plot12, filename="figures/resazurin/mortality_risk_metabolic_rate_42C_4h.png", width=5, height=4)
+ggsave(plot12, filename="figures/10k-seed/mortality_risk_metabolic_rate_42C_4h.png", width=5, height=4)
 ```
 
 
@@ -2016,7 +2015,7 @@ plot1<-alive_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/temperature_alive24h.png", width=5, height=4)
+ggsave(plot1, filename="figures/10k-seed/temperature_alive24h.png", width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -2146,7 +2145,7 @@ plot1<-dead_24h_data%>%
   theme_classic()+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/temperature_alive4h_dead24h.png", width=5, height=4)
+ggsave(plot1, filename="figures/10k-seed/temperature_alive4h_dead24h.png", width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -2263,7 +2262,7 @@ plot12<-ggplot(data_lag, aes(x = value.mm3, y = predicted_mortality, color = tem
   ) +
   theme_classic();plot12
 
-ggsave(plot12, filename="figures/resazurin/temperature_mortality-risk_alive4h_dead24h.png", width=5, height=4)
+ggsave(plot12, filename="figures/10k-seed/temperature_mortality-risk_alive4h_dead24h.png", width=5, height=4)
 ```
 
 In those that died during the trial, elevated metabolism was a high mortality risk.
@@ -2368,7 +2367,7 @@ plot1<-mortality_data%>%
   theme_classic()+
   xlab("Hour");plot1
 
-ggsave(plot1, filename="figures/resazurin/mortality_metabolic-rate_comparison_42C.png", width=5, height=4)
+ggsave(plot1, filename="figures/10k-seed/mortality_metabolic-rate_comparison_42C.png", width=5, height=4)
 ```
 
 Next plot with mean and sem for each group. 
@@ -2405,7 +2404,7 @@ Significant effects:
 Look at mortality effects over time. 
 
 ```{r}
-surv<-read_excel("data/survival/survival_resazurin.xlsx")
+surv<-read_excel("data/10k-seed/survival_resazurin.xlsx")
 
 surv_final<-surv%>%
   pivot_longer(names_to="time", values_to="status", cols=`0`:`24`)%>%
@@ -2450,7 +2449,7 @@ plot3<-ggplot(surv_data, aes(x = as.numeric(time), y = predicted_mortality, colo
   ) +
   theme_classic();plot3
 
-ggsave(plot3, filename="figures/resazurin/survival_temperature.png", width=5, height=4)
+ggsave(plot3, filename="figures/10k-seed/survival_temperature.png", width=5, height=4)
 ```
 
 View model results
@@ -2505,7 +2504,7 @@ plot3a<-ggplot(surv_data, aes(x = as.numeric(time), y = predicted_mortality, col
   ) +
   theme_classic();plot3a
 
-ggsave(plot3a, filename="figures/resazurin/survival_hardening_temperature.png", width=8, height=4)
+ggsave(plot3a, filename="figures/10k-seed/survival_hardening_temperature.png", width=8, height=4)
 ```
 
 View model results
@@ -2531,10 +2530,8 @@ plot3b<-ggplot(surv_data, aes(x = as.numeric(time), y = predicted_mortality, col
   ) +
   theme_classic();plot3b
 
-ggsave(plot3b, filename="figures/resazurin/survival_hardening_temperature2.png", width=8, height=4)
+ggsave(plot3b, filename="figures/10k-seed/survival_hardening_temperature2.png", width=8, height=4)
 ```
-
-No effect of hardening on mortality. 
 
 There is an effect of temperature on mortality with highest mortality at 24 hours.  
 

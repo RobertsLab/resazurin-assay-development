@@ -14,9 +14,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-This script analyzes resazurin assays for the PolyIC seed project. This analysis is for "batch 2" of seed brought back from the hatchery in early March. This batch was analyzed with the FLx800 plate reader instrument.    
-
-ADD: Metabolic rate ~ mortality; ending mortality in TPC format 
+This script analyzes resazurin assays for the PolyIC seed project. Analyzed with the FLx800 plate reader instrument.    
 
 # Set up 
 
@@ -46,7 +44,7 @@ library(tools)
 
 ```{r}
 # Set the folder path
-folder_path <- "data/resazurin/plate_files/batch2-seed"  
+folder_path <- "data/spat-stress/plate-files"  
 
 # List all txt files in the folder
 file_list <- list.files(path = folder_path, pattern = "\\.txt$", full.names = TRUE)
@@ -116,7 +114,7 @@ head(combined_data)
 Load in metadata. 
 
 ```{r}
-metadata<-read_xlsx(path="data/resazurin/metadata/metadata_batch2.xlsx")%>%
+metadata<-read_xlsx(path="data/spat-stress/metadata_spat.xlsx")%>%
   mutate(date=as.character(date))
 ```
 
@@ -135,7 +133,7 @@ head(full_data)
 Load in size data. 
 
 ```{r}
-size<-read_csv("data/resazurin/size-batch2.csv")%>%
+size<-read_csv("data/spat-stress/size-spat.csv")%>%
   mutate(date=as.character(date))%>%select(!notes)
 ```
 
@@ -352,7 +350,7 @@ plot1a<-full_data%>%
   theme_classic()+
   xlab("Hour");plot1a
 
-ggsave(plot1a, filename="figures/resazurin/batch2_metabolism_temperature.png", width=7, height=5)
+ggsave(plot1a, filename="figures/spat-stress/metabolism_temperature.png", width=7, height=5)
 
 plot1b<-full_data%>%
 
@@ -376,7 +374,7 @@ plot1c<-full_data%>%
   ylab("Metabolic Rate")+
   xlab("Hour");plot1c
 
-ggsave(plot1c, filename="figures/resazurin/batch2_metabolism_treatment.png", width=7, height=4)
+ggsave(plot1c, filename="figures/spat-stress/metabolism_treatment.png", width=7, height=4)
 
 plot1d<-full_data%>%
 
@@ -389,7 +387,7 @@ plot1d<-full_data%>%
   theme_classic()+
   xlab("Hour");plot1d
 
-ggsave(plot1d, filename="figures/resazurin/batch2_metabolism_temperature_treatment.png", width=8, height=5)
+ggsave(plot1d, filename="figures/spat-stress/metabolism_temperature_treatment.png", width=8, height=5)
 ```
 
 # Survival 
@@ -397,7 +395,7 @@ ggsave(plot1d, filename="figures/resazurin/batch2_metabolism_temperature_treatme
 ## Load data 
 
 ```{r}
-surv<-read_csv("data/resazurin/survival-batch2.csv")%>%mutate(date=as.character(date))%>%select(!notes)
+surv<-read_csv("data/spat-stress/survival-spat.csv")%>%mutate(date=as.character(date))%>%select(!notes)
 ```
 
 Merge with existing data. 
@@ -449,7 +447,7 @@ plot2<-ggplot(surv_model_data, aes(x = temperature, y = predicted_mortality, col
   ) +
   theme_classic();plot2
 
-ggsave(plot2, filename="figures/resazurin/batch2-mortality_treatment.png", width=6, height=5)
+ggsave(plot2, filename="figures/spat-stress/mortality_treatment.png", width=6, height=5)
 
 # Plot
 plot2b<-ggplot(surv_model_data, aes(x = temperature, y = predicted_mortality)) +
@@ -464,7 +462,7 @@ plot2b<-ggplot(surv_model_data, aes(x = temperature, y = predicted_mortality)) +
   theme_classic();plot2b
 
 
-ggsave(plot2b, filename="figures/resazurin/batch2-mortality_all.png", width=6, height=5)
+ggsave(plot2b, filename="figures/spat-stress/mortality_all.png", width=6, height=5)
 
 # Plot
 plot2a<-ggplot(surv_model_data, aes(x = spat_treatment, y = predicted_mortality, color = temperature, fill = temperature, group=temperature)) +
@@ -478,7 +476,7 @@ plot2a<-ggplot(surv_model_data, aes(x = spat_treatment, y = predicted_mortality,
   ) +
   theme_classic();plot2a
 
-ggsave(plot2a, filename="figures/resazurin/batch2-mortality_temperature.png", width=6, height=5)
+ggsave(plot2a, filename="figures/spat-stress/mortality_temperature.png", width=6, height=5)
 ```
 
 Plot individual tanks. 
@@ -550,7 +548,7 @@ plot4a<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mort
   ) +
   theme_classic();plot4a
 
-ggsave(plot4a, filename="figures/resazurin/batch2-mortality_metabolic_rates_42C.png", width=5, height=5)
+ggsave(plot4a, filename="figures/spat-stress/mortality_metabolic_rates_42C.png", width=5, height=5)
 ```
 
 # Metabolic rates across thermal range 
@@ -590,7 +588,7 @@ plot5a<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
   ) +
   theme_classic();plot5a
 
-ggsave(plot5a, filename="figures/resazurin/batch2-tpc.png", width=6, height=5)
+ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=6, height=5)
 ```
 
 Analyze effect of temperature. 

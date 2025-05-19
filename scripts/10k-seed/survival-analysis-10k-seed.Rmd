@@ -14,8 +14,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-TO DO: Examine if mortality relates to size, then add size data as random/covariate effect for mortality 
-
 # Set up 
 
 Set up workspace, set options, and load required packages.    
@@ -39,7 +37,7 @@ library(cowplot)
 
 Read in data. 
 ```{r}
-data<-read_excel("data/survival/survival_resazurin.xlsx")
+data<-read_excel("data/10k-seed/survival_resazurin.xlsx")
 ```
 
 Turn into long format. 
@@ -228,7 +226,7 @@ Assemble plot
 ```{r}
 plots<-plot_grid(plot1, plot2, rel_widths=c(0.65,1), ncol=2)
 
-ggsave(plots, filename="figures/survival/KMcurves.png", width=10, height=4)
+ggsave(plots, filename="figures/10k-seed/KMcurves.png", width=10, height=4)
 ```
 
 
