@@ -1,0 +1,49 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Fluorescence\Experiment File\20250520_usda_fluorescence_t1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\oyster_resazurin_fluorescence.prt
+
+
+
+Plate Number	Plate 1
+Date	5/20/2025
+Time	10:39:11 AM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	96 WELL PLATE (Use plate lid)
+Eject plate on completion	
+Plate Out/In	
+Set Temperature	Incubator off
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+Plate Out/In	
+
+
+
+Actual Temperature:	24.1
+
+Results
+	1	2	3	4	5	6	7	8	9	10	11	12
+A	1080	1297	2277	2373	1436	0	0	0	0	0	0	0	528/20,590/20
+B	994	1123	1189	1584	1514	0	0	0	0	0	0	2	528/20,590/20
+C	1194	1114	1106	1275	1071	1	0	1	0	0	0	2	528/20,590/20
+D	1301	1756	1311	1413	1585	1	0	0	0	0	0	0	528/20,590/20
+E	1752	1703	1409	1899	1582	0	2	0	0	0	0	0	528/20,590/20
+F	2	2	1	1	3	0	1	0	1	0	0	0	528/20,590/20
+G	1	1	2	1	2	0	0	0	1	0	0	0	528/20,590/20
+H	824	1414	862	958	1022	2	1	0	0	1	2	1	528/20,590/20
+
