@@ -466,7 +466,7 @@ ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   theme_classic()
 ```
 
-No oysters died on 20250506. Oysters A3, A5, B3, and B5 died on 20250513. B3 and A5 had the highest rates and those are ones that died.  
+No oysters died on 20250506. Oysters A3, A5, B3, and B5 died on 20250513. B3 and A5 had the highest rates and those are ones that died. Oyster A4 and A5 died on 20250520 and those values are also the highest for family A. 
 
 Plot again without labels.  
 
@@ -493,7 +493,15 @@ qqPlot(model1$residuals)
 
 emm<-emmeans(model1, ~temperature|family)
 pairs(emm)
+
+emm<-emmeans(model1, ~family)
+pairs(emm)
+
+emm<-emmeans(model1, ~family|temperature)
+pairs(emm)
 ```
+
+Family A has higher metabolic rates than all other families. Family A had higher rates than Family C at ambient temperature. But family A had higher rates than C, D, and E under 42C. This family may be more sensitive to stress. 
 
 Run a model to examine percent change in slope between ambient and high temperature for each family. 
 
@@ -513,6 +521,47 @@ View posthoc effects.
 ```{r}
 emm<-emmeans(model2, ~family)
 pairs(emm)
+```
+
+## Examine mortality effects 
+
+Read in mortality data (0 indicates alive, 1 indicates dead at end of trial). 
+
+```{r}
+mortality<-read_xlsx(path="data/usda-families/mortality/mortality.xlsx")%>%
+  mutate(date=as.character(date))
+```
+
+Join with data frame. 
+
+```{r}
+slopes<-left_join(slopes, mortality)
+slopes$mortality<-as.character(slopes$mortality)
+slope_summary<-left_join(slope_summary, mortality)
+slope_summary$mortality<-as.character(slope_summary$mortality)
+```
+
+Plot change in metabolic rates colored by whether the oyster died or lived. 
+
+```{r}
+plot2a<-ggplot(slopes, aes(x = temperature, y = slope, color=mortality)) +
+  geom_point() +
+  facet_wrap(~family)+
+  geom_line(aes(group=interaction(sample, date), color=mortality)) +
+  scale_colour_manual(values=c("0"="black", "1"="red"))+
+  theme_classic(); plot2a
+
+ggsave(plot2a, filename="figures/usda-families/fl_family_slopes_mortality.png", width=8, height=8, units="in")
+```
+
+```{r}
+plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortality)) +
+  geom_point() +
+  geom_hline(yintercept=0, linetype="dashed")+
+  scale_colour_manual(values=c("0"="black", "1"="red"))+
+  theme_classic();plot3a
+
+ggsave(plot3a, filename="figures/usda-families/fl_family_percent_change_mortality.png", width=6, height=6, units="in")
 ```
 
 # Absorbance 
@@ -976,5 +1025,49 @@ emm<-emmeans(model2, ~family)
 pairs(emm)
 ```
 
+
+
+
+## Examine mortality effects 
+
+Read in mortality data (0 indicates alive, 1 indicates dead at end of trial). 
+
+```{r}
+mortality<-read_xlsx(path="data/usda-families/mortality/mortality.xlsx")%>%
+  mutate(date=as.character(date))
+```
+
+Join with data frame. 
+
+```{r}
+slopes<-left_join(slopes, mortality)
+slopes$mortality<-as.character(slopes$mortality)
+slope_summary<-left_join(slope_summary, mortality)
+slope_summary$mortality<-as.character(slope_summary$mortality)
+```
+
+Plot change in metabolic rates colored by whether the oyster died or lived. 
+
+```{r}
+plot2a<-ggplot(slopes, aes(x = temperature, y = slope, color=mortality)) +
+  geom_point() +
+  facet_wrap(~family)+
+  geom_line(aes(group=interaction(sample, date), color=mortality)) +
+  scale_colour_manual(values=c("0"="black", "1"="red"))+
+  theme_classic(); plot2a
+
+ggsave(plot2a, filename="figures/usda-families/ab_family_slopes_mortality.png", width=8, height=8, units="in")
+```
+
+```{r}
+plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortality)) +
+  geom_point() +
+  geom_hline(yintercept=0, linetype="dashed")+
+  scale_colour_manual(values=c("0"="black", "1"="red"))+
+  theme_classic()+
+  ylim(-3000,3000);plot3a
+
+ggsave(plot3a, filename="figures/usda-families/ab_family_percent_change_mortality.png", width=6, height=6, units="in")
+```
 
 
