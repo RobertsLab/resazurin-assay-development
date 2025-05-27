@@ -125,12 +125,32 @@ main_data%>%
   theme_classic()
 ```
 
+Calculate fluorescence at each time point normalized to the starting value at time 0. 
+
+```{r}
+main_data<-main_data%>%
+  group_by(date, bag, sample, width.mm, length.mm)%>%
+  arrange(date, bag, sample)%>%
+  mutate(fluorescence.norm=fluorescence/first(fluorescence))
+```
+
+Plot again 
+
+```{r}
+main_data%>%
+  ggplot(aes(x=time, y=fluorescence.norm, colour=temperature, group=sample))+
+  facet_wrap(~bag*date)+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
 View blanks
 
 ```{r}
 main_data%>%
   filter(type=="blank")%>%
-  ggplot(aes(x=time, y=fluorescence, colour=temperature, group=sample))+
+  ggplot(aes(x=time, y=fluorescence.norm, colour=temperature, group=sample))+
   facet_wrap(~bag*date)+
   geom_point()+
   geom_line()+
@@ -143,7 +163,7 @@ Calculate mean change in blank at each time point.
 blanks<-main_data%>%
   filter(type=="blank")%>%
   group_by(date, bag, temperature, time)%>%
-  summarise(mean_blank=mean(fluorescence))
+  summarise(mean_blank=mean(fluorescence.norm))
 ```
 
 View summarized blank data. 
@@ -164,35 +184,15 @@ main_data<-left_join(main_data, blanks)
 
 main_data<-main_data%>%
   filter(!type=="blank")%>%
-  mutate(fluorescence.corr=fluorescence-mean_blank)
+  mutate(value=fluorescence.norm-mean_blank)
 ```
 
 Plot again. 
 
 ```{r}
 main_data%>%
-  ggplot(aes(x=time, y=fluorescence.corr, colour=temperature, group=sample))+
+  ggplot(aes(x=time, y=value, colour=temperature, group=sample))+
   facet_wrap(~bag*date*hardening)+
-  geom_point()+
-  geom_line()+
-  theme_classic()
-```
-
-Calculate fluorescence at each time point normalized to the starting value at time 0. 
-
-```{r}
-main_data<-main_data%>%
-  group_by(date, bag, sample, width.mm, length.mm)%>%
-  arrange(date, bag, sample)%>%
-  mutate(fluorescence.norm=fluorescence.corr/first(fluorescence.corr))
-```
-
-Plot again 
-
-```{r}
-main_data%>%
-  ggplot(aes(x=time, y=fluorescence.norm, colour=temperature, group=sample))+
-  facet_wrap(~bag*date)+
   geom_point()+
   geom_line()+
   theme_classic()
@@ -203,7 +203,7 @@ Remove unnecessary columns.
 ```{r}
 main_data<-main_data%>%
   select(!type)%>%
-  select(!fluorescence.corr)%>%
+  select(!fluorescence.norm)%>%
   select(!mean_blank)%>%
   select(!fluorescence)
 ```
@@ -213,7 +213,7 @@ Normalize blank corrected fluorescence to oyster size by dividing fluorescence v
 ```{r}
 main_data$volume.mm3<-(4/3) * pi * ((main_data$length.mm/2) * (main_data$width.mm/2))^2
 
-main_data$value.mm3<-main_data$fluorescence.norm/main_data$volume.mm3
+main_data$value.mm3<-main_data$value/main_data$volume.mm3
 ```
 
 Plot size normalized resazurin response. 
@@ -313,13 +313,13 @@ hist(main_data$volume.mm3)
 View fluorescence values. 
 
 ```{r}
-hist(main_data$fluorescence.norm)
+hist(main_data$value)
 ```
 
 View metabolic rates over time as a function of size and temperature treatment using the non-size normalized fluorescence values. Include repeated measures for each individual. 
 
 ```{r}
-model.size<-lmer(fluorescence.norm ~ time * temperature * scale(volume.mm3) + (1|bag) + (1|date:bag:sample), data=main_data)
+model.size<-lmer(sqrt(value) ~ time * temperature * scale(volume.mm3) + (1|bag) + (1|date:bag:sample), data=main_data)
 
 summary(model.size)
 anova(model.size)
@@ -336,7 +336,7 @@ Plot metabolic rates (y) over time (x) with a gradient of color for size.
 
 ```{r}
 main_data%>%
-  ggplot(aes(x=time, y=fluorescence.norm, colour=scale(volume.mm3), group=paste(date, bag, sample)))+
+  ggplot(aes(x=time, y=value, colour=scale(volume.mm3), group=paste(date, bag, sample)))+
   facet_wrap(~temperature)+
   scale_colour_gradientn(colours=c("blue", "lightblue", "white","pink", "red"))+
   geom_point()+
@@ -352,7 +352,7 @@ final<-main_data%>%
 ```
 
 ```{r}
-model.size2<-lmer(fluorescence.norm ~ temperature * scale(volume.mm3) + (1|bag), data=main_data)
+model.size2<-lmer(sqrt(value) ~ temperature * scale(volume.mm3) + (1|bag), data=main_data)
 
 summary(model.size2)
 anova(model.size2)
@@ -370,7 +370,7 @@ Plot metabolic rates (y) over size range (x).
 ```{r}
 final%>%
   
-  ggplot(aes(x=volume.mm3, y=fluorescence.norm))+
+  ggplot(aes(x=volume.mm3, y=value))+
   #facet_wrap(~temperature)+
   geom_point()+
   geom_smooth(method="lm")+
@@ -381,17 +381,17 @@ Plot correlation plot.
 
 18°C
 ```{r}
-correlation18C <- lm(fluorescence.norm ~ volume.mm3, data = final%>%filter(temperature=="18C"))
+correlation18C <- lm(sqrt(value) ~ volume.mm3, data = final%>%filter(temperature=="18C"))
 
-corrplot18C<-ggplot(final%>%filter(temperature=="18C"), aes(x = volume.mm3, y = sqrt(value.mm3))) +
+corrplot18C<-ggplot(final%>%filter(temperature=="18C"), aes(x = volume.mm3, y = sqrt(value))) +
       geom_point() + 
       geom_smooth(method = "lm", se = TRUE) + 
       theme_classic();corrplot18C
   
       
-correlation42C <- lm(fluorescence.norm ~ volume.mm3, data = final%>%filter(temperature=="42C"))
+correlation42C <- lm(sqrt(value) ~ volume.mm3, data = final%>%filter(temperature=="42C"))
 
-corrplot42C<-ggplot(final%>%filter(temperature=="42C"), aes(x = volume.mm3, y = value.mm3)) +
+corrplot42C<-ggplot(final%>%filter(temperature=="42C"), aes(x = volume.mm3, y = value)) +
       geom_point() + 
       geom_smooth(method = "lm", se = TRUE) + 
       theme_classic();corrplot42C
@@ -406,7 +406,7 @@ Size is important to consider, so we will normalize metabolic rates to size usin
 alive_4h_data<-main_data%>%
   filter(incubation.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 alive_4h_data%>%
@@ -421,7 +421,7 @@ We have n>10 for all groups at all time point of oysters that lived through the 
 
 Build a model including all predictors. 
 ```{r}
-model<-lmer(value.mm3 ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_4h_data)
 
 qqPlot(residuals(model))
 
@@ -475,7 +475,7 @@ alive_4h_data%>%
 ```
 
 ```{r}
-model<-lmer(value.mm3 ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_4h_data)
 
 summary(model)
 anova(model)
@@ -585,7 +585,7 @@ Significant effects:
 dead_4h_data<-main_data%>%
   filter(incubation.mortality=="dead")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 dead_4h_data%>%
@@ -605,7 +605,7 @@ dead_4h_data<-dead_4h_data%>%
 
 Build a model including all predictors. 
 ```{r}
-model<-lmer(value.mm3 ~ time * hardening + (1|bag) + (1|date:bag:sample), data=dead_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * hardening + (1|bag) + (1|date:bag:sample), data=dead_4h_data)
 
 qqPlot(residuals(model))
 
@@ -659,7 +659,7 @@ dead_4h_data%>%
 ```
 
 ```{r}
-model2<-lmer(value.mm3 ~ time * hardening + (1|bag) + (1|date:bag:sample), data=dead_4h_data)
+model2<-lmer(sqrt(value.mm3) ~ time * hardening + (1|bag) + (1|date:bag:sample), data=dead_4h_data)
 
 summary(model2)
 anova(model2)
@@ -725,7 +725,7 @@ No differences between treatments within time are significant.
 high_4h_data<-main_data%>%
   filter(temperature=="42C")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 high_4h_data%>%
@@ -740,7 +740,7 @@ Using only 42°C, because we only had 1-4 oysters that died at 18°C, making ali
 
 Build a model including all predictors. 
 ```{r}
-model3<-lmer(value.mm3 ~ time * hardening * incubation.mortality + (1|bag) + (1|date:bag:sample), data=high_4h_data)
+model3<-lmer(sqrt(value.mm3) ~ time * hardening * incubation.mortality + (1|bag) + (1|date:bag:sample), data=high_4h_data)
 
 qqPlot(residuals(model3))
 
@@ -794,7 +794,7 @@ high_4h_data%>%
 ```
 
 ```{r}
-model3<-lmer(value.mm3 ~ time * hardening * incubation.mortality + (1|bag) + (1|date:bag:sample), data=high_4h_data)
+model3<-lmer(sqrt(value.mm3) ~ time * hardening * incubation.mortality + (1|bag) + (1|date:bag:sample), data=high_4h_data)
 
 summary(model3)
 anova(model3)
@@ -976,7 +976,7 @@ ggsave(plot12, filename="figures/10k-seed/hardening_mortality-risk_42C_dead4h.pn
 alive_24h_data<-main_data%>%
   filter(final.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 alive_24h_data%>%
@@ -991,7 +991,7 @@ We have n>5 for all groups at all time point of oysters that lived through the 2
 
 Build a model including all predictors. 
 ```{r}
-model5<-lmer(value.mm3 ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_24h_data)
+model5<-lmer(sqrt(value.mm3) ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_24h_data)
 
 qqPlot(residuals(model5))
 
@@ -1045,7 +1045,7 @@ alive_24h_data%>%
 ```
 
 ```{r}
-model5<-lmer(value.mm3 ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_24h_data)
+model5<-lmer(sqrt(value.mm3) ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=alive_24h_data)
 
 summary(model5)
 anova(model5)
@@ -1151,7 +1151,7 @@ Significant effects:
 dead_24h_data<-main_data%>%
   filter(final.mortality=="dead" & incubation.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 dead_24h_data%>%
@@ -1166,7 +1166,7 @@ We have n>5 for all groups at all time point of oysters. High variation in sampl
 
 Build a model including all predictors. 
 ```{r}
-model6<-lmer(value.mm3 ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=dead_24h_data)
+model6<-lmer(sqrt(value.mm3) ~ time * temperature * hardening + (1|bag) + (1|date:bag:sample), data=dead_24h_data)
 
 qqPlot(residuals(model6))
 
@@ -1424,7 +1424,7 @@ Because sample sizes are low for certain mortality groups and effects of hardeni
 alive_4h_data<-main_data%>%
   filter(incubation.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 alive_4h_data%>%
@@ -1439,7 +1439,7 @@ We have n>10 for all groups at all time point of oysters that lived through the 
 
 Build a model including all predictors. 
 ```{r}
-model<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_4h_data)
 
 qqPlot(residuals(model))
 
@@ -1492,7 +1492,7 @@ alive_4h_data%>%
 ```
 
 ```{r}
-model<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_4h_data)
 
 summary(model)
 anova(model)
@@ -1519,8 +1519,7 @@ plot1<-alive_4h_data%>%
   scale_fill_manual(values=c("darkgrey", "darkred"), name="")+
   theme_classic()+
   ylab(expression(paste(Delta, " Fluorescence mm" ^-2)))+
-  xlab("Hour")+
-  ylim(-0.01,0.04);plot1
+  xlab("Hour");plot1
 
 ggsave(plot1, filename="figures/10k-seed/temperature_alive4h.png", width=5, height=4)
 ```
@@ -1560,7 +1559,7 @@ Different after time point 2
 dead_4h_data<-main_data%>%
   filter(incubation.mortality=="dead")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 dead_4h_data%>%
@@ -1580,7 +1579,7 @@ We have n>10. Far more samples at 42C.
 
 Build a model including all predictors. 
 ```{r}
-model<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_4h_data)
+model<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_4h_data)
 
 qqPlot(residuals(model))
 
@@ -1633,7 +1632,7 @@ dead_4h_data%>%
 ```
 
 ```{r}
-model2<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_4h_data)
+model2<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_4h_data)
 
 summary(model2)
 anova(model2)
@@ -1700,7 +1699,7 @@ Small sample size in 18°C of oysters that died within 4 hours. Use only 42C.
 high_4h_data<-main_data%>%
   filter(temperature=="42C")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 high_4h_data%>%
@@ -1715,7 +1714,7 @@ Using only 42°C, because we only had 1-4 oysters that died at 18°C, making ali
 
 Build a model including all predictors. 
 ```{r}
-model3<-lmer(value.mm3 ~ time * incubation.mortality + (1|hardening) + (1|date:bag:sample), data=high_4h_data)
+model3<-lmer(sqrt(value.mm3) ~ time * incubation.mortality + (1|hardening) + (1|date:bag:sample), data=high_4h_data)
 
 qqPlot(residuals(model3))
 
@@ -1768,7 +1767,7 @@ high_4h_data%>%
 ```
 
 ```{r}
-model3<-lmer(value.mm3 ~ time * incubation.mortality + (1|hardening) + (1|date:bag:sample), data=high_4h_data)
+model3<-lmer(sqrt(value.mm3) ~ time * incubation.mortality + (1|hardening) + (1|date:bag:sample), data=high_4h_data)
 
 summary(model3)
 anova(model3)
@@ -1792,8 +1791,7 @@ plot1a<-high_4h_data%>%
   scale_colour_manual(values=c("cyan4", "orange"))+
   scale_fill_manual(values=c("cyan4",  "orange"))+
   theme_classic()+
-  xlab("Hour")+
-  ylim(-0.01, 0.02);plot1a
+  xlab("Hour");plot1a
 
 ggsave(plot1a, filename="figures/10k-seed/temperature_mortality_4h.png", width=5, height=4)
 ```
@@ -1921,7 +1919,7 @@ ggsave(plot12, filename="figures/10k-seed/mortality_risk_metabolic_rate_42C_4h.p
 alive_24h_data<-main_data%>%
   filter(final.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 alive_24h_data%>%
@@ -1934,7 +1932,7 @@ alive_24h_data%>%
 
 Build a model including all predictors. 
 ```{r}
-model5<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_24h_data)
+model5<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=alive_24h_data)
 
 qqPlot(residuals(model5))
 
@@ -2011,8 +2009,7 @@ plot1<-alive_24h_data%>%
   scale_colour_manual(values=c("darkgrey", "darkred"))+
   scale_fill_manual(values=c("darkgrey", "darkred"))+
   theme_classic()+
-  xlab("Hour")+
-  ylim(-0.01, 0.02);plot1
+  xlab("Hour");plot1
 
 ggsave(plot1, filename="figures/10k-seed/temperature_alive24h.png", width=5, height=4)
 ```
@@ -2052,7 +2049,7 @@ Different starting at time point 2
 dead_24h_data<-main_data%>%
   filter(final.mortality=="dead" & incubation.mortality=="alive")%>%
   ungroup()%>%
-  dplyr::select(!c(fluorescence.norm, volume.mm3, width.mm, length.mm))
+  dplyr::select(!c(value, volume.mm3, width.mm, length.mm))
 
 #view sample size 
 dead_24h_data%>%
@@ -2065,7 +2062,7 @@ dead_24h_data%>%
 
 Build a model including all predictors. 
 ```{r}
-model6<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_24h_data)
+model6<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_24h_data)
 
 qqPlot(residuals(model6))
 
@@ -2118,7 +2115,7 @@ dead_24h_data%>%
 ```
 
 ```{r}
-model6<-lmer(value.mm3 ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_24h_data)
+model6<-lmer(sqrt(value.mm3) ~ time * temperature + (1|hardening) + (1|date:bag:sample), data=dead_24h_data)
 
 summary(model6)
 anova(model6)
@@ -2248,7 +2245,6 @@ print(paste("AUC 95% CI:", round(ci_auc[1], 3), "-", round(ci_auc[3], 3)))
 
 # Plot
 plot12<-ggplot(data_lag, aes(x = value.mm3, y = predicted_mortality, color = temperature, fill = temperature)) +
-  facet_wrap(~temperature, scales="free")+
   geom_point(aes(y = next_status), alpha = 0.6, position = position_jitter(height = 0.03)) +
   geom_smooth(method = "glm", method.args = list(family = "binomial"), se = TRUE) +
   scale_colour_manual(values=c("darkgrey", "darkred"))+
@@ -2262,7 +2258,7 @@ plot12<-ggplot(data_lag, aes(x = value.mm3, y = predicted_mortality, color = tem
   ) +
   theme_classic();plot12
 
-ggsave(plot12, filename="figures/10k-seed/temperature_mortality-risk_alive4h_dead24h.png", width=5, height=4)
+ggsave(plot12, filename="figures/10k-seed/temperature_mortality-risk_alive4h_dead24h.png", width=6, height=4)
 ```
 
 # Analysis: Differentiation in metabolic rates between oysters that lived, died by 4 h, or died by 24 h 
@@ -2273,7 +2269,7 @@ Prepare data frame for mortality under stress.
 mortality_data<-main_data%>%
   filter(temperature=="42C")%>%
   ungroup()%>%
-  dplyr::select(!c(width.mm, length.mm, fluorescence.norm, volume.mm3))%>%
+  dplyr::select(!c(width.mm, length.mm, value, volume.mm3))%>%
   mutate(mortality = case_when(
     final.mortality == "alive" ~ "alive", 
     incubation.mortality == "dead" ~ "dead_4h", 
@@ -2285,7 +2281,7 @@ mortality_data<-main_data%>%
 
 Build a model including all predictors. 
 ```{r}
-model15<-lmer(value.mm3 ~ time * mortality + (1|hardening) + (1|date:bag:sample), data=mortality_data)
+model15<-lmer(sqrt(value.mm3) ~ time * mortality + (1|hardening) + (1|date:bag:sample), data=mortality_data)
 
 qqPlot(residuals(model15))
 
@@ -2338,7 +2334,7 @@ mortality_data%>%
 ```
 
 ```{r}
-model15<-lmer(value.mm3 ~ time * mortality + (1|hardening) + (1|date:bag:sample), data=mortality_data)
+model15<-lmer(sqrt(value.mm3) ~ time * mortality + (1|hardening) + (1|date:bag:sample), data=mortality_data)
 
 summary(model15)
 anova(model15)
@@ -2362,8 +2358,7 @@ plot1<-mortality_data%>%
   scale_colour_manual(values=c("cyan4", "darkgray", "orange"))+
   scale_fill_manual(values=c("cyan4", "darkgray", "orange"))+
   theme_classic()+
-  xlab("Hour")+
-  ylim(-0.01,0.02);plot1
+  xlab("Hour");plot1
 
 ggsave(plot1, filename="figures/10k-seed/mortality_metabolic-rate_comparison_42C.png", width=5, height=4)
 ```

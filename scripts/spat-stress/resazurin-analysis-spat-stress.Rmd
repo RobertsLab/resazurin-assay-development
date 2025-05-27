@@ -157,12 +157,32 @@ full_data%>%
   theme_classic()
 ```
 
+Calculate blank corrected fluorescence at each time point normalized to the starting value at time 0. 
+```{r}
+full_data<-full_data%>%
+  group_by(date, plate, well, temperature, spat_treatment, tank, holding_tank)%>%
+  arrange(date, plate, well)%>%
+  mutate(fluorescence.norm=resazurin_counts/first(resazurin_counts))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, plate, well)))+
+  facet_wrap(~date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
+  theme_classic()
+```
+
 View blanks
 
 ```{r}
 full_data%>%
   filter(type=="blank")%>%
-  ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, plate, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, plate, well)))+
   facet_wrap(~date)+
   geom_point()+
   scale_colour_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
@@ -176,7 +196,7 @@ Calculate mean blank value at each time point.
 blanks<-full_data%>%
   filter(type=="blank")%>%
   group_by(date, plate, temperature, timepoint)%>%
-  summarise(mean_blank=mean(resazurin_counts));blanks
+  summarise(mean_blank=mean(fluorescence.norm));blanks
 ```
 
 View summarized blank data. 
@@ -205,26 +225,6 @@ Plot again.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=fluorescence.corr, colour=temperature, group=interaction(date, plate, well)))+
-  facet_wrap(~date)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
-  theme_classic()
-```
-
-Calculate blank corrected fluorescence at each time point normalized to the starting value at time 0. 
-```{r}
-full_data<-full_data%>%
-  group_by(date, plate, well, temperature, spat_treatment, tank, holding_tank)%>%
-  arrange(date, plate, well)%>%
-  mutate(fluorescence.norm=fluorescence.corr/first(fluorescence.corr))
-```
-
-Plot again. 
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, plate, well)))+
   facet_wrap(~date)+
   geom_point()+
   geom_line()+
@@ -289,14 +289,6 @@ full_data%>%
 hist(full_data$value.mm)
 ```
 
-Remove outliers above 500. 
-
-```{r}
-full_data<-full_data%>%
-  filter(value.mm<400)%>%
-  filter(value.mm>-100)
-```
-
 Plot again. 
 ```{r}
 full_data%>%
@@ -308,9 +300,8 @@ full_data%>%
   theme_classic()
 ```
 
-
 ```{r}
-model<-lmer(value.mm ~ timepoint * temperature * spat_treatment + (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment:tank), data=full_data)
+model<-lmer(sqrt(value.mm) ~ timepoint * temperature * spat_treatment + (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment:tank), data=full_data)
 
 summary(model)
 anova(model)
@@ -550,13 +541,13 @@ plot4<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(morta
 
 Analyze the effect of mortality on metabolic rates. 
 ```{r}
-mortality_model<-lmer(value.mm ~ timepoint * mortality * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=data_42C)
+mortality_model<-lmer((value.mm)^(1/3) ~ timepoint * mortality * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=data_42C)
 
 summary(mortality_model)
 Anova(mortality_model)
 ```
 
-Time is significant 
+Time and mortality is significant 
 
 Plot again without treatment. 
 
@@ -619,7 +610,7 @@ ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=6, height=5)
 Analyze effect of temperature. 
 
 ```{r}
-tpc_model<-lmer(value.mm ~ temperature * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=end_data)
+tpc_model<-lmer((value.mm)^(1/3) ~ temperature * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=end_data)
 
 summary(tpc_model)
 Anova(tpc_model)

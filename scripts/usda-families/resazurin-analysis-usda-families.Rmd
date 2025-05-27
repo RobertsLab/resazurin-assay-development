@@ -166,12 +166,32 @@ full_data%>%
   theme_classic()
 ```
 
+Calculate size normalized fluorescence at each time point normalized to the starting value at time 0. 
+```{r}
+full_data<-full_data%>%
+  group_by(date, well, family)%>%
+  arrange(date, well)%>%
+  mutate(fluorescence.norm=resazurin_counts/first(resazurin_counts))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
+
 View blanks
 
 ```{r}
 full_data%>%
   filter(type=="blank")%>%
-  ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~date)+
   geom_point()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -185,7 +205,7 @@ Calculate mean change in blank at each time point.
 blanks<-full_data%>%
   filter(type=="blank")%>%
   group_by(date, timepoint)%>%
-  summarise(mean_blank=mean(resazurin_counts));blanks
+  summarise(mean_blank=mean(fluorescence.norm));blanks
 ```
 
 View summarized blank data. 
@@ -205,7 +225,7 @@ full_data<-left_join(full_data, blanks)
 
 full_data<-full_data%>%
   filter(!type=="blank")%>%
-  mutate(fluorescence.corr=resazurin_counts-mean_blank)
+  mutate(fluorescence.corr=fluorescence.norm-mean_blank)
 ```
 
 Plot again. 
@@ -220,35 +240,15 @@ full_data%>%
   theme_classic()
 ```
 
-Calculate size normalized fluorescence at each time point normalized to the starting value at time 0. 
-```{r}
-full_data<-full_data%>%
-  group_by(date, well, family)%>%
-  arrange(date, well)%>%
-  mutate(fluorescence.norm=fluorescence.corr/first(fluorescence.corr))
-```
-
-Plot again. 
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family*date)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
-```
-
 Size normalize data. I am going to use area first. 
 ```{r}
 #normalize by area
 full_data<-full_data%>%
-  mutate(fluorescence.norm.mm2=fluorescence.norm/area)
+  mutate(fluorescence.corr.mm2=fluorescence.corr/area)
 
 #normalize by length=
 full_data<-full_data%>%
-  mutate(fluorescence.norm.mm=fluorescence.norm/length.mm)
+  mutate(fluorescence.corr.mm=fluorescence.corr/length.mm)
 ```
 
 Plot again. 
@@ -256,7 +256,7 @@ Plot again.
 Plot by area normalized. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.corr.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -267,7 +267,7 @@ full_data%>%
 Plot by length
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm.mm, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.corr.mm, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -277,30 +277,11 @@ full_data%>%
 
 We will use area moving forward. Both seem to give us very similar answers and area will be more representative of total size.  
 
-Remove outliers that have very high values outside the range expected. 
-
-20250520 B5
-20250520 E5
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family*date*sample)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
-
-full_data<-full_data%>%
-  filter(!c(date=="20250520" & sample=="B5"))%>%
-  filter(!c(date=="20250520" & sample=="E5"))
-```
-
 Plot again. 
 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.corr.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -327,8 +308,9 @@ full_data<-full_data%>%
 str(full_data)
 
 full_data<-full_data%>%
-  rename(value=fluorescence.norm.mm2)
+  rename(value=fluorescence.corr.mm2)
 ```
+
 
 ## Models and Plots    
 
@@ -732,66 +714,12 @@ full_data%>%
   theme_classic()
 ```
 
-View blanks
-
-```{r}
-full_data%>%
-  filter(type=="blank")%>%
-  ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~date)+
-  geom_point()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  geom_line()+
-  theme_classic()
-```
-
-Calculate mean change in blank at each time point. 
-
-```{r}
-blanks<-full_data%>%
-  filter(type=="blank")%>%
-  group_by(date, timepoint)%>%
-  summarise(mean_blank=mean(resazurin_counts));blanks
-```
-
-View summarized blank data. 
-
-```{r}
-blanks%>%
-  ggplot(aes(x=timepoint, y=mean_blank))+
-  facet_wrap(~date)+
-  geom_point()+
-  theme_classic()
-```
-
-Subtract blank values from abs values for oysters. 
-
-```{r}
-full_data<-left_join(full_data, blanks)
-
-full_data<-full_data%>%
-  filter(!type=="blank")%>%
-  mutate(abs.corr=resazurin_counts-mean_blank)
-```
-
-Plot again. 
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=abs.corr, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family*date)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
-```
-
-Calculate size normalized abs at each time point normalized to the starting value at time 0. 
+Calculate size normalized absorbance at each time point normalized to the starting value at time 0. 
 ```{r}
 full_data<-full_data%>%
   group_by(date, well, family)%>%
   arrange(date, well)%>%
-  mutate(abs.norm=abs.corr/first(abs.corr))
+  mutate(abs.norm=resazurin_counts/first(resazurin_counts))
 ```
 
 Plot again. 
@@ -806,15 +734,69 @@ full_data%>%
   theme_classic()
 ```
 
+View blanks
+
+```{r}
+full_data%>%
+  filter(type=="blank")%>%
+  ggplot(aes(x=timepoint, y=abs.norm, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~date)+
+  geom_point()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  geom_line()+
+  theme_classic()
+```
+
+Calculate mean change in blank at each time point. 
+
+```{r}
+blanks<-full_data%>%
+  filter(type=="blank")%>%
+  group_by(date, timepoint)%>%
+  summarise(mean_blank=mean(abs.norm));blanks
+```
+
+View summarized blank data. 
+
+```{r}
+blanks%>%
+  ggplot(aes(x=timepoint, y=mean_blank))+
+  facet_wrap(~date)+
+  geom_point()+
+  theme_classic()
+```
+
+Subtract blank values from fluorescence values for oysters. 
+
+```{r}
+full_data<-left_join(full_data, blanks)
+
+full_data<-full_data%>%
+  filter(!type=="blank")%>%
+  mutate(abs.corr=abs.norm-mean_blank)
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=abs.corr, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
+
 Size normalize data. I am going to use area first. 
 ```{r}
 #normalize by area
 full_data<-full_data%>%
-  mutate(abs.norm.mm2=abs.norm/area)
+  mutate(abs.corr.mm2=abs.corr/area)
 
 #normalize by length=
 full_data<-full_data%>%
-  mutate(abs.norm.mm=abs.norm/length.mm)
+  mutate(abs.corr.mm=abs.corr/length.mm)
 ```
 
 Plot again. 
@@ -822,7 +804,7 @@ Plot again.
 Plot by area normalized. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=abs.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=abs.corr.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -833,7 +815,7 @@ full_data%>%
 Plot by length
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=abs.norm.mm, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=abs.corr.mm, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -842,6 +824,18 @@ full_data%>%
 ```
 
 We will use area moving forward. Both seem to give us very similar answers and area will be more representative of total size.  
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=abs.corr.mm2, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
 
 Remove unnecessary columns. 
 
@@ -862,8 +856,9 @@ full_data<-full_data%>%
 str(full_data)
 
 full_data<-full_data%>%
-  rename(value=abs.norm.mm2)
+  rename(value=abs.corr.mm2)
 ```
+
 
 ## Models and Plots    
 
