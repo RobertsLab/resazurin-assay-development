@@ -166,32 +166,12 @@ full_data%>%
   theme_classic()
 ```
 
-Calculate fluorescence at each time point normalized to the starting value at time 0. 
-```{r}
-full_data<-full_data%>%
-  group_by(date, well, family)%>%
-  arrange(date, well)%>%
-  mutate(fluorescence.norm=resazurin_counts/first(resazurin_counts))
-```
-
-Plot again. 
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family*date)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
-```
-
 View blanks
 
 ```{r}
 full_data%>%
   filter(type=="blank")%>%
-  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~date)+
   geom_point()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -205,7 +185,7 @@ Calculate mean change in blank at each time point.
 blanks<-full_data%>%
   filter(type=="blank")%>%
   group_by(date, timepoint)%>%
-  summarise(mean_blank=mean(fluorescence.norm));blanks
+  summarise(mean_blank=mean(resazurin_counts));blanks
 ```
 
 View summarized blank data. 
@@ -225,14 +205,34 @@ full_data<-left_join(full_data, blanks)
 
 full_data<-full_data%>%
   filter(!type=="blank")%>%
-  mutate(value=fluorescence.norm-mean_blank)
+  mutate(fluorescence.corr=resazurin_counts-mean_blank)
 ```
 
 Plot again. 
 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.corr, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
+
+Calculate size normalized fluorescence at each time point normalized to the starting value at time 0. 
+```{r}
+full_data<-full_data%>%
+  group_by(date, well, family)%>%
+  arrange(date, well)%>%
+  mutate(fluorescence.norm=fluorescence.corr/first(fluorescence.corr))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -244,11 +244,11 @@ Size normalize data. I am going to use area first.
 ```{r}
 #normalize by area
 full_data<-full_data%>%
-  mutate(value.mm2=value/area)
+  mutate(fluorescence.norm.mm2=fluorescence.norm/area)
 
 #normalize by length=
 full_data<-full_data%>%
-  mutate(value.mm=value/length.mm)
+  mutate(fluorescence.norm.mm=fluorescence.norm/length.mm)
 ```
 
 Plot again. 
@@ -256,7 +256,7 @@ Plot again.
 Plot by area normalized. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -267,7 +267,7 @@ full_data%>%
 Plot by length
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=fluorescence.norm.mm, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
@@ -276,6 +276,37 @@ full_data%>%
 ```
 
 We will use area moving forward. Both seem to give us very similar answers and area will be more representative of total size.  
+
+Remove outliers that have very high values outside the range expected. 
+
+20250520 B5
+20250520 E5
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date*sample)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+
+full_data<-full_data%>%
+  filter(!c(date=="20250520" & sample=="B5"))%>%
+  filter(!c(date=="20250520" & sample=="E5"))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
 
 Remove unnecessary columns. 
 
@@ -287,13 +318,16 @@ full_data<-full_data%>%
   select(!FileName)%>%
   select(!resazurin_counts)%>%
   select(!type)%>%
-  select(!fluorescence.norm)%>%
   select(!mean_blank)%>%
-  select(!value)%>%
   select(!area)%>%
-  select(!length.mm)
+  select(!length.mm)%>%
+  select(!fluorescence.corr)%>%
+  select(!fluorescence.norm)
 
 str(full_data)
+
+full_data<-full_data%>%
+  rename(value=fluorescence.norm.mm2)
 ```
 
 ## Models and Plots    
@@ -301,7 +335,7 @@ str(full_data)
 Plot raw data. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=family, group=interaction(date, family, well)))+
+  ggplot(aes(x=timepoint, y=value, colour=family, group=interaction(date, family, well)))+
   facet_wrap(~date)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
@@ -312,7 +346,7 @@ full_data%>%
 
 ```{r}
 plot1<-full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
@@ -371,8 +405,7 @@ ambient_rows<-segment_data%>%
 high_rows<-segment_data%>%
   filter(temperature=="42C")%>%
   arrange(date, sample)%>%
-  mutate(value.mm2=value.mm2-first(value.mm2))%>%
-  mutate(value.mm=value.mm-first(value.mm))
+  mutate(value=value-first(value))
 
 segment_data<-rbind(ambient_rows, high_rows)
 ```
@@ -381,10 +414,20 @@ Plot separate segments.
 
 ```{r}
 segment_data%>%
-  ggplot(aes(x=time_exposure, y=value.mm2, colour=temperature))+
+  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
   facet_wrap(~date*sample)+
   geom_point()+
   geom_line(aes(group=temperature))+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
+
+```{r}
+segment_data%>%
+  ggplot(aes(x=time_exposure, y=value, colour=temperature, group=interaction(date,well, temperature)))+
+  facet_wrap(~family)+
+  geom_point()+
+  geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
   theme_classic()
 ```
@@ -408,7 +451,7 @@ nested$data[[1]]
 # group by oyster_id and phase, then fit a linear model of metabolic_rate ~ time
 slopes <- nested %>%
   mutate(
-    model = map(data, ~ lm(value.mm2 ~ time_exposure, data = .x)),        # fit model
+    model = map(data, ~ lm(value ~ time_exposure, data = .x)),        # fit model
     slope = map_dbl(model, ~ coef(.x)[["time_exposure"]])                      # extract slope
   ) %>%
   select(date, sample, family, temperature, slope)
@@ -424,15 +467,13 @@ slope_summary <- slopes %>%
 
 Plot linear model for each sample. 
 ```{r}
-ggplot(segment_data, aes(x = time_exposure, y = value.mm2, color=temperature)) +
+ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
   geom_point() +
   geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
   facet_wrap(~ sample*date, scales = "free_y") +
   scale_colour_manual(values=c("darkblue", "darkred"))+
   theme_classic()
 ```
-
-These models do a good job representing the data. There is one sample (D3) that doesn't fit as well due to high values in the middle of the trial (non linear). The rest look like they have a good fit. In most cases slope is lower at high temperature. 
 
 Plot slope by temperature for each family. 
 ```{r}
@@ -466,8 +507,6 @@ ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   theme_classic()
 ```
 
-No oysters died on 20250506. Oysters A3, A5, B3, and B5 died on 20250513. B3 and A5 had the highest rates and those are ones that died. Oyster A4 and A5 died on 20250520 and those values are also the highest for family A. 
-
 Plot again without labels.  
 
 ```{r}
@@ -500,8 +539,6 @@ pairs(emm)
 emm<-emmeans(model1, ~family|temperature)
 pairs(emm)
 ```
-
-Family A has higher metabolic rates than all other families. Family A had higher rates than Family C at ambient temperature. But family A had higher rates than C, D, and E under 42C. This family may be more sensitive to stress. 
 
 Run a model to examine percent change in slope between ambient and high temperature for each family. 
 
@@ -563,6 +600,9 @@ plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortalit
 
 ggsave(plot3a, filename="figures/usda-families/fl_family_percent_change_mortality.png", width=6, height=6, units="in")
 ```
+
+
+
 
 # Absorbance 
 
@@ -685,27 +725,7 @@ Plot the raw data.
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
-```
-
-Calculate absorbance at each time point normalized to the starting value at time 0. 
-```{r}
-full_data<-full_data%>%
-  group_by(date, well, family)%>%
-  arrange(date, well)%>%
-  mutate(absorbance.norm=resazurin_counts/first(resazurin_counts))
-```
-
-Plot again. 
-
-```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=absorbance.norm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -717,7 +737,7 @@ View blanks
 ```{r}
 full_data%>%
   filter(type=="blank")%>%
-  ggplot(aes(x=timepoint, y=absorbance.norm, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=resazurin_counts, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~date)+
   geom_point()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -731,7 +751,7 @@ Calculate mean change in blank at each time point.
 blanks<-full_data%>%
   filter(type=="blank")%>%
   group_by(date, timepoint)%>%
-  summarise(mean_blank=mean(absorbance.norm));blanks
+  summarise(mean_blank=mean(resazurin_counts));blanks
 ```
 
 View summarized blank data. 
@@ -744,59 +764,77 @@ blanks%>%
   theme_classic()
 ```
 
-Subtract blank values from fluorescence values for oysters. 
+Subtract blank values from abs values for oysters. 
 
 ```{r}
 full_data<-left_join(full_data, blanks)
 
 full_data<-full_data%>%
   filter(!type=="blank")%>%
-  mutate(value=absorbance.norm-mean_blank)
+  mutate(abs.corr=resazurin_counts-mean_blank)
 ```
 
 Plot again. 
 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  ggplot(aes(x=timepoint, y=abs.corr, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
   theme_classic()
 ```
 
-Size normalize data. 
+Calculate size normalized abs at each time point normalized to the starting value at time 0. 
+```{r}
+full_data<-full_data%>%
+  group_by(date, well, family)%>%
+  arrange(date, well)%>%
+  mutate(abs.norm=abs.corr/first(abs.corr))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=abs.norm, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
+  geom_point()+
+  geom_line()+
+  scale_colour_manual(values=c("darkblue", "darkred"))+
+  theme_classic()
+```
+
+Size normalize data. I am going to use area first. 
 ```{r}
 #normalize by area
 full_data<-full_data%>%
-  mutate(value.mm2=value/area)
+  mutate(abs.norm.mm2=abs.norm/area)
 
 #normalize by length=
 full_data<-full_data%>%
-  mutate(value.mm=value/length.mm)
+  mutate(abs.norm.mm=abs.norm/length.mm)
 ```
 
 Plot again. 
 
 Plot by area normalized. 
 ```{r}
-plot1a<-full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+full_data%>%
+  ggplot(aes(x=timepoint, y=abs.norm.mm2, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic(); plot1a
-
-ggsave(plot1a, filename="figures/usda-families/ab_family_trajectories.png", width=8, height=8, units="in")
+  theme_classic()
 ```
 
 Plot by length
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
+  ggplot(aes(x=timepoint, y=abs.norm.mm, colour=temperature, group=interaction(date, well)))+
+  facet_wrap(~family*date)+
   geom_point()+
   geom_line()+
   scale_colour_manual(values=c("darkblue", "darkred"))+
@@ -815,13 +853,16 @@ full_data<-full_data%>%
   select(!FileName)%>%
   select(!resazurin_counts)%>%
   select(!type)%>%
-  select(!absorbance.norm)%>%
   select(!mean_blank)%>%
-  select(!value)%>%
   select(!area)%>%
-  select(!length.mm)
+  select(!length.mm)%>%
+  select(!abs.corr)%>%
+  select(!abs.norm)
 
 str(full_data)
+
+full_data<-full_data%>%
+  rename(value=abs.norm.mm2)
 ```
 
 ## Models and Plots    
@@ -829,7 +870,7 @@ str(full_data)
 Plot raw data. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=family, group=interaction(date, family, well)))+
+  ggplot(aes(x=timepoint, y=value, colour=family, group=interaction(date, family, well)))+
   facet_wrap(~date)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
@@ -840,7 +881,7 @@ full_data%>%
 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm2, colour=temperature, group=interaction(date, well)))+
+  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
@@ -896,8 +937,7 @@ ambient_rows<-segment_data%>%
 high_rows<-segment_data%>%
   filter(temperature=="42C")%>%
   arrange(date, sample)%>%
-  mutate(value.mm2=value.mm2-first(value.mm2))%>%
-  mutate(value.mm=value.mm-first(value.mm))
+  mutate(value=value-first(value))
 
 segment_data<-rbind(ambient_rows, high_rows)
 ```
@@ -906,7 +946,7 @@ Plot separate segments.
 
 ```{r}
 segment_data%>%
-  ggplot(aes(x=time_exposure, y=value.mm2, colour=temperature))+
+  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
   facet_wrap(~date*sample)+
   geom_point()+
   geom_line(aes(group=temperature))+
@@ -933,7 +973,7 @@ nested$data[[1]]
 # group by oyster_id and phase, then fit a linear model of metabolic_rate ~ time
 slopes <- nested %>%
   mutate(
-    model = map(data, ~ lm(value.mm2 ~ time_exposure, data = .x)),        # fit model
+    model = map(data, ~ lm(value ~ time_exposure, data = .x)),        # fit model
     slope = map_dbl(model, ~ coef(.x)[["time_exposure"]])                      # extract slope
   ) %>%
   select(date, sample, family, temperature, slope)
@@ -949,7 +989,7 @@ slope_summary <- slopes %>%
 
 Plot linear model for each sample. 
 ```{r}
-ggplot(segment_data, aes(x = time_exposure, y = value.mm2, color=temperature)) +
+ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
   geom_point() +
   geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
   facet_wrap(~ sample*date, scales = "free_y") +
@@ -1024,9 +1064,6 @@ View posthoc effects.
 emm<-emmeans(model2, ~family)
 pairs(emm)
 ```
-
-
-
 
 ## Examine mortality effects 
 
