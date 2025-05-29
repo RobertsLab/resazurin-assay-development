@@ -257,7 +257,6 @@ full_data<-full_data%>%
   select(!resazurin_counts)%>%
   select(!FileName)%>%
   select(!type)%>%
-  select(!fluorescence.norm)%>%
   select(!fluorescence.corr)%>%
   select(!mean_blank)
 ```
@@ -541,10 +540,12 @@ plot4<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(morta
 
 Analyze the effect of mortality on metabolic rates. 
 ```{r}
-mortality_model<-lmer((value.mm)^(1/3) ~ timepoint * mortality * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=data_42C)
+mortality_model<-lmer((value.mm)^(1/3) ~ timepoint * mortality + (1|spat_treatment) + (1|holding_tank) + (1|spat_treatment:tank), data=data_42C)
 
 summary(mortality_model)
 Anova(mortality_model)
+
+qqPlot(residuals(mortality_model))
 ```
 
 Time and mortality is significant 
@@ -553,13 +554,14 @@ Plot again without treatment.
 
 ```{r}
 plot4a<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mortality), fill = as.factor(mortality))) +
-  geom_point(alpha = 0.6, position = position_jitter(height = 0.03)) +
-  stat_smooth(aes(group=mortality)) +
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.01)) +
+  stat_smooth(aes(group=mortality), method="lm") +
   scale_colour_manual(values=c("cyan4", "orange"), labels=c("alive", "dead"), name="Mortality")+
   scale_fill_manual(values=c("cyan4", "orange"), labels=c("alive", "dead"), name="Mortality")+
+  geom_text(aes(x=3, y=5), label="p=0.018", colour="black")+
   labs(
     title = "",
-    y = "Metabolic Rate",
+    y = expression(paste(Delta, " Size-Normalized Fluorescence")),
     x = "Hours"
   ) +
   theme_classic();plot4a
@@ -594,26 +596,59 @@ plot5<-ggplot(end_data, aes(x = temperature, y = value.mm, color = spat_treatmen
   theme_classic();plot5
 
 plot5a<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
-  geom_point(alpha = 0.6, position = position_jitter(height = 0.03), colour="darkgray") +
+  geom_violin(colour="darkgray")+
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
   stat_smooth(aes(group=1), colour="black", method="loess") +
-  #scale_colour_manual(values=c("darkgray", "darkred"))+
-  #scale_fill_manual(values=c("darkgray", "darkred"))+
+  geom_text(aes(x=3, y=7), label="p<0.001")+
   labs(
     title = "",
-    y = "Metabolic Rate", x = "Temperature"
+    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Temperature"
   ) +
   theme_classic();plot5a
 
-ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=6, height=5)
+ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=4, height=5)
 ```
 
 Analyze effect of temperature. 
 
 ```{r}
-tpc_model<-lmer((value.mm)^(1/3) ~ temperature * spat_treatment + (1|holding_tank) + (1|spat_treatment:tank), data=end_data)
+tpc_model<-lmer((value.mm)^(1/3) ~ temperature + (1|holding_tank) + (1|spat_treatment) + (1|spat_treatment:tank), data=end_data)
 
 summary(tpc_model)
 Anova(tpc_model)
 ```
 
-Temperature and treatment are significant 
+Posthoc test.  
+
+```{r}
+emm<-emmeans(tpc_model, ~temperature)
+pairs(emm)
+```
+
+# Metabolic rates ~ size 
+
+Plot fluorescence data by size.  
+ß
+```{r}
+plot6a<-ggplot(end_data, aes(x = length.mm, y = fluorescence.norm)) +
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
+  stat_smooth(aes(group=1), colour="black", method="lm") +
+  geom_text(aes(x=5.5, y=35), label="p<0.001")+
+  labs(
+    title = "",
+    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Length (mm)"
+  ) +
+  theme_classic();plot6a
+
+ggsave(plot6a, filename="figures/spat-stress/metabolism_size.png", width=5, height=5)
+```
+
+```{r}
+size_model<-lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=end_data)
+
+summary(size_model)
+Anova(size_model)
+```
+
+
+

@@ -154,6 +154,13 @@ full_data<-left_join(full_data, size, by=c("date", "sample"))
 
 ## Prep the data 
 
+Remove sample that was an empty shell. 
+
+```{r}
+full_data<-full_data%>%
+  filter(!c(date=="20250527" & sample=="B5"))
+```
+
 Plot the raw data. 
 
 ```{r}
@@ -528,7 +535,7 @@ Run a model to examine percent change in slope between ambient and high temperat
 #change to mixed model when we have multiple dates 
 
 model2<-slope_summary%>%
-  lm(percent_change ~ family, data=.)
+  lm(sqrt(1+percent_change) ~ family, data=.)
 
 summary(model2)
 anova(model2)
@@ -582,9 +589,6 @@ plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortalit
 
 ggsave(plot3a, filename="figures/usda-families/fl_family_percent_change_mortality.png", width=6, height=6, units="in")
 ```
-
-
-
 
 # Absorbance 
 
@@ -701,6 +705,13 @@ full_data<-left_join(full_data, size, by=c("date", "sample"))
 ```
 
 ## Prep the data 
+
+Remove sample that was an empty shell. 
+
+```{r}
+full_data<-full_data%>%
+  filter(!c(date=="20250527" & sample=="B5"))
+```
 
 Plot the raw data. 
 
