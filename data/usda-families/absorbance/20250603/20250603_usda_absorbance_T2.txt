@@ -1,0 +1,57 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Absorbance\Experiment File\20250603_usda_absorbance_t3.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\oyster_resazurin_absorbance.prt
+
+
+
+Plate Number	Plate 1
+Date	6/3/2025
+Time	12:14:31 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	96 WELL PLATE (Use plate lid)
+Eject plate on completion	
+Plate Out/In	
+Set Temperature	Incubator off
+Read	Absorbance Endpoint
+	Full Plate
+	Wavelengths:  570, 600
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 8
+Plate Out/In	
+
+
+
+Actual Temperature:	25.1
+
+
+
+Actual Temperature:	25.1
+
+Results
+	1	2	3	4	5	6	7	8	9	10	11	12
+A	2.127	2.240	2.070	2.321	2.315	0.048	0.046	0.048	0.063	0.045	0.056	0.048	570
+	2.641	2.797	2.558	2.830	2.920	0.047	0.046	0.047	0.062	0.045	0.054	0.047	600
+B	2.265	2.634	2.249	2.154	2.334	0.049	0.046	0.045	0.050	0.044	0.045	0.046	570
+	2.890	2.788	2.452	2.485	2.886	0.049	0.045	0.044	0.050	0.044	0.044	0.045	600
+C	2.011	2.307	2.107	2.319	2.463	0.045	0.048	0.046	0.047	0.045	0.044	0.044	570
+	2.610	2.845	2.728	2.896	2.986	0.044	0.047	0.045	0.046	0.044	0.044	0.044	600
+D	1.923	2.150	2.204	2.262	1.907	0.047	0.048	0.045	0.051	0.045	0.049	0.046	570
+	2.502	2.692	2.769	2.896	2.485	0.047	0.047	0.044	0.049	0.044	0.048	0.045	600
+E	2.548	2.143	1.973	2.301	2.129	0.045	0.051	0.045	0.047	0.049	0.045	0.047	570
+	2.917	2.644	2.551	2.808	2.669	0.044	0.050	0.044	0.046	0.048	0.044	0.046	600
+F	0.044	0.045	0.046	0.046	0.042	0.045	0.053	0.070	0.066	0.044	0.048	0.045	570
+	0.043	0.044	0.045	0.045	0.042	0.043	0.052	0.069	0.064	0.045	0.047	0.045	600
+G	0.046	0.044	0.043	0.066	0.047	0.048	0.045	0.045	0.050	0.045	0.048	0.047	570
+	0.045	0.043	0.043	0.065	0.047	0.048	0.044	0.044	0.049	0.045	0.048	0.046	600
+H	2.310	2.381	2.400	2.043	2.016	0.045	0.045	0.044	0.045	0.044	0.045	0.049	570
+	3.007	3.054	3.022	2.768	2.736	0.044	0.044	0.044	0.044	0.044	0.045	0.048	600
+

@@ -1,0 +1,57 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Absorbance\Experiment File\20250603_usda_absorbance_t6.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\oyster_resazurin_absorbance.prt
+
+
+
+Plate Number	Plate 1
+Date	6/3/2025
+Time	4:17:20 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	96 WELL PLATE (Use plate lid)
+Eject plate on completion	
+Plate Out/In	
+Set Temperature	Incubator off
+Read	Absorbance Endpoint
+	Full Plate
+	Wavelengths:  570, 600
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 8
+Plate Out/In	
+
+
+
+Actual Temperature:	26.6
+
+
+
+Actual Temperature:	26.6
+
+Results
+	1	2	3	4	5	6	7	8	9	10	11	12
+A	2.491	2.559	2.775	2.551	2.047	0.053	0.052	0.052	0.046	0.052	0.054	0.135	570
+	2.220	2.486	1.885	1.785	2.308	0.052	0.051	0.052	0.046	0.052	0.053	0.136	600
+B	2.411	2.927	2.974	2.460	2.668	0.062	0.054	0.051	0.052	0.051	0.073	0.047	570
+	2.776	1.139	1.291	1.010	2.663	0.061	0.053	0.051	0.051	0.051	0.070	0.046	600
+C	2.254	2.411	0.048	2.481	2.615	0.045	0.044	0.046	0.045	0.050	0.044	0.053	570
+	2.571	2.386	0.048	2.591	2.732	0.045	0.044	0.046	0.045	0.050	0.043	0.052	600
+D	2.286	2.196	2.411	2.433	2.265	0.070	0.046	0.053	0.060	0.045	0.067	0.047	570
+	2.587	2.211	2.256	2.822	2.511	0.069	0.046	0.052	0.059	0.045	0.065	0.046	600
+E	2.718	2.434	2.589	2.625	2.636	0.050	0.168	0.077	0.074	0.055	0.056	0.058	570
+	2.041	2.210	2.586	2.389	2.341	0.049	0.167	0.076	0.073	0.054	0.056	0.057	600
+F	0.045	0.045	0.044	0.047	0.052	0.045	0.046	0.059	0.047	0.043	0.053	0.047	570
+	0.044	0.044	0.043	0.046	0.053	0.044	0.046	0.059	0.046	0.043	0.053	0.046	600
+G	0.046	0.041	0.044	0.046	0.047	0.038	0.056	0.057	0.049	0.048	0.046	0.046	570
+	0.046	0.041	0.044	0.047	0.047	0.038	0.055	0.056	0.048	0.048	0.046	0.045	600
+H	2.049	2.172	2.147	2.049	2.354	0.043	0.044	0.045	0.052	0.044	0.042	0.044	570
+	2.763	2.901	2.897	2.782	3.055	0.043	0.044	0.045	0.052	0.044	0.042	0.044	600
+
