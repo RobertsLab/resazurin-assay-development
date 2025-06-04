@@ -158,7 +158,9 @@ Remove sample that was an empty shell.
 
 ```{r}
 full_data<-full_data%>%
-  filter(!c(date=="20250527" & sample=="B5"))
+  filter(!c(date=="20250527" & sample=="B5"))%>%
+  filter(!c(date=="20250603" & sample=="B1"))%>%
+  filter(!c(date=="20250603" & sample=="C3"))
 ```
 
 Plot the raw data. 
@@ -402,13 +404,13 @@ segment_data<-rbind(ambient_rows, high_rows)
 Plot separate segments. 
 
 ```{r}
-segment_data%>%
-  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
-  facet_wrap(~date*sample)+
-  geom_point()+
-  geom_line(aes(group=temperature))+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+#segment_data%>%
+#  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
+#  facet_wrap(~date*sample)+
+#  geom_point()+
+#  geom_line(aes(group=temperature))+
+#  scale_colour_manual(values=c("darkblue", "darkred"))+
+#  theme_classic()
 ```
 
 ```{r}
@@ -456,12 +458,12 @@ slope_summary <- slopes %>%
 
 Plot linear model for each sample. 
 ```{r}
-ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
-  geom_point() +
-  geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
-  facet_wrap(~ sample*date, scales = "free_y") +
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+#ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
+#  geom_point() +
+#  geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
+#  facet_wrap(~ sample*date, scales = "free_y") +
+#  scale_colour_manual(values=c("darkblue", "darkred"))+
+#  theme_classic()
 ```
 
 Plot slope by temperature for each family. 
@@ -710,7 +712,9 @@ Remove sample that was an empty shell.
 
 ```{r}
 full_data<-full_data%>%
-  filter(!c(date=="20250527" & sample=="B5"))
+  filter(!c(date=="20250527" & sample=="B5"))%>%
+  filter(!c(date=="20250603" & sample=="B1"))%>%
+  filter(!c(date=="20250603" & sample=="C3"))
 ```
 
 Plot the raw data. 
