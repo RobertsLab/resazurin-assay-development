@@ -423,6 +423,19 @@ segment_data%>%
   theme_classic()
 ```
 
+Run a model on metabolic rates. 
+
+```{r}
+model<-segment_data%>%
+  lmer(value ~ family * temperature + (1|date) + (1|sample:date), data=.)
+
+anova(model)
+qqPlot(residuals(model))
+```
+Significant family x temperature effect on fluorescence values.  
+
+Need to re assess residuals.  
+
 Some oysters have similar slopes while others have a change in slope depending on temperature. 
 Calculate slope for each oyster during each temperature phase. 
 
@@ -515,11 +528,11 @@ Run a model to evaluate the significance of changes in slope between temperature
 #change to mixed model when we have multiple dates 
 
 model1<-slopes%>%
-  lm(slope ~ family * temperature, data=.)
+  lmer(slope ~ family * temperature + (1|date) + (1|sample:date), data=.)
 
 summary(model1)
 anova(model1)
-qqPlot(model1$residuals)
+qqPlot(residuals(model1))
 
 emm<-emmeans(model1, ~temperature|family)
 pairs(emm)
@@ -531,17 +544,17 @@ emm<-emmeans(model1, ~family|temperature)
 pairs(emm)
 ```
 
-Run a model to examine percent change in slope between ambient and high temperature for each family. 
+Run a model to examine percent change in slope between ambient and high temperature for each family.
 
 ```{r}
 #change to mixed model when we have multiple dates 
 
 model2<-slope_summary%>%
-  lm(sqrt(1+percent_change) ~ family, data=.)
+  lmer(percent_change ~ family + (1|date), data=.)
 
 summary(model2)
 anova(model2)
-qqPlot(model2$residuals)
+qqPlot(residuals(model2))
 ```
 
 View posthoc effects. 
