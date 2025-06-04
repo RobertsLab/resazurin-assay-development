@@ -427,12 +427,13 @@ Run a model on metabolic rates.
 
 ```{r}
 model<-segment_data%>%
-  lmer(value ~ family * temperature + (1|date) + (1|sample:date), data=.)
+  lmer(value ~ family * temperature * time_exposure + (1|date) + (1|sample:date), data=.)
 
 anova(model)
+summary(model)
 qqPlot(residuals(model))
 ```
-Significant family x temperature effect on fluorescence values.  
+Significant family effect on fluorescence values.  
 
 Need to re assess residuals.  
 
