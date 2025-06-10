@@ -1,0 +1,57 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Absorbance\Experiment File\20250527_usda_absorbance_t3.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\oyster_resazurin_absorbance.prt
+
+
+
+Plate Number	Plate 1
+Date	5/27/2025
+Time	12:15:44 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	96 WELL PLATE (Use plate lid)
+Eject plate on completion	
+Plate Out/In	
+Set Temperature	Incubator off
+Read	Absorbance Endpoint
+	Full Plate
+	Wavelengths:  570, 600
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 8
+Plate Out/In	
+
+
+
+Actual Temperature:	25.3
+
+
+
+Actual Temperature:	25.3
+
+Results
+	1	2	3	4	5	6	7	8	9	10	11	12
+A	2.533	2.659	2.570	2.585	2.651	0.044	0.045	0.049	0.064	0.045	0.053	0.051	570
+	2.872	3.074	3.117	3.173	3.107	0.043	0.045	0.048	0.063	0.045	0.050	0.051	600
+B	2.668	2.750	2.755	2.702	2.603	0.039	0.046	0.045	0.053	0.045	0.045	0.045	570
+	2.985	3.249	3.198	3.247	3.231	0.038	0.045	0.045	0.053	0.045	0.045	0.045	600
+C	2.639	2.463	2.795	2.816	2.369	0.045	0.045	0.045	0.045	0.045	0.045	0.044	570
+	2.985	2.920	3.184	3.058	2.862	0.045	0.045	0.044	0.044	0.044	0.045	0.044	600
+D	2.682	2.599	2.476	2.634	2.679	0.044	0.046	0.044	0.052	0.045	0.050	0.046	570
+	3.195	3.119	3.132	3.060	3.158	0.044	0.045	0.044	0.051	0.045	0.049	0.045	600
+E	2.567	2.733	2.772	2.705	2.840	0.046	0.048	0.045	0.049	0.046	0.045	0.046	570
+	3.022	3.121	3.030	3.072	3.176	0.045	0.048	0.044	0.047	0.046	0.045	0.045	600
+F	0.044	0.043	0.046	0.040	0.044	0.045	0.054	0.038	0.045	0.045	0.054	0.045	570
+	0.044	0.043	0.045	0.040	0.043	0.044	0.053	0.037	0.045	0.045	0.053	0.045	600
+G	0.045	0.044	0.042	0.044	0.045	0.044	0.044	0.044	0.046	0.045	0.046	0.048	570
+	0.045	0.043	0.042	0.044	0.045	0.044	0.044	0.044	0.046	0.045	0.046	0.047	600
+H	2.508	2.275	2.586	2.372	2.255	0.046	0.044	0.044	0.044	0.046	0.045	0.049	570
+	3.227	3.021	3.268	3.118	3.004	0.045	0.044	0.044	0.044	0.047	0.045	0.049	600
+
