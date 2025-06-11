@@ -38,7 +38,7 @@ library(emmeans)
 library(tools)
 ```
 
-# Resazurin metabolic rates (individual) 
+# Resazurin metabolic rates
 
 ## Load data 
 
@@ -291,28 +291,15 @@ hist(full_data$value.mm)
 Plot again. 
 ```{r}
 full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm, colour=spat_treatment, group=interaction(date, plate, well)))+
+  ggplot(aes(x=timepoint, y=value.mm, group=interaction(date, plate, well)))+
   facet_wrap(~temperature)+
   geom_point()+
   geom_line()+
-  scale_colour_manual(values=c("control"="darkgray", "treated"="darkred"))+
   theme_classic()
 ```
 
 ```{r}
-model<-lmer(sqrt(value.mm) ~ timepoint * temperature * spat_treatment + (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment:tank), data=full_data)
-
-summary(model)
-anova(model)
-rand(model)
-
-qqPlot(residuals(model))
-```
-
-Residuals are violating normality. Attempt with cube root transformation. 
-
-```{r}
-model<-lmer((1+value.mm)^(1/3) ~ timepoint * temperature * spat_treatment + (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment:tank), data=full_data)
+model<-lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment), data=full_data)
 
 summary(model)
 anova(model)
@@ -324,20 +311,12 @@ qqPlot(residuals(model))
 View posthoc effects. 
 
 ```{r}
-emm<-emmeans(model, ~spat_treatment|temperature|timepoint)
-pairs(emm)
-
-emm<-emmeans(model, ~spat_treatment|timepoint)
-pairs(emm)
-
-emm<-emmeans(model, ~timepoint|spat_treatment)
+emm<-emmeans(model, ~timepoint|temperature)
 pairs(emm)
 
 emm<-emmeans(model, ~temperature|timepoint)
 pairs(emm)
 ```
-
-Treated and control rates are different at 36C and 40C.   
 
 ## Plotting 
 
@@ -347,7 +326,7 @@ Plot with individual points with geom smooth lines.
 plot1<-full_data%>%
 
   ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature))+
-  facet_grid(~date*tank*holding_tank)+
+  facet_grid(~date)+
   geom_point(alpha=0.5)+
   stat_smooth(aes(group=temperature))+
   scale_colour_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
@@ -366,43 +345,6 @@ plot1a<-full_data%>%
   xlab("Hour");plot1a
 
 ggsave(plot1a, filename="figures/spat-stress/metabolism_temperature.png", width=7, height=5)
-
-plot1b<-full_data%>%
-
-  ggplot(aes(x=timepoint, y=value.mm, color=tank, fill=tank))+
-  facet_grid(~temperature)+
-  geom_point(alpha=0.5)+
-  geom_smooth(aes(group=tank))+
-  theme_classic()+
-  xlab("Hour");plot1b
-
-
-plot1c<-full_data%>%
-
-  ggplot(aes(x=timepoint, y=value.mm, color=spat_treatment, fill=spat_treatment))+
-  facet_grid(~temperature)+
-  geom_point(alpha=0.1)+
-  geom_smooth(aes(group=spat_treatment))+
-  scale_colour_manual(values=c("control"="cyan3", "treated"="coral1"), name="Parental \nTreatment")+
-  scale_fill_manual(values=c("control"="cyan3", "treated"="coral1"), name="Parental \nTreatment")+
-  theme_classic()+
-  ylab("Metabolic Rate")+
-  xlab("Hour");plot1c
-
-ggsave(plot1c, filename="figures/spat-stress/metabolism_treatment.png", width=7, height=4)
-
-plot1d<-full_data%>%
-
-  ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature, group=temperature))+
-  facet_grid(~spat_treatment)+
-  geom_point(alpha=0.5)+
-  stat_smooth(method="loess")+
-    scale_colour_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
-  scale_fill_manual(values=c("20C"="cyan4", "36C"="purple2", "38C"="pink", "40C"="orange", "42C"="darkred"))+
-  theme_classic()+
-  xlab("Hour");plot1d
-
-ggsave(plot1d, filename="figures/spat-stress/metabolism_temperature_treatment.png", width=8, height=5)
 ```
 
 # Survival 
@@ -636,7 +578,7 @@ plot6a<-ggplot(end_data, aes(x = length.mm, y = fluorescence.norm)) +
   geom_text(aes(x=5.5, y=35), label="p<0.001")+
   labs(
     title = "",
-    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Length (mm)"
+    y = expression(paste(Delta, "Fluorescence")), x = "Length (mm)"
   ) +
   theme_classic();plot6a
 
