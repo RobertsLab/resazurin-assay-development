@@ -320,6 +320,10 @@ full_data<-full_data%>%
   rename(value=fluorescence.corr.mm2)
 ```
 
+Save data frame. 
+```{r}
+fl_data<-full_data
+```
 
 ## Models and Plots    
 
@@ -427,17 +431,14 @@ Run a model on metabolic rates.
 
 ```{r}
 model<-segment_data%>%
-  lmer(value ~ family * temperature * time_exposure + (1|date) + (1|sample:date), data=.)
+  lmer((value)^(1/3) ~ family * temperature * time_exposure + (1|date) + (1|sample:date), data=.)
 
 anova(model)
 summary(model)
 qqPlot(residuals(model))
 ```
-Significant family effect on fluorescence values.  
+Significant interaction of temperature and time as well as family and time. This indicates temperature and family effects on metabolic rate.   
 
-Need to re assess residuals.  
-
-Some oysters have similar slopes while others have a change in slope depending on temperature. 
 Calculate slope for each oyster during each temperature phase. 
 
 ```{r}
@@ -512,6 +513,13 @@ ggplot(slope_summary, aes(x = family, y = percent_change, color=family)) +
   theme_classic()
 ```
 
+Remove outlier. 
+
+```{r}
+slope_summary<-slope_summary%>%
+  filter(!c(date=="20250610" & sample=="C5"))
+```
+
 Plot again without labels.  
 
 ```{r}
@@ -529,7 +537,9 @@ Run a model to evaluate the significance of changes in slope between temperature
 #change to mixed model when we have multiple dates 
 
 model1<-slopes%>%
-  lmer(slope ~ family * temperature + (1|date) + (1|sample:date), data=.)
+  filter(!c(date=="20250610" & sample=="C5"))%>%
+  
+  lmer((slope)^(1/3) ~ family * temperature + (1|date) + (1|sample:date), data=.)
 
 summary(model1)
 anova(model1)
@@ -545,18 +555,22 @@ emm<-emmeans(model1, ~family|temperature)
 pairs(emm)
 ```
 
+Significant effect of family on metabolic rate slopes. 
+
 Run a model to examine percent change in slope between ambient and high temperature for each family.
 
 ```{r}
 #change to mixed model when we have multiple dates 
 
 model2<-slope_summary%>%
-  lmer(percent_change ~ family + (1|date), data=.)
+  lmer((percent_change)^(1/3) ~ family + (1|date), data=.)
 
 summary(model2)
 anova(model2)
 qqPlot(residuals(model2))
 ```
+
+No effect of family on percent change between temperatures. 
 
 View posthoc effects. 
 
@@ -888,6 +902,10 @@ full_data<-full_data%>%
   rename(value=abs.corr.mm2)
 ```
 
+Save data frame. 
+```{r}
+ab_data<-full_data
+```
 
 ## Models and Plots    
 
@@ -969,13 +987,13 @@ segment_data<-rbind(ambient_rows, high_rows)
 Plot separate segments. 
 
 ```{r}
-segment_data%>%
-  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
-  facet_wrap(~date*sample)+
-  geom_point()+
-  geom_line(aes(group=temperature))+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+#segment_data%>%
+#  ggplot(aes(x=time_exposure, y=value, colour=temperature))+
+#  facet_wrap(~date*family)+
+#  geom_point()+
+#  geom_line(aes(group=temperature))+
+#  scale_colour_manual(values=c("darkblue", "darkred"))+
+#  theme_classic()
 ```
 
 Some oysters have similar slopes while others have a change in slope depending on temperature. 
@@ -1013,12 +1031,12 @@ slope_summary <- slopes %>%
 
 Plot linear model for each sample. 
 ```{r}
-ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
-  geom_point() +
-  geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
-  facet_wrap(~ sample*date, scales = "free_y") +
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+#ggplot(segment_data, aes(x = time_exposure, y = value, color=temperature)) +
+#  geom_point() +
+#  geom_smooth(aes(group=temperature, color=temperature), method = "lm", se = FALSE) +
+#  facet_wrap(~ sample*date, scales = "free_y") +
+#  scale_colour_manual(values=c("darkblue", "darkred"))+
+#  theme_classic()
 ```
 
 Plot slope by temperature for each family. 
@@ -1047,7 +1065,7 @@ plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=family))
   geom_hline(yintercept=0, linetype="dashed")+
   scale_colour_manual(values=c("A"="cyan4", "B"="purple2", "C"="pink", "D"="orange", "E"="darkred"))+
   theme_classic()+
-  ylim(-900,2000);plot3a #removing an outlier 
+  ylim(-2000,2000);plot3a #removing an outlier 
 
 ggsave(plot3a, filename="figures/usda-families/ab_family_percent_change.png", width=8, height=8, units="in")
 ```
@@ -1057,7 +1075,7 @@ Run a model to evaluate the significance of changes in slope between temperature
 #change to mixed model when we have multiple dates 
 
 model1<-slopes%>%
-  lm(slope ~ family * temperature, data=.)
+  lm((slope)^(1/3) ~ family * temperature, data=.)
 
 summary(model1)
 anova(model1)
@@ -1071,16 +1089,16 @@ Run a model to examine percent change in slope between ambient and high temperat
 
 ```{r}
 #change to mixed model when we have multiple dates 
+hist(slope_summary$percent_change)
 
 model2<-slope_summary%>%
+  filter(percent_change<20000)%>%
   lm(percent_change ~ family, data=.)
 
 summary(model2)
 anova(model2)
 qqPlot(model2$residuals)
 ```
-
-Residuals meet assumptions.  
 
 View posthoc effects. 
 
@@ -1130,5 +1148,57 @@ plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortalit
 
 ggsave(plot3a, filename="figures/usda-families/ab_family_percent_change_mortality.png", width=6, height=6, units="in")
 ```
+
+# Compare absorbance and fluorescence 
+
+Correlate absorbance and fluorescence measurements.  
+
+```{r}
+fl_data<-fl_data%>%
+  select(well, date, timepoint, sample, family, temperature, fluorescence.corr.mm)
+
+ab_data<-ab_data%>%
+  select(well, date, timepoint, sample, family, temperature, abs.corr.mm)
+
+corr_data<-left_join(fl_data, ab_data)
+```
+
+Calculate absorbance as the reciprocal. 
+```{r}
+corr_data$abs.corr.mm<-corr_data$abs.corr.mm*-1
+```
+
+Plot fluorescence vs absorbance measurements. 
+
+```{r}
+plot7<-corr_data%>%
+  
+  ggplot(aes(x=fluorescence.corr.mm, y=abs.corr.mm))+
+  geom_point()+
+  stat_smooth(method="lm", color="red")+
+  xlab("Fluorescence")+
+  ylab("Absorbance")+
+  theme_classic(); plot7
+
+ggsave(plot7, filename="figures/usda-families/ab_fl_correlation.png", width=6, height=6, units="in")
+```
+
+Run a correlation test. 
+```{r}
+cor.test(corr_data$fluorescence.corr.mm, corr_data$abs.corr.mm)
+```
+
+This is significant, but its a low R value. 
+
+There is a range of low absorbance values that do not correlate to increasing fluorescence values, indicating low sensitivity of absorbance compared to fluorescence. 
+
+Fluorescence should be the preferred method of measurement.
+
+We also get different statistical results with absorbance vs fluorescence where absorbance does not pick up differences.  
+
+
+
+
+
 
 
