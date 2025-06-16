@@ -436,6 +436,12 @@ model<-segment_data%>%
 anova(model)
 summary(model)
 qqPlot(residuals(model))
+
+emm<-emmeans(model, ~family)
+pairs(emm)
+
+emm<-emmeans(model, ~temperature)
+pairs(emm)
 ```
 Significant interaction of temperature and time as well as family and time. This indicates temperature and family effects on metabolic rate.   
 
@@ -922,14 +928,16 @@ full_data%>%
 ```
 
 ```{r}
-full_data%>%
+plot1c<-full_data%>%
   ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
   facet_wrap(~family)+
   geom_point()+
   geom_vline(xintercept=4, linetype="dashed")+
   scale_colour_manual(values=c("darkblue", "darkred"))+
   geom_line()+
-  theme_classic()
+  theme_classic();plot1c
+
+ggsave(plot1c, filename="figures/usda-families/ab_family_trajectories.png", width=8, height=8, units="in")
 ```
 
 ## Calculate change due to temperature exposure   
