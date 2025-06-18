@@ -9,6 +9,8 @@ website:
       - icon: github
         href: https://github.com/RobertsLab/resazurin-assay-development
         aria-label: GitHub
+      - icon: envelope-paper
+        file: https://faculty.washington.edu/sr320/contact.html  
 
 format:
   html:

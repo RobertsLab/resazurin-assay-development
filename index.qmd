@@ -13,7 +13,7 @@ resazurin metabolism assays for oyters. Please
 explore the [Github
 Repo](https://github.com/RobertsLab/resazurin-assay-development), 
 glimpse real-time activity in from the lab
-[here](https://genefish.wordpress.com/?s=resazurin), and dive deeper with the [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
+[here](https://genefish.wordpress.com/?s=resazurin), and dive deeper with the [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 
 ------------------------------------------------------------------------
 
