@@ -102,4 +102,11 @@ more is required. 
     in the dark or cover with aluminum foil)
     
 
+# Recent Slideck
+
+
+![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width=300px}
+
+[📄 View VIMS 2025 talk (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
+
 
