@@ -101,12 +101,5 @@ more is required. 
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
     
-# Recent Presentation
 
-
-::: {.embed}
-![](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
-:::
-
-<iframe src="http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf" width="100%" height="600px" style="border: none;"></iframe>
 
