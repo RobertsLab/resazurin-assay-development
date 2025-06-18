@@ -28,21 +28,20 @@ Resazurin is a redox-sensitive dye that changes fluorescence and color
 as it is reduced by cellular respiration, providing a proxy for
 metabolic activity. Individuals are incubated in a resazurin working
 solution at a high temperature (e.g., \~42°C), and metabolic activity is
-monitored through fluorescence and absorbance measurements taken at
-hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (or a 590/20 nm bandpass filter).
+monitored through fluorescence measurements taken at
+hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (or a 590/20 nm bandpass filter) using a plate reader.
 
 # Highlights to date
 
--   Increased metabolism of seed at high temperature predicts short-term
-    mortality.
--   
-
-
+- Resazurin fluorescence provides a reliable indicator of oyster metabolic activity from small seed to adult oysters. 
+- Thermal performance assays reveal metabolic optima and tipping points where metabolic stimulation shifts to depression under temperature stress. 
+- Resazurin fluorescence detects genetic differences in metabolic rates between oyster family groups. 
+- Under acute stress, increased metabolism of seed at high temperature predicts short-term mortality. In contrast, metabolic depression is associated with higher survival. 
+- Resazurin fluorescence assays provide an exciting potential tool to survey oyster performance. 
 
 # Video Demo
    
 {{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
-
 
 # Preparing solutions
 
@@ -103,7 +102,6 @@ more is required. 
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
-    
 
 # Recent Slidedecks
 
@@ -111,5 +109,4 @@ more is required. 
 ![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width=300px}
 
 [📄 View VIMS 2025 talk (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
-
 
