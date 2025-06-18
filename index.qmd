@@ -1,0 +1,11 @@
+---
+title: "Blue Notes and Bivalves"
+subtitle: "Exploring oyster metabolism with a jazzy *resazurin* twist"
+author: "Roberts Lab"
+date: "2025-06-18" # UPDATE
+
+---
+
+## Resazurin
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.

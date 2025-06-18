@@ -1,0 +1,18 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  # Omitting the title will hide it
+  navbar:
+    right:
+      - icon: github
+        href: https://github.com/RobertsLab/resazurin-assay-development
+        aria-label: GitHub
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    toggle: true
