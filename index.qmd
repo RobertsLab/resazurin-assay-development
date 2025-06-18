@@ -8,8 +8,8 @@ editor:
     wrap: 72
 ---
 
-Landing page for quick info on where we are with implementing easy
-resazurin metabolism assays for oyters. Please
+Landing page for quick info on where we are with **implementing easy
+resazurin metabolism assays** for oysters. Please
 explore the [Github
 Repo](https://github.com/RobertsLab/resazurin-assay-development), 
 glimpse real-time activity in from the lab
@@ -102,7 +102,7 @@ more is required. 
     in the dark or cover with aluminum foil)
     
 
-# Recent Slideck
+# Recent Slidedecks
 
 
 ![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width=300px}
