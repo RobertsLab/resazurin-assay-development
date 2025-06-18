@@ -1,8 +1,11 @@
 ---
 title: "Blue Notes and Bivalves"
 subtitle: "Exploring oyster metabolism with a jazzy *resazurin* twist"
-author: "Ariana Huffmyer and Roberts Lab members"
-date: "2025-06-18" # UPDATE
+author: 
+  - Ariana Huffmyer
+  - Steven Roberts
+date-modified: 2025-06-18 # UPDATE
+date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
     wrap: 72
