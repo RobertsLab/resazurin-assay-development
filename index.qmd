@@ -43,6 +43,10 @@ hourly intervals. Fluorescence measurements are conducted using an excitation wa
 
 # Preparing solutions
 
+To prepare the resazurin assay solutions, first make a stock by combining resazurin salt with water and a small amount of DMSO. Store this stock in a dark refrigerator or freezer. The working solution consists primarily of seawater (about 98.5%), with small proportions of resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal solution (1%). Adjust the total volume based on the number and size of organisms being tested, ensuring animals are fully submerged. Trials are typically scaled for small (≤7 mm), medium (15–40 mm), or large (>40 mm) seed using appropriately sized containers.
+
+### Detailed example 
+
 1.  Stock resazurin solution 
 
 To make the resazurin stock solution (10 mL) mix the following. We will
@@ -96,3 +100,8 @@ more is required. 
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
+    
+# Recent Presentation
+
+<iframe src="http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf" width="100%" height="600px" style="border: none;"></iframe>
+
