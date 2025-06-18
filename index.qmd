@@ -1,7 +1,7 @@
 ---
 title: "Blue Notes and Bivalves"
 subtitle: "Exploring oyster metabolism with a jazzy *resazurin* twist"
-author: "Roberts Lab"
+author: "Ariana Huffmyer and Roberts Lab members"
 date: "2025-06-18" # UPDATE
 editor: 
   markdown: 
@@ -9,13 +9,11 @@ editor:
 ---
 
 Landing page for quick info on where we are with implementing easy
-resazurin metabolism assays for oyters. Feel free to dive deeper at
-exploring the [Github
-Repo](https://github.com/RobertsLab/resazurin-assay-development) or
+resazurin metabolism assays for oyters. Please
+explore the [Github
+Repo](https://github.com/RobertsLab/resazurin-assay-development), 
 glimpse real-time activity in from the lab
-[here](https://genefish.wordpress.com/?s=resazurin).
-
-- [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
+[here](https://genefish.wordpress.com/?s=resazurin), and dive deeper with the [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
 
 ------------------------------------------------------------------------
 
@@ -28,13 +26,20 @@ as it is reduced by cellular respiration, providing a proxy for
 metabolic activity. Individuals are incubated in a resazurin working
 solution at a high temperature (e.g., \~42°C), and metabolic activity is
 monitored through fluorescence and absorbance measurements taken at
-hourly intervals.
+hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (or a 590/20 nm bandpass filter).
 
-## Highlights to date
+# Highlights to date
 
 -   Increased metabolism of seed at high temperature predicts short-term
     mortality.
 -   
+
+
+
+# Video Demo
+   
+{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
+
 
 # Preparing solutions
 
@@ -91,11 +96,3 @@ more is required. 
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
-
-# Video Demo
-   
-{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov width="100%" >}}
-
-<!-- wp:video -->
-<figure class="wp-block-video"><video controls src="http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov"></video></figure>
-<!-- /wp:video -->
