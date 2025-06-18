@@ -103,5 +103,10 @@ more is required. 
     
 # Recent Presentation
 
+
+::: {.embed}
+![](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
+:::
+
 <iframe src="http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf" width="100%" height="600px" style="border: none;"></iframe>
 
