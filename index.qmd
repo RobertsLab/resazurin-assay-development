@@ -92,7 +92,9 @@ more is required. 
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
 
-# Video
+# Video Demo
+   
+{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov width="100%" >}}
 
 <!-- wp:video -->
 <figure class="wp-block-video"><video controls src="http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov"></video></figure>
