@@ -3,9 +3,97 @@ title: "Blue Notes and Bivalves"
 subtitle: "Exploring oyster metabolism with a jazzy *resazurin* twist"
 author: "Roberts Lab"
 date: "2025-06-18" # UPDATE
-
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
-## Resazurin
+Landing page for quick info on where we are with implementing easy
+resazurin metabolism assays for oyters. Feel free to dive deeper at
+exploring the [Github
+Repo](https://github.com/RobertsLab/resazurin-assay-development) or
+glimpse real-time activity in from the lab
+[here](https://genefish.wordpress.com/?s=resazurin).
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+- [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
+
+------------------------------------------------------------------------
+
+# Summary
+
+This protocol uses a resazurin-based assay to measure individual
+metabolic responses to elevated temperature stress over a 5-hour period.
+Resazurin is a redox-sensitive dye that changes fluorescence and color
+as it is reduced by cellular respiration, providing a proxy for
+metabolic activity. Individuals are incubated in a resazurin working
+solution at a high temperature (e.g., \~42°C), and metabolic activity is
+monitored through fluorescence and absorbance measurements taken at
+hourly intervals.
+
+## Highlights to date
+
+-   Increased metabolism of seed at high temperature predicts short-term
+    mortality.
+-   
+
+# Preparing solutions
+
+1.  Stock resazurin solution 
+
+To make the resazurin stock solution (10 mL) mix the following. We will
+use this solution for multiple trials. 
+
+-   [0.5 g resazurin
+    salt](https://www.thermofisher.com/order/catalog/product/R12204)
+
+-   10 mL DI water
+
+-   10 µL DMSO
+
+Store in a dark fridge or freezer. 
+
+2.  Working resazurin solution
+
+First, determine the volume of resazurin required depending on the size
+of your organism and the container size. Here are some examples that we
+have used before. We recommend performing preliminary trials to ensure
+that a change in resazurin fluorescence can be detected over the time
+scale desired. This protocol was developed to detect a change in
+resazurin fluorescence within 5 hours in small seed (\<7mm) and larger
+seed (10-30mm). 
+
+-   Small seed (\<7mm length): trials conducted in 96 well plates (300uL
+    volume in each well)
+
+-   Medium seed (15-40 mm length): trials conducted in small plastic
+    cups (20 mL volume)
+
+-   Large seed/adults (\>40 mm length): trials can be conducted in
+    tripour cups, beakers, or plastic cups. Scale volume appropriately.
+    The animals should be fully submerged. 
+
+To prepare the working solution of resazurin, prepare the following. 
+
+This recipe is to make 150 mL of working stock. To run a single 96 well
+plate, approximately 35 mL will be required (allowing for extra for
+re-do's or errors). For example, if we are running 4 total plates, we
+will need to prepare 4 x 35 mL = 150 mL of working solution. Increase if
+more is required. 
+
+-   148 mL seawater (DI water with Instant Ocean adjusted to 23-25 ppt
+    or filtered (\<1um) seawater) 
+
+-   333 µL resazurin stock solution as made above in step 1 
+
+-   150 µL DMSO
+
+-   1.5 mL antibiotic solution [100x Penn/Strep & 100x
+    Fungizone](https://us.vwr.com/store/product/4648458/null) - this
+    should be kept frozen in a dark freezer and thawed before use (thaw
+    in the dark or cover with aluminum foil)
+
+# Video
+
+<!-- wp:video -->
+<figure class="wp-block-video"><video controls src="http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov"></video></figure>
+<!-- /wp:video -->

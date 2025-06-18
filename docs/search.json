@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Blue Notes and Bivalves",
     "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "text": "Landing page for quick info on where we are with implementing easy resazurin metabolism assays for oyters. Feel free to dive deeper at exploring the Github Repo or glimpse real-time activity in from the lab here."
   },
   {
     "objectID": "index.html#resazurin",
@@ -12,5 +12,12 @@
     "title": "Blue Notes and Bivalves",
     "section": "",
     "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "index.html#highlights-to-date",
+    "href": "index.html#highlights-to-date",
+    "title": "Blue Notes and Bivalves",
+    "section": "Highlights to date",
+    "text": "Highlights to date\n\nIncreased metabolism of seed at high temperature predicts short-term mortality."
   }
 ]
