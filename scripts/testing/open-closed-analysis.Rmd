@@ -105,11 +105,20 @@ Plot total fluorescence by temperature and status.
 
 ```{r}
 data%>%
-  ggplot(aes(x=final.status, y=fluorescence.total, colour=final.status, group=interaction(trial,sample)))+
+  ggplot(aes(x=final.status, y=fluorescence.total, group=interaction(trial,sample)))+
   facet_wrap(~treatment)+
   geom_point()+
-  theme_classic()
+  theme_classic()+
+  ylab("Change in normalized fluorescence")+
+  xlab("Behavior")+
+  theme(legend.position="none")
 ```
 
+Run a statistical test. 
 
+```{r}
+model<-aov(fluorescence.total ~ treatment * final.status, data = data)
+summary(model)
+```
 
+There is an effect of open vs closed that is consistent between treatments. A higher metabolic rate is not indicative of higher metabolism due to being open.  
