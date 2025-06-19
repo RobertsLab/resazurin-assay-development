@@ -12,7 +12,7 @@ editor:
     wrap: 72
 ---
 
-<a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg" alt="DOI"></a>
+<a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg"></a>
 
 
 
