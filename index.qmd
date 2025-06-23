@@ -3,6 +3,7 @@ title: "Blue Notes and Bivalves"
 subtitle: "Exploring oyster metabolism with a jazzy *resazurin* twist"
 author: 
   - Ariana Huffmyer
+  - Louis Plough (USDA)
   - Steven Roberts
 date-modified: 2025-06-18 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
@@ -10,6 +11,10 @@ editor:
   markdown: 
     wrap: 72
 ---
+
+<a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg"></a>
+
+
 
 Landing page for quick info on where we are with **implementing easy
 resazurin metabolism assays** for oysters. Please
@@ -110,3 +115,11 @@ more is required. 
 
 [📄 View VIMS 2025 talk (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
 
+
+# Podcast ?
+
+While not solely focused on resazurin... a majority of content covers what we are doing in this space.
+
+<iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.podcasts.apple.com/us/podcast/gene-pooling/id1802677296">
+
+</iframe>
