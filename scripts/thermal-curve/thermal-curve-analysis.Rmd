@@ -1,0 +1,396 @@
+---
+title: USDA Thermal Curves
+author: "AS Huffmyer"
+date: '2025'
+output:
+  github_document: null
+  md_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+This script analyzes resazurin assays for the USDA thermal curve project.     
+
+# Set up 
+
+Set up workspace, set options, and load required packages.    
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries. 
+```{r}
+library(MASS) 
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(cowplot)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(emmeans)
+library(tools)
+```
+
+# Resazurin metabolic rates
+
+## Load data 
+
+```{r}
+# Set the folder path
+folder_path <- "data/thermal-curve/plate-files"  
+
+# List all txt files in the folder
+file_list <- list.files(path = folder_path, pattern = "\\.xlsx$", full.names = TRUE)
+
+# Check if any files are found
+if (length(file_list) == 0) {
+  stop("No files found in the specified folder. Check the folder path or file extension.")
+}
+
+# Initialize an empty list to store processed data
+data_list <- list()
+
+# Loop through each file and load the data
+for (file in file_list) {
+  # Ensure file is a character string
+  if (!is.character(file)) next
+  
+  # Extract file name without extension
+  file_name <- file_path_sans_ext(basename(file))
+  
+  # Read the Excel file (expects columns: plate, well, value)
+  data <- read_excel(file)
+  
+  # Ensure column names are consistent
+  colnames(data) <- tolower(colnames(data))
+  data <- data %>%
+    rename_with(~ gsub("\\s+", "", .x)) %>%  # remove whitespace
+    rename(
+      plate = plate,
+      well = well,
+      resazurin = resazurin
+    )
+  
+  # Extract metadata from the file name
+  date_val    <- str_extract(file_name, "^\\d{8}")
+  temperature <- str_extract(file_name, "_\\d+C") %>%
+                 str_remove_all("_|C") %>%
+                 as.numeric()
+  plate_id    <- str_extract(file_name, "plate\\d+")
+  timepoint   <- str_extract(file_name, "_T\\d+") %>%
+                 str_remove_all("_T") %>%
+                 as.numeric()
+  
+  # Add metadata columns
+  data <- data %>%
+    mutate(
+      FileName = file_name,
+      date = date_val,
+      temperature = temperature,
+      plate = plate_id,
+      timepoint = timepoint
+    ) %>%
+    select(FileName, date, temperature, plate, well, timepoint, resazurin)
+  
+  # Store the processed data
+  data_list[[file_name]] <- data
+}
+
+str(data_list)
+
+# Combine into one data frame
+merged_data <- bind_rows(data_list)
+```
+
+Load in metadata. 
+
+```{r}
+metadata<-read_xlsx(path="data/thermal-curve/metadata.xlsx")%>%
+  mutate(date=as.character(date))
+```
+
+Join with data frame. 
+
+```{r}
+str(merged_data)
+str(metadata)
+
+full_data<-left_join(merged_data, metadata, by=c("date", "plate", "well"))%>%
+  filter(!is.na(type))
+
+head(full_data)
+```
+
+Load in size data. 
+
+```{r}
+size<-read_xlsx("data/thermal-curve/size.xlsx")%>%
+  mutate(date=as.character(date))
+```
+
+Join with data. 
+
+```{r}
+full_data<-left_join(full_data, size, by=c("date", "plate", "well"))
+
+full_data<-full_data%>%
+  mutate(temperature=as.character(temperature.x))
+```
+
+## Prep the data 
+
+Plot the raw data. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=resazurin, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Calculate fluorescence at each time point normalized to the starting value at time 0. 
+```{r}
+full_data<-full_data%>%
+  group_by(date, plate, well, temperature)%>%
+  arrange(date, plate, well)%>%
+  mutate(fluorescence.norm=resazurin/first(resazurin))
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+View blanks
+
+```{r}
+full_data%>%
+  filter(type=="blank")%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Calculate mean blank value at each time point. 
+
+```{r}
+blanks<-full_data%>%
+  filter(type=="blank")%>%
+  group_by(date, plate, temperature, timepoint)%>%
+  summarise(mean_blank=mean(fluorescence.norm));blanks
+```
+
+View summarized blank data. 
+
+```{r}
+blanks%>%
+  ggplot(aes(x=timepoint, y=mean_blank, colour=temperature))+
+  geom_point()+
+  theme_classic()
+```
+
+Subtract blank values from fluorescence values for oysters. 
+
+```{r}
+full_data<-left_join(full_data, blanks)
+
+full_data<-full_data%>%
+  filter(!type=="blank")%>%
+  mutate(fluorescence.corr=resazurin-mean_blank)
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.corr, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Size normalize data. 
+```{r}
+full_data<-full_data%>%
+  mutate(value.mm=fluorescence.norm/length.mm)
+```
+
+Plot again. 
+
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=value.mm, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Remove unnecessary columns. 
+
+```{r}
+
+```
+
+## Models    
+
+Plot raw data. 
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=value.mm, colour=temperature, group=interaction(date, plate, well)))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+```{r}
+hist(full_data$value.mm)
+```
+
+Plot again. 
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=value.mm, group=interaction(date, plate, well)))+
+  facet_wrap(~temperature)+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+```{r}
+model<-lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well), data=full_data)
+
+summary(model)
+anova(model)
+rand(model)
+
+qqPlot(residuals(model))
+```
+
+View posthoc effects. 
+
+```{r}
+emm<-emmeans(model, ~timepoint|temperature)
+pairs(emm)
+
+emm<-emmeans(model, ~temperature|timepoint)
+pairs(emm)
+```
+
+## Plotting 
+
+Plot with individual points with geom smooth lines. 
+
+```{r}
+plot1<-full_data%>%
+
+  ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature))+
+  geom_point(alpha=0.5)+
+  stat_smooth(aes(group=temperature))+
+  theme_classic()+
+  xlab("Hour");plot1
+
+plot1a<-full_data%>%
+
+  ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature, group=temperature))+
+  geom_point(alpha=0.5)+
+  stat_smooth(method="loess")+
+  theme_classic()+
+  xlab("Hour");plot1a
+
+#ggsave(plot1a, filename="figures/spat-stress/metabolism_temperature.png", width=7, height=5)
+```
+
+# Metabolic rates across thermal range 
+
+Subset data for the ending time point, which indicates change in fluorescence over the entire trial. 
+
+```{r}
+end_data<-full_data%>%
+  filter(timepoint=="5")%>%
+  mutate(temperature_num = as.numeric(str_extract(temperature, "\\d+")))
+
+head(end_data)
+```
+
+Plot metabolic rates for each treatment over the temperatures. 
+
+```{r}
+plot5<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.03)) +
+  stat_smooth(aes(group=1)) +
+  labs(
+    title = "",
+    y = "Metabolic Rate",
+  ) +
+  theme_classic();plot5
+
+plot5a<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
+  geom_violin(colour="darkgray")+
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
+  stat_smooth(aes(group=1), colour="black", method="loess") +
+  geom_text(aes(x=3, y=7), label="p<0.001")+
+  labs(
+    title = "",
+    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Temperature"
+  ) +
+  theme_classic();plot5a
+
+#ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=4, height=5)
+```
+
+Analyze effect of temperature. 
+
+```{r}
+tpc_model<-aov((value.mm)^(1/3) ~ temperature, data=end_data)
+
+summary(tpc_model)
+```
+
+Posthoc test.  
+
+```{r}
+emm<-emmeans(tpc_model, ~temperature)
+pairs(emm)
+```
+
+# Metabolic rates ~ size 
+
+Plot fluorescence data by size.  
+ß
+```{r}
+plot6a<-ggplot(end_data, aes(x = length.mm, y = fluorescence.norm)) +
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
+  stat_smooth(aes(group=1), colour="black", method="lm") +
+  geom_text(aes(x=5.5, y=35), label="p<0.001")+
+  labs(
+    title = "",
+    y = expression(paste(Delta, "Fluorescence")), x = "Length (mm)"
+  ) +
+  theme_classic();plot6a
+
+#ggsave(plot6a, filename="figures/spat-stress/metabolism_size.png", width=5, height=5)
+```
+
+```{r}
+size_model<-lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=end_data)
+
+summary(size_model)
+Anova(size_model)
+```
+
+
+
