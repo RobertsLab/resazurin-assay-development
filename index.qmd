@@ -5,23 +5,22 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-06-18 # UPDATE
+date-modified: 2025-07-07 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
     wrap: 72
 ---
 
-<a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg"></a>
-
-
+<a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg"/></a>
 
 Landing page for quick info on where we are with **implementing easy
-resazurin metabolism assays** for oysters. Please
-explore the [Github
-Repo](https://github.com/RobertsLab/resazurin-assay-development), 
+resazurin metabolism assays** for oysters. Please explore the [Github
+Repo](https://github.com/RobertsLab/resazurin-assay-development),
 glimpse real-time activity in from the lab
-[here](https://genefish.wordpress.com/?s=resazurin), and dive deeper with the [Canonical Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
+[here](https://genefish.wordpress.com/?s=resazurin), and dive deeper
+with the [Canonical
+Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 
 ------------------------------------------------------------------------
 
@@ -33,26 +32,54 @@ Resazurin is a redox-sensitive dye that changes fluorescence and color
 as it is reduced by cellular respiration, providing a proxy for
 metabolic activity. Individuals are incubated in a resazurin working
 solution at a high temperature (e.g., \~42°C), and metabolic activity is
-monitored through fluorescence measurements taken at
-hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (or a 590/20 nm bandpass filter) using a plate reader.
+monitored through fluorescence measurements taken at hourly intervals.
+Fluorescence measurements are conducted using an excitation wavelength
+of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of
+590 nm (or a 590/20 nm bandpass filter) using a plate reader.
+
+::: callout-note
+## Notes on Eastern Oyster
+
+In July 2025 we ran assays at VIMS using *C. virginica.* The protocol was
+modified slightly and involved allocating oysters to 24 well plates, taking
+images for size analysis, adding chilled resazurin (4°C ) solution,
+taking initial measurements (T0), incubating plates at 40°C, staggering
+plate readings, taking hourly measurements (T1, T2), chilling plates at
+4°C after 2.5 hours of exposure, and taking final measurements (T3, T4).
+:::
 
 # Highlights to date
 
-- Resazurin fluorescence provides a reliable indicator of oyster metabolic activity from small seed to adult oysters. 
-- Thermal performance assays reveal metabolic optima and tipping points where metabolic stimulation shifts to depression under temperature stress. 
-- Resazurin fluorescence detects genetic differences in metabolic rates between oyster family groups. 
-- Under acute stress, increased metabolism of seed at high temperature predicts short-term mortality. In contrast, metabolic depression is associated with higher survival. 
-- Resazurin fluorescence assays provide an exciting potential tool to survey oyster performance. 
+-   Resazurin fluorescence provides a reliable indicator of oyster
+    metabolic activity from small seed to adult oysters.
+-   Thermal performance assays reveal metabolic optima and tipping
+    points where metabolic stimulation shifts to depression under
+    temperature stress.
+-   Resazurin fluorescence detects genetic differences in metabolic
+    rates between oyster family groups.
+-   Under acute stress, increased metabolism of seed at high temperature
+    predicts short-term mortality. In contrast, metabolic depression is
+    associated with higher survival.
+-   Resazurin fluorescence assays provide an exciting potential tool to
+    survey oyster performance.
 
 # Video Demo
-   
+
 {{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
 
 # Preparing solutions
 
-To prepare the resazurin assay solutions, first make a stock by combining resazurin salt with water and a small amount of DMSO. Store this stock in a dark refrigerator or freezer. The working solution consists primarily of seawater (about 98.5%), with small proportions of resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal solution (1%). Adjust the total volume based on the number and size of organisms being tested, ensuring animals are fully submerged. Trials are typically scaled for small (≤7 mm), medium (15–40 mm), or large (>40 mm) seed using appropriately sized containers.
+To prepare the resazurin assay solutions, first make a stock by
+combining resazurin salt with water and a small amount of DMSO. Store
+this stock in a dark refrigerator or freezer. The working solution
+consists primarily of seawater (about 98.5%), with small proportions of
+resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal
+solution (1%). Adjust the total volume based on the number and size of
+organisms being tested, ensuring animals are fully submerged. Trials are
+typically scaled for small (≤7 mm), medium (15–40 mm), or large
+(\>40 mm) seed using appropriately sized containers.
 
-### Detailed example 
+### Detailed example
 
 1.  Stock resazurin solution 
 
@@ -110,15 +137,15 @@ more is required. 
 
 # Recent Slidedecks
 
+![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width="300px"}
 
-![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width=300px}
-
-[📄 View VIMS 2025 talk (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
-
+[📄 View VIMS 2025 talk
+(PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
 
 # Podcast ?
 
-While not solely focused on resazurin... a majority of content covers what we are doing in this space.
+While not solely focused on resazurin... a majority of content covers
+what we are doing in this space.
 
 <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.podcasts.apple.com/us/podcast/gene-pooling/id1802677296">
 
