@@ -105,6 +105,7 @@ Plot total fluorescence by temperature and status.
 
 ```{r}
 data%>%
+  filter(fluorescence.total<9)%>% #remove outlier
   ggplot(aes(x=final.status, y=fluorescence.total, group=interaction(trial,sample)))+
   facet_wrap(~treatment)+
   geom_point()+
