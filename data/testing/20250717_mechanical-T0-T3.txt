@@ -4,14 +4,14 @@ Software Version	3.16.10
 
 
 
-Experiment File Path:	C:\Users\Public\Documents\Experiments\20250717_mechanical.xpt
+Experiment File Path:	C:\Users\Public\Documents\Experiments\20250717_mechanical-T3.xpt
 Protocol File Path:	C:\Users\Public\Documents\Protocols\oyster_resazurin_fluorescence.prt
 
 
 
-Plate Number	Plate 2
+Plate Number	Plate 5
 Date	7/17/2025
-Time	12:52:16 PM
+Time	2:29:52 PM
 Reader Type:	Synergy HTX
 Reader Serial Number:	25030704
 Reading Type	Reader
@@ -34,16 +34,16 @@ Plate Out/In
 
 
 
-Actual Temperature:	25.9
+Actual Temperature:	27.6
 
 Results
 	1	2	3	4	5	6	7	8	9	10	11	12
-A	281	278	270	273	296	266	281	265	251	278	292	283	528/20,590/20
-B	345	266	281	276	240	254	245	266	254	242	268	283	528/20,590/20
-C	0	0	1	1	0	0	1	0	0	1	2	0	528/20,590/20
-D	1	0	0	0	0	0	0	0	0	0	0	1	528/20,590/20
-E	1	1	0	0	1	1	0	1	0	1	0	1	528/20,590/20
-F	2	1	1	1	1	1	2	1	0	2	1	1	528/20,590/20
-G	1	0	1	1	1	1	2	5	1	0	1	0	528/20,590/20
-H	0	0	1	1	0	1	1	2	2	1	0	1	528/20,590/20
+A	271	281	289	273	316	275	295	296	258	439	327	319	528/20,590/20
+B	342	612	347	259	229	254	250	523	254	236	261	308	528/20,590/20
+C	491	482	467	542	472	435	1275	209	538	474	418	302	528/20,590/20
+D	510	373	472	446	425	382	304	228	509	377	446	271	528/20,590/20
+E	661	653	698	765	708	606	655	266	771	639	558	338	528/20,590/20
+F	777	650	805	771	724	527	431	286	817	891	696	324	528/20,590/20
+G	715	693	780	795	787	631	810	285	907	767	689	336	528/20,590/20
+H	934	667	807	788	873	613	478	206	880	587	798	240	528/20,590/20
 
