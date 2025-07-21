@@ -274,7 +274,6 @@ full_data%>%
 plot1<-full_data%>%
   ggplot(aes(x=timepoint, y=value, group=oyster))+
   geom_point()+
-  geom_vline(xintercept=4, linetype="dashed")+
   geom_line()+
   theme_classic();plot1
 
