@@ -1,5 +1,5 @@
 ---
-title: PolyIC resazurin testing for batch 2 seed 
+title: Oxygen correlation testing - resazurin analysis
 author: "AS Huffmyer"
 date: '2024'
 output:
@@ -14,7 +14,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-This script analyzes resazurin assays tracking individual metabolism in ambient and high temperatures in the USDA families project.   
+This script analyzes resazurin assays tracking individual oyster measurements to correlate to oxygen measurements.     
 
 # Set up 
 
@@ -44,7 +44,7 @@ library(tools)
 
 ```{r}
 # Set the folder path
-folder_path <- "data/usda-families/fluorescence"  
+folder_path <- "data/oxygen-correlation/plate-files"  
 
 # List all txt files in the folder
 file_list <- list.files(path = folder_path, pattern = "\\.txt$", full.names = TRUE, recursive=TRUE)
@@ -66,10 +66,10 @@ for (file in file_list) {
   file_name <- file_path_sans_ext(basename(file))
   
   # Read the text file, skipping the first row (metadata)
-  data <- read.delim(file, header = FALSE, skip = 40)
+  data <- read.delim(file, header = FALSE, skip = 39)
   
   # Assign column names: first column is row labels (A–H), others are 1–12
-  colnames(data) <- c("Row", as.character(1:13))
+  colnames(data) <- c("Row", as.character(1:5))
   
   #remove last column
   data<-data%>%select(-ncol(data))
@@ -113,7 +113,7 @@ head(combined_data)
 Load in metadata. 
 
 ```{r}
-metadata<-read_xlsx(path="data/usda-families/metadata/sample_metadata.xlsx")%>%
+metadata<-read_xlsx(path="data/oxygen-correlation/metadata.xlsx")%>%
   mutate(date=as.character(date))
 
 metadata_temp<-read_xlsx(path="data/usda-families/metadata/temperature_metadata.xlsx")%>%
