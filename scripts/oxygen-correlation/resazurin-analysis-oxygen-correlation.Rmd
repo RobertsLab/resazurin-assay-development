@@ -287,6 +287,14 @@ total<-full_data%>%
   filter(timepoint=="5")
 ```
 
+Plot total change in fluorescence for each oyster. 
+```{r}
+ggplot(full_data, aes(x = 1, y = value)) +
+  geom_violin()+
+  geom_point() +
+  theme_classic()
+```
+
 ## Calculate slope in metabolic rates   
 
 Calculate slope for each oyster. 
@@ -315,6 +323,16 @@ ggplot(slopes, aes(x = oyster, y = slope)) +
   geom_point() +
   geom_line(aes(group=oyster)) +
   theme_classic()
+```
+
+# Generate data frames for correlations
+
+Generate a dataframe with oyster ID, slope, and total fluorescence. 
+
+```{r}
+cor_data<-left_join(slopes, total)%>%select(oyster, slope, value)
+
+write_csv(cor_data, file="output/oxygen-correlation/resazurin_oyster_metrics.csv")
 ```
 
 
