@@ -257,15 +257,29 @@ full_data<-full_data%>%
   rename(value=fluorescence.corr.mm)
 ```
 
-
 ## Models and Plots    
 
-Plot raw data. 
+Plot. 
 ```{r}
 full_data%>%
   ggplot(aes(x=timepoint, y=value, group=oyster))+
   geom_point()+
-  geom_vline(xintercept=4, linetype="dashed")+
+  geom_line()+
+  theme_classic()
+```
+
+Remove oysters that died and will not be measured using oxygen measurements. 
+
+```{r}
+full_data<-full_data%>%
+  filter(!oyster %in% c("1-A2", "1-B8", "1-D1", "1-D9", "2-A6", "2-A8", "2-B3", "2-B6", "2-B9", "2-D1"))
+```
+
+Plot again. 
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=value, group=oyster))+
+  geom_point()+
   geom_line()+
   theme_classic()
 ```
