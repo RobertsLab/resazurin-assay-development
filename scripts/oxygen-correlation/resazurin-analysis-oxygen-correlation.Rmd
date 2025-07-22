@@ -303,8 +303,8 @@ nested$data[[1]]
 # group by oyster_id and phase, then fit a linear model of metabolic_rate ~ time
 slopes <- nested %>%
   mutate(
-    model = map(data, ~ lm(value ~ timepoint, data = .x)),        # fit model
-    slope = map_dbl(model, ~ coef(.x)[["timepoint"]])                      # extract slope
+    model = map(data, ~ lm(value ~ as.numeric(timepoint), data = .x)),        # fit model
+    slope = map_dbl(model, ~ coef(.x)[["as.numeric(timepoint)"]])                      # extract slope
   ) %>%
   select(oyster, slope)
 ```
@@ -316,3 +316,5 @@ ggplot(slopes, aes(x = oyster, y = slope)) +
   geom_line(aes(group=oyster)) +
   theme_classic()
 ```
+
+
