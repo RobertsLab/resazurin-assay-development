@@ -51,4 +51,7 @@ rsconnect/
 .DS_Store
 */.DS_Store
 
+#large respiration plots 
+output/oxygen-correlation/RespirationPlots/
+
 /.quarto/
