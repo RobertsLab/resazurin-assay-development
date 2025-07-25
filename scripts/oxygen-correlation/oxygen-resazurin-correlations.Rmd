@@ -1,0 +1,78 @@
+---
+title: Oxygen rate extraction 
+author: "AS Huffmyer"
+date: '2025'
+output:
+  github_document: null
+  md_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+This script conducts correlations between respiration and resazurin rates.      
+
+# Set up 
+
+Set up workspace, set options, and load required packages.    
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(emmeans)
+library(ggplot2)
+```
+
+# Read in files 
+
+Read in oxygen files 
+```{r}
+resp<-read_csv(file="output/oxygen-correlation/extracted_oxygen_rates.csv")
+
+resazurin<-read_csv(file="output/oxygen-correlation/resazurin_oyster_metrics.csv")
+
+df<-left_join(resp, resazurin)%>%rename(resazurin_slope=slope, resazurin_total=value)
+
+head(df)
+```
+
+Check for outliers 
+```{r}
+hist(df$resazurin_slope)
+hist(df$R.umol.mm.min)
+```
+
+Remove resazurin outlier
+```{r}
+df<-df%>%
+  filter(resazurin_slope<0.08)
+
+hist(df$resazurin_slope)
+```
+
+# Plot correlation 
+
+```{r}
+plot1<-df%>%
+  
+  ggplot(aes(x=-1*R.umol.mm.min, y=resazurin_slope))+
+  geom_point(color="orange")+
+  geom_smooth(method="lm", color="black")+
+  theme_classic(); plot1
+```
+
+We expect a positive correlation because I am showing the reciprocal of the respiration values (higher slope = more oxygen produced). 
+Conduct correlation test. 
+
+```{r}
+cor.test(df$R.umol.mm.min, df$resazurin_slope)
+```
+

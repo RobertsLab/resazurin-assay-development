@@ -1,0 +1,244 @@
+---
+title: Oxygen rate extraction 
+author: "AS Huffmyer"
+date: '2025'
+output:
+  github_document: null
+  md_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+This script extracts respiration rates from oxygen data collected to correlate with resazurin response.      
+
+# Set up 
+
+Set up workspace, set options, and load required packages.    
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r, warning=FALSE, message=FALSE}
+## install packages if you dont already have them in your library
+if ("devtools" %in% rownames(installed.packages()) == 'FALSE') install.packages('devtools') 
+library(devtools)
+if ("segmented" %in% rownames(installed.packages()) == 'FALSE') install.packages('segmented') 
+if ("plotrix" %in% rownames(installed.packages()) == 'FALSE') install.packages('plotrix') 
+if ("gridExtra" %in% rownames(installed.packages()) == 'FALSE') install.packages('gridExtra') 
+if ("LoLinR" %in% rownames(installed.packages()) == 'FALSE') install_github('colin-olito/LoLinR') 
+if ("lubridate" %in% rownames(installed.packages()) == 'FALSE') install.packages('lubridate') 
+if ("chron" %in% rownames(installed.packages()) == 'FALSE') install.packages('chron') 
+if ("plyr" %in% rownames(installed.packages()) == 'FALSE') install.packages('plyr') 
+if ("dplyr" %in% rownames(installed.packages()) == 'FALSE') install.packages('dplyr') 
+if ("stringr" %in% rownames(installed.packages()) == 'FALSE') install.packages('stringr') 
+if ("Rmisc" %in% rownames(installed.packages()) == 'FALSE') install.packages('Rmisc') 
+if ("respR" %in% rownames(installed.packages()) == 'FALSE') install.packages('respR') 
+
+
+#load packages
+library("ggplot2")
+library("segmented")
+library("plotrix")
+library("gridExtra")
+library("LoLinR")
+library("lubridate")
+library("chron")
+library('plyr')
+library('dplyr')
+library('stringr')
+library('Rmisc')
+library('respR')
+library('readxl')
+library('tidyverse')
+```
+
+## Read in files  
+
+Set the path of all respirometry files within the R project.   
+
+```{r, warning=FALSE, message=FALSE}
+path.p<-"data/oxygen-correlation/oxygen-files" #location of files
+```
+
+Bring in the file names.
+```{r, warning=FALSE, message=FALSE}
+# bring in the respiration file names
+file.names<-basename(list.files(path = path.p, pattern = "csv$", recursive = TRUE)) 
+```
+
+## Extract respiration rates  
+
+Load in the sample information file. 
+
+```{r, warning=FALSE, message=FALSE}
+Sample.Info<-read_excel("data/oxygen-correlation/oxygen_samples.xlsx") 
+```
+
+Run loop to extract slopes from respiration data. 
+
+Oxygen is in mmol/L concentration in original files. 
+
+```{r}
+# Set paths
+input_dir <- "data/oxygen-correlation/oxygen-files"
+output_dir <- "output/oxygen-correlation/RespirationPlots"
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Get list of all Excel files
+files <- list.files(input_dir, pattern = "\\.xlsx$", full.names = TRUE);files
+
+# Initialize summary table
+summary_df <- data.frame(Plate = character(),
+                         Well = character(),
+                         Slope = numeric(),
+                         Intercept = numeric(),
+                         stringsAsFactors = FALSE)
+
+# Loop through each file
+for (file in files) {
+  # Get plate name from file name (e.g., "plate1.xlsx" -> "plate1")
+  plate_name <- tools::file_path_sans_ext(basename(file))
+  
+  # Read data
+  data <- read_xlsx(file, skip = 50)
+  data$Time.Min <- seq.int(from = 0, to = ((nrow(data) * 0.25) - 0.25), by = 0.25)
+  
+  # Subset wells (columns 53–77) and rename
+  data.sub <- data[, 53:77]
+  names(data.sub) <- gsub("\\s*\\[Oxygen\\]", "", names(data.sub))
+  
+  # Add Time column to subset
+  data.sub$Time.Min <- data$Time.Min
+  
+  # Loop over each well (column)
+  for (well_name in names(data.sub)[names(data.sub) != "Time.Min"]) {
+    x <- data.sub$Time.Min
+    y <- as.numeric(data.sub[[well_name]])
+    
+    # Skip if y is all NA
+    if (all(is.na(y))) next
+    
+    # Run localized regression
+    model <- rankLocReg(xall = x, yall = y,
+                        alpha = 0.4, method = "pc", verbose = FALSE)
+    
+    # Extract slope and intercept from model
+    best_idx <- which.min(model$allRegs$ciRange) #This picks the regression with the narrowest confidence interval, which is what the "pc" (percentile confidence interval) method is designed to optimize.
+    slope <- model$allRegs$b1[best_idx]
+    intercept <- model$allRegs$b0[best_idx]
+    
+    # Save plot
+    pdf(file.path(output_dir, paste0(plate_name, "_", well_name, "_regression_trunc.pdf")))
+    plot(model)
+    dev.off()
+    
+    # Append to summary table
+    summary_df <- rbind(summary_df,
+                        data.frame(Plate = plate_name,
+                                   Well = well_name,
+                                   Slope = slope,
+                                   Intercept = intercept,
+                                   stringsAsFactors = FALSE))
+  }
+}
+
+# View or save summary
+head(summary_df)
+```
+
+Merge in data from the metadata file. 
+
+```{r}
+metadata<-read_xlsx("data/oxygen-correlation/oxygen_samples.xlsx")
+
+summary_df<-summary_df%>%
+  rename(plate=Plate, well=Well, slope=Slope, intercept=Intercept)
+
+oxygen<-left_join(summary_df, metadata)
+
+head(oxygen)
+```
+
+Conduct calculations. 
+
+```{r}
+oxygen$R.mmol.L.min<-oxygen$slope
+oxygen$volume<-0.0017 #volume in L
+oxygen$R.mmol.min <- oxygen$R.mmol.L.min * oxygen$volume #calculate total oxygen
+```
+
+View values for clean vs dirty vs shell only blanks. 
+```{r}
+plot1<-oxygen%>%
+  
+  ggplot(aes(x=notes, y=R.mmol.min))+
+  geom_boxplot()+
+  geom_point()+
+  theme_classic(); plot1
+```
+
+Similar between clean and dirty water blanks. Shell and "samples" are similar - confirming that with the exception of potentially one sample, most oysters were likely empty shells today.  
+
+Subtract clean water blanks from biological samples.  
+
+```{r}
+blank_data <- subset(oxygen, c(type == "blank" & notes=="clean")) #subset to blank data only
+
+mean(blank_data$R.mmol.min, na.rm=TRUE) #view overall mean
+
+resp.blnk <- aggregate(R.mmol.min ~ plate, data=blank_data, mean) #calculate average blank during light for each run
+
+colnames(resp.blnk)[colnames(resp.blnk) == 'R.mmol.min'] <- 'R.Blank.mmol.min' #rename to specify blank for R
+
+oxygen <- full_join(oxygen, resp.blnk) #add R blanks to dataframe
+
+#subtract blanks to get a corrected value for each sample 
+oxygen$R.mmol.min.corr<-oxygen$R.mmol.min-oxygen$R.Blank.mmol.min #subtract R blanks
+
+plot(oxygen$R.mmol.min.corr)
+dev.off()
+```
+
+Normalize to oyster length.  
+
+```{r, warning=FALSE, message=FALSE}
+#read in length 
+size<-read_xlsx("data/oxygen-correlation/size-images/size.xlsx")
+
+oxygen.bio <- oxygen %>% filter(type == "sample") #isolate only biological samples and drop unused factor levels 
+oxygen.bio <- droplevels(oxygen.bio) #drop unused factor levels
+
+#merge in size data 
+oxygen.bio<-left_join(oxygen.bio, size)
+
+#respiration
+oxygen.bio$R.mmol.mm.min <- oxygen.bio$R.mmol.min.corr/oxygen.bio$length.mm #calculate oxygen per organism 
+oxygen.bio$R.umol.mm.min <- oxygen.bio$R.mmol.mm.min*1000 #calculate micromoles 
+```
+
+Plot values.  
+```{r}
+plot(oxygen.bio$R.umol.mm.min)
+```
+
+Plot length against total oxygen. 
+
+```{r}
+plot(oxygen.bio$length.mm, oxygen.bio$R.mmol.min)
+```
+
+Save extracted values. 
+
+```{r}
+oxygen.bio%>%
+  select(plate, well, oyster, length.mm, R.mmol.min, R.mmol.mm.min, R.umol.mm.min)%>%
+  write_csv(., file="output/oxygen-correlation/extracted_oxygen_rates.csv")
+```
+
+
+
