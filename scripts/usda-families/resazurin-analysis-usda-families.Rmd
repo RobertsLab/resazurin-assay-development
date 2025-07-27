@@ -1204,6 +1204,42 @@ Fluorescence should be the preferred method of measurement.
 
 We also get different statistical results with absorbance vs fluorescence where absorbance does not pick up differences.  
 
+## Run a Bland–Altman Analysis (Agreement Assessment) 
+
+Analysis examines degree of agreement between fluorescence and absorbance. Will show if there is disagreement and to what degree absorbance over or underestimates fluorescence values. 
+
+```{r}
+# Normalize both signals
+abs_norm <- (corr_data$abs.corr.mm - mean(corr_data$abs.corr.mm)) / sd(corr_data$abs.corr.mm)
+fluor_norm <- (corr_data$fluorescence.corr.mm - mean(corr_data$fluorescence.corr.mm)) / sd(corr_data$fluorescence.corr.mm)
+
+# Bland–Altman calculations
+mean_values <- (abs_norm + fluor_norm) / 2
+diff_values <- abs_norm - fluor_norm 
+
+# Bland–Altman plot
+plot(mean_values, diff_values,
+     main = "Bland–Altman Plot",
+     xlab = "Mean of Absorbance and Fluorescence",
+     ylab = "Difference in Absorbance and Fluorescence")
+
+abline(h = mean(diff_values), col = "red")  # mean bias
+abline(h = mean(diff_values) + 1.96 * sd(diff_values), col = "blue", lty = 2)
+abline(h = mean(diff_values) - 1.96 * sd(diff_values), col = "blue", lty = 2)
+
+lines(lowess(mean_values, diff_values), col = "darkorange", lwd = 2)
+```
+
+We are looking for random distribution of values around the red line and within the blue lines. 
+
+The interpretation is that: 
+
+- Because both signals were normalized (mean = 0, SD = 1), this plot compares the relative performance of absorbance vs. fluorescence on a common scale.
+- There's a nonlinear pattern: the differences vary systematically with the signal magnitude. At low mean values (left side), absorbance underestimates fluorescence (positive differences). At intermediate values (around 0–1), there's more agreement. At higher mean values (right side), absorbance overestimates or deviates erratically.
+- This is strong evidence of non-constant bias — the performance of absorbance is not only inconsistent across the range of values, but it fails differently at different signal levels.
+-  There’s a lot of variability in how absorbance matches fluorescence
+- There is worsening agreement at higher signal levels — another mark against absorbance as a substitute.
+- Absorbance does not reliably replicate fluorescence readings and exhibits nonlinear, signal-dependent bias with high variability.
 
 
 
