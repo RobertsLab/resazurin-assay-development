@@ -4,21 +4,21 @@ Software Version	3.16.10
 
 
 
-Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Mechanical Stress\test4_polyIC\Experiment1.xpt
-Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Mechanical Stress\Experiment\Ctrl_polyIC_T0.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_24well.prt
 
 
 
-Plate Number	Plate 3
-Date	7/28/2025
-Time	12:03:47 PM
+Plate Number	Plate 11
+Date	7/29/2025
+Time	12:04:24 PM
 Reader Type:	Synergy HTX
 Reader Serial Number:	25030704
 Reading Type	Reader
 
 Procedure Details
 
-Plate Type	12 WELL PLATE
+Plate Type	24 WELL PLATE
 Eject plate on completion	
 Plate Out/In	
 Read	Fluorescence Endpoint
@@ -29,14 +29,16 @@ Read	Fluorescence Endpoint
 	Light Source: Tungsten,  Standard Dynamic Range
 	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
 	Read Height: 4.5 mm
+Plate Out/In	
 
 
 
-Actual Temperature:	25.8
+Actual Temperature:	25.2
 
 Results
-	1	2	3	4
-A	544	628	423	1180	528/20,590/20
-B	327	723	571	654	528/20,590/20
-C	331	807	479	547	528/20,590/20
+	1	2	3	4	5	6
+A	134	161	157	190	181	186	528/20,590/20
+B	121	182	161	169	156	161	528/20,590/20
+C	138	157	159	238	157	158	528/20,590/20
+D	128	199	134	193	166	190	528/20,590/20
 

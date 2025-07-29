@@ -4,21 +4,21 @@ Software Version	3.16.10
 
 
 
-Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Mechanical Stress\test4_polyIC\Experiment1.xpt
-Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Mechanical Stress\Experiment\Ctrl_polyIC_T0.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_24well.prt
 
 
 
-Plate Number	Plate 6
-Date	7/28/2025
-Time	12:55:05 PM
+Plate Number	Plate 15
+Date	7/29/2025
+Time	12:35:00 PM
 Reader Type:	Synergy HTX
 Reader Serial Number:	25030704
 Reading Type	Reader
 
 Procedure Details
 
-Plate Type	12 WELL PLATE
+Plate Type	24 WELL PLATE
 Eject plate on completion	
 Plate Out/In	
 Read	Fluorescence Endpoint
@@ -29,56 +29,16 @@ Read	Fluorescence Endpoint
 	Light Source: Tungsten,  Standard Dynamic Range
 	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
 	Read Height: 4.5 mm
-
-
-
-Actual Temperature:	26.9
-
-Results
-	1	2	3	4
-A	674	833	525	1918	528/20,590/20
-B	327	1105	703	896	528/20,590/20
-C	331	1251	620	718	528/20,590/20
-
-
-
-Software Version	3.16.10
-
-
-
-Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\Mechanical Stress\test4_polyIC\Experiment1.xpt
-Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
-
-
-
-Plate Number	Plate 7
-Date	7/28/2025
-Time	12:56:24 PM
-Reader Type:	Synergy HTX
-Reader Serial Number:	25030704
-Reading Type	Reader
-
-Procedure Details
-
-Plate Type	12 WELL PLATE
-Eject plate on completion	
 Plate Out/In	
-Read	Fluorescence Endpoint
-	Full Plate
-	Filter Set 1
-	    Excitation: 528/20,  Emission: 590/20
-	    Optics: Top,  Gain: 35
-	Light Source: Tungsten,  Standard Dynamic Range
-	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
-	Read Height: 4.5 mm
 
 
 
-Actual Temperature:	26.9
+Actual Temperature:	26.1
 
 Results
-	1	2	3	4
-A	603	852	1100	1224	528/20,590/20
-B	335	745	1210	767	528/20,590/20
-C	252	890	1480	638	528/20,590/20
+	1	2	3	4	5	6
+A	124	292	206	278	246	264	528/20,590/20
+B	103	193	247	250	234	195	528/20,590/20
+C	121	235	206	253	266	227	528/20,590/20
+D	127	230	214	267	246	352	528/20,590/20
 

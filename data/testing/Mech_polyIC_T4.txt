@@ -9,9 +9,9 @@ Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_24well.prt
 
 
 
-Plate Number	Plate 17
+Plate Number	Plate 27
 Date	7/29/2025
-Time	12:39:49 PM
+Time	1:36:19 PM
 Reader Type:	Synergy HTX
 Reader Serial Number:	25030704
 Reading Type	Reader
@@ -33,12 +33,12 @@ Plate Out/In
 
 
 
-Actual Temperature:	26.1
+Actual Temperature:	27.0
 
 Results
 	1	2	3	4	5	6
-A	132	166	170	211	203	206	528/20,590/20
-B	121	192	173	183	163	172	528/20,590/20
-C	139	172	169	264	162	168	528/20,590/20
-D	129	230	141	213	190	199	528/20,590/20
+A	133	209	321	236	331	236	528/20,590/20
+B	115	266	321	229	385	364	528/20,590/20
+C	107	265	449	316	227	293	528/20,590/20
+D	121	277	410	302	226	311	528/20,590/20
 
