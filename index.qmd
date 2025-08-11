@@ -77,7 +77,7 @@ resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal
 solution (1%). Adjust the total volume based on the number and size of
 organisms being tested, ensuring animals are fully submerged. Trials are
 typically scaled for small (≤7 mm), medium (15–40 mm), or large
-(\>40 mm) seed using appropriately sized containers.
+(\>40 mm) seed using appropriately sized containers. 
 
 ### Detailed example
 
@@ -109,7 +109,7 @@ seed (10-30mm). 
     volume in each well)
 
 -   Medium seed (15-40 mm length): trials conducted in small plastic
-    cups (20 mL volume)
+    cups (20 mL volume) or 12, 24, or 48-well plates
 
 -   Large seed/adults (\>40 mm length): trials can be conducted in
     tripour cups, beakers, or plastic cups. Scale volume appropriately.
@@ -117,7 +117,19 @@ seed (10-30mm). 
 
 To prepare the working solution of resazurin, prepare the following. 
 
-This recipe is to make 150 mL of working stock. To run a single 96 well
+-   Desired working volume x 0.98666 = ___ mL filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt
+    or filtered (\<1um) seawater) 
+
+-   Desired working volume x 0.00222 = ___ mL resazurin stock solution as made above in step 1 
+
+-   Desired working volume x 0.001 = ___ mL DMSO
+
+-   Desired working volume x 0.01 = ___ mL  antibiotic solution [100x Penn/Strep & 100x
+    Fungizone](https://us.vwr.com/store/product/4648458/null) - this
+    should be kept frozen in a dark freezer and thawed before use (thaw
+    in the dark or cover with aluminum foil)
+
+Here is an example recipe for 150 mL of working stock. To run a single 96 well
 plate, approximately 35 mL will be required (allowing for extra for
 re-do's or errors). For example, if we are running 4 total plates, we
 will need to prepare 4 x 35 mL = 150 mL of working solution. Increase if
@@ -131,9 +143,7 @@ more is required. 
 -   150 µL DMSO
 
 -   1.5 mL antibiotic solution [100x Penn/Strep & 100x
-    Fungizone](https://us.vwr.com/store/product/4648458/null) - this
-    should be kept frozen in a dark freezer and thawed before use (thaw
-    in the dark or cover with aluminum foil)
+    Fungizone](https://us.vwr.com/store/product/4648458/null) 
 
 # Recent Slidedecks
 
