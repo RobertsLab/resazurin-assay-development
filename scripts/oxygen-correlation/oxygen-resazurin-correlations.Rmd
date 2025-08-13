@@ -35,7 +35,7 @@ library(ggplot2)
 
 Read in oxygen files 
 ```{r}
-resp<-read_csv(file="output/oxygen-correlation/extracted_oxygen_rates.csv")
+resp<-read_csv(file="output/oxygen-correlation/extracted_oxygen_rates.csv")%>%select(!c("plate", "well", "length.mm"))
 
 resazurin<-read_csv(file="output/oxygen-correlation/resazurin_oyster_metrics.csv")
 
@@ -50,12 +50,12 @@ hist(df$resazurin_slope)
 hist(df$R.umol.mm.min)
 ```
 
-Remove resazurin outlier
+Remove outliers
 ```{r}
-df<-df%>%
-  filter(resazurin_slope<0.08)
+#df<-df%>%
+#  filter(resazurin_slope<0.08)
 
-hist(df$resazurin_slope)
+#hist(df$resazurin_slope)
 ```
 
 # Plot correlation 
@@ -75,4 +75,22 @@ Conduct correlation test.
 ```{r}
 cor.test(df$R.umol.mm.min, df$resazurin_slope)
 ```
+
+Plot with total resazurin value. 
+```{r}
+plot1<-df%>%
+  
+  ggplot(aes(x=-1*R.umol.mm.min, y=resazurin_total))+
+  geom_point(color="orange")+
+  geom_smooth(method="lm", color="black")+
+  theme_classic(); plot1
+```
+
+We expect a positive correlation because I am showing the reciprocal of the respiration values (higher slope = more oxygen produced). 
+Conduct correlation test. 
+
+```{r}
+cor.test(df$R.umol.mm.min, df$resazurin_total)
+```
+
 
