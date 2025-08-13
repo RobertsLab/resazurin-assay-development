@@ -14,7 +14,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-This script extracts respiration rates from oxygen data collected to correlate with resazurin response.      
+This script extracts respiration rates from oxygen data collected to correlate with resazurin response.     
+
+Save files as .xlsx before loading data. 
 
 # Set up 
 
@@ -57,19 +59,9 @@ library('readxl')
 library('tidyverse')
 ```
 
-## Read in files  
+Add code to cut off data once oxygen depletes past 50-60% air saturation 
 
-Set the path of all respirometry files within the R project.   
-
-```{r, warning=FALSE, message=FALSE}
-path.p<-"data/oxygen-correlation/oxygen-files" #location of files
-```
-
-Bring in the file names.
-```{r, warning=FALSE, message=FALSE}
-# bring in the respiration file names
-file.names<-basename(list.files(path = path.p, pattern = "csv$", recursive = TRUE)) 
-```
+Manually check weird wells: Plate 3 D5 and D6 
 
 ## Extract respiration rates  
 
@@ -172,22 +164,20 @@ oxygen$volume<-0.0017 #volume in L
 oxygen$R.mmol.min <- oxygen$R.mmol.L.min * oxygen$volume #calculate total oxygen
 ```
 
-View values for clean vs dirty vs shell only blanks. 
+View values for blanks vs samples. 
 ```{r}
 plot1<-oxygen%>%
   
-  ggplot(aes(x=notes, y=R.mmol.min))+
+  ggplot(aes(x=type, y=R.mmol.min))+
   geom_boxplot()+
   geom_point()+
   theme_classic(); plot1
 ```
 
-Similar between clean and dirty water blanks. Shell and "samples" are similar - confirming that with the exception of potentially one sample, most oysters were likely empty shells today.  
-
-Subtract clean water blanks from biological samples.  
+Subtract water blanks from biological samples.  
 
 ```{r}
-blank_data <- subset(oxygen, c(type == "blank" & notes=="clean")) #subset to blank data only
+blank_data <- subset(oxygen, c(type == "blank")) #subset to blank data only
 
 mean(blank_data$R.mmol.min, na.rm=TRUE) #view overall mean
 
@@ -208,7 +198,7 @@ Normalize to oyster length.
 
 ```{r, warning=FALSE, message=FALSE}
 #read in length 
-size<-read_xlsx("data/oxygen-correlation/size-images/size.xlsx")
+size<-read_xlsx("data/oxygen-correlation/size-images/sizes.xlsx")
 
 oxygen.bio <- oxygen %>% filter(type == "sample") #isolate only biological samples and drop unused factor levels 
 oxygen.bio <- droplevels(oxygen.bio) #drop unused factor levels
@@ -232,10 +222,53 @@ Plot length against total oxygen.
 plot(oxygen.bio$length.mm, oxygen.bio$R.mmol.min)
 ```
 
+Plot against size normalized oxygen. 
+
+```{r}
+plot(oxygen.bio$length.mm, oxygen.bio$R.mmol.mm.min)
+```
+
+Plot histogram of values. 
+
+```{r}
+hist(oxygen.bio$R.umol.mm.min)
+```
+
+Make a list of samples to remove with inaccurate slope extraction (based on PDF outputs where selected points do not match overall trend). 
+
+```{r}
+oxygen.bio$unique<-paste(oxygen.bio$plate, oxygen.bio$well)
+
+remove<-c("plate3 D5", "plate3 D6", "plate 4 D5")
+```
+
+```{r}
+plot2<-oxygen.bio%>%
+  #filter(!unique %in% remove)%>%
+  
+  ggplot(aes(x=plate, y=R.umol.mm.min))+
+  geom_boxplot()+
+  geom_point()+
+  ylim(-0.0011,0)+
+  geom_hline(yintercept=0, linetype="dashed")+
+  theme_classic(); plot2
+
+plot2<-oxygen.bio%>%
+  filter(!unique %in% remove)%>%
+  
+  ggplot(aes(x=plate, y=R.umol.mm.min))+
+  geom_boxplot()+
+  geom_point()+
+  ylim(-0.0011,0)+
+  geom_hline(yintercept=0, linetype="dashed")+
+  theme_classic(); plot2
+```
+
 Save extracted values. 
 
 ```{r}
 oxygen.bio%>%
+  filter(!unique %in% remove)%>%
   select(plate, well, oyster, length.mm, R.mmol.min, R.mmol.mm.min, R.umol.mm.min)%>%
   write_csv(., file="output/oxygen-correlation/extracted_oxygen_rates.csv")
 ```
