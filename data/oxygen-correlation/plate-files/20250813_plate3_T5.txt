@@ -1,0 +1,44 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\oxygen-correlation\20250813_resazurin_oxygen_exp.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_48well.prt
+
+
+
+Plate Number	Plate 20
+Date	8/13/2025
+Time	3:23:47 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	48 WELL PLATE
+Eject plate on completion	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	27.4
+
+Results
+	1	2	3	4	5	6	7	8
+A	5546	2340	3257	172	2813	5991	4850	3653	528/20,590/20
+B	179	2763	3506	4034	1755	1327	3224	3190	528/20,590/20
+C	3728	3	1	195	1	1	1	184	528/20,590/20
+D	1	0	0	0	0	181	0	0	528/20,590/20
+E	0	0	180	0	0	0	0	0	528/20,590/20
+F	184	0	0	0	0	0	181	0	528/20,590/20
+

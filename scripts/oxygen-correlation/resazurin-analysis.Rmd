@@ -280,7 +280,7 @@ plot1<-full_data%>%
 
 ```{r}
 total<-full_data%>%
-  filter(timepoint=="3")
+  filter(timepoint=="5")
 ```
 
 Plot total change in fluorescence for each oyster. 

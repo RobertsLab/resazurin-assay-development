@@ -50,12 +50,42 @@ hist(df$resazurin_slope)
 hist(df$R.umol.mm.min)
 ```
 
-Remove outliers
+Change respiration to inverse so that a higher value means higher metabolic rate. 
+```{r}
+df$R.umol.mm.min<-df$R.umol.mm.min*-1
+```
+
+Remove respiration values that are close to 0 and upper outliers.  
+
+```{r}
+hist(df$R.umol.mm.min)
+
+df<-df%>%
+  filter(R.umol.mm.min>0.0001)%>%
+  filter(R.umol.mm.min<0.0007)
+
+hist(df$R.umol.mm.min)
+```
+
+Transform variables. 
+
+```{r}
+df$resazurin_slope_t<-log(1+df$resazurin_slope)
+
+hist(df$resazurin_slope_t)
+
+df$R.umol.mm.min_t<-sqrt(df$R.umol.mm.min)
+
+hist(df$R.umol.mm.min_t)
+```
+
+Remove outliers in resazurin data. 
+
 ```{r}
 #df<-df%>%
-#  filter(resazurin_slope<0.08)
+  #filter(resazurin_slope_t<0.5)
 
-#hist(df$resazurin_slope)
+#hist(df$resazurin_slope_t)
 ```
 
 # Plot correlation 
@@ -63,8 +93,8 @@ Remove outliers
 ```{r}
 plot1<-df%>%
   
-  ggplot(aes(x=-1*R.umol.mm.min, y=resazurin_slope))+
-  geom_point(color="orange")+
+  ggplot(aes(x=R.umol.mm.min_t, y=resazurin_slope_t))+
+  geom_point(color="darkgray")+
   geom_smooth(method="lm", color="black")+
   theme_classic(); plot1
 ```
@@ -74,23 +104,6 @@ Conduct correlation test.
 
 ```{r}
 cor.test(df$R.umol.mm.min, df$resazurin_slope)
-```
-
-Plot with total resazurin value. 
-```{r}
-plot1<-df%>%
-  
-  ggplot(aes(x=-1*R.umol.mm.min, y=resazurin_total))+
-  geom_point(color="orange")+
-  geom_smooth(method="lm", color="black")+
-  theme_classic(); plot1
-```
-
-We expect a positive correlation because I am showing the reciprocal of the respiration values (higher slope = more oxygen produced). 
-Conduct correlation test. 
-
-```{r}
-cor.test(df$R.umol.mm.min, df$resazurin_total)
 ```
 
 
