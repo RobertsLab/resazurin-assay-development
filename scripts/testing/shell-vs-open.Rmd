@@ -69,12 +69,13 @@ plot1<-data%>%
   geom_point()+
   ylab("Fold Change in Fluorescence")+
   xlab("Time Point")+
+  ggtitle("A")+
   geom_smooth(aes(group=type), method="lm", se=FALSE)+
   scale_colour_manual(values=c("darkgray", "black", "darkgray"))+
   scale_linetype_manual(values=c("dotted", "solid", "solid"))+
   theme_classic();plot1
 
-ggsave(filename="figures/testing/shell_live_raw.png", width=5, height=4)
+ggsave(plot1, filename="figures/testing/shell_live_raw.png", width=5, height=4)
 ```
 
 Run model. 
@@ -121,10 +122,12 @@ plot2<-data%>%
   geom_point()+
   ylab(expression(paste("Fold Change in Fluorescence mm" ^-1)))+
   xlab("Time Point")+
+  ggtitle("B")+
   geom_smooth(aes(group=type), method="lm", se=FALSE)+
   scale_colour_manual(values=c("black", "darkgray"))+
   scale_linetype_manual(values=c("solid", "solid"))+
   theme_classic();plot2
+
 
 ggsave(plot2, filename="figures/testing/shell_live_normalized.png", width=5, height=4)
 ```
