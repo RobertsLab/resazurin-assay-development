@@ -1,0 +1,146 @@
+---
+title: 10K seed resazurin metabolic rate analysis
+author: "AS Huffmyer"
+date: '2024'
+output:
+  github_document: null
+  md_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Set up 
+
+Set up workspace, set options, and load required packages.    
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries. 
+```{r}
+library(MASS) 
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(cowplot)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(emmeans)
+library(RColorBrewer)
+```
+
+# Load data 
+
+Read in resazurin data
+```{r}
+#read in files
+data <- read_xlsx("data/testing/optimization/shell-vs-blank.xlsx", sheet="raw_data")
+
+data<-data%>%
+  pivot_longer(cols=c(T0:T4), names_to="timepoint", values_to="counts")
+```
+
+```{r}
+data%>%
+  ggplot(aes(x=timepoint, y=counts, colour=type, group=well))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Calculate fluorescence at each time point normalized to the starting value at time 0. 
+```{r}
+data<-data%>%
+  group_by(well)%>%
+  arrange(well)%>%
+  mutate(fluorescence.norm=counts/first(counts))
+```
+
+```{r}
+plot1<-data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.norm, colour=type, group=well, linetype=type))+
+  geom_point()+
+  ylab("Fold Change in Fluorescence")+
+  xlab("Time Point")+
+  geom_smooth(aes(group=type), method="lm", se=FALSE)+
+  scale_colour_manual(values=c("darkgray", "black", "darkgray"))+
+  scale_linetype_manual(values=c("dotted", "solid", "solid"))+
+  theme_classic();plot1
+
+ggsave(filename="figures/testing/shell_live_raw.png", width=5, height=4)
+```
+
+Run model. 
+
+```{r}
+model<-aov(fluorescence.norm ~ type, data=data)
+summary(model)
+```
+
+Calculate mean blank value at each time point. 
+```{r}
+blanks<-data%>%
+  filter(type=="Blank")%>%
+  group_by(timepoint)%>%
+  summarise(mean_blank=mean(fluorescence.norm));blanks
+```
+
+```{r}
+data<-left_join(data, blanks)
+
+data<-data%>%
+  filter(!type=="Blank")%>%
+  mutate(fluorescence.corr=fluorescence.norm-mean_blank)
+```
+
+```{r}
+data%>%
+  ggplot(aes(x=timepoint, y=fluorescence.corr, colour=type, group=well))+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+Size normalize data. 
+```{r}
+data<-data%>%
+  mutate(size.mm=as.numeric(size.mm))%>%
+  mutate(value.mm=fluorescence.corr/size.mm)
+```
+
+```{r}
+plot2<-data%>%
+  ggplot(aes(x=timepoint, y=value.mm, colour=type, group=well, linetype=type))+
+  geom_point()+
+  ylab(expression(paste("Fold Change in Fluorescence mm" ^-1)))+
+  xlab("Time Point")+
+  geom_smooth(aes(group=type), method="lm", se=FALSE)+
+  scale_colour_manual(values=c("black", "darkgray"))+
+  scale_linetype_manual(values=c("solid", "solid"))+
+  theme_classic();plot2
+
+ggsave(plot2, filename="figures/testing/shell_live_normalized.png", width=5, height=4)
+```
+
+Run model. 
+
+```{r}
+model<-aov(value.mm ~ type, data=data)
+summary(model)
+```
+
+
+
+
+
+
+
+
+
