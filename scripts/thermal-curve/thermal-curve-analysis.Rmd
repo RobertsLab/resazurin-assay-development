@@ -36,6 +36,7 @@ library(car)
 library(effects)
 library(emmeans)
 library(tools)
+library(pracma)
 ```
 
 # Resazurin metabolic rates
@@ -270,6 +271,33 @@ full_data%>%
   theme_classic()
 ```
 
+Remove high value outliers. 
+```{r}
+full_data<-full_data%>%
+  mutate(unique=paste(date, plate, temperature, well))
+
+remove<-c("20250610 plate2 21 B02", "20250601 plate1 32 B05", "20250601 plate1 32 B02")
+
+full_data<-full_data%>%
+  filter(!unique %in% remove)
+```
+
+Plot again. 
+```{r}
+full_data%>%
+  ggplot(aes(x=timepoint, y=value.mm, group=interaction(date, plate, well)))+
+  facet_wrap(~temperature)+
+  geom_point()+
+  geom_line()+
+  theme_classic()
+```
+
+```{r}
+hist(full_data$value.mm)
+hist((full_data$value.mm)^(1/3))
+```
+
+
 ```{r}
 model<-lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well), data=full_data)
 
@@ -299,7 +327,7 @@ plot1<-full_data%>%
 
   ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature))+
   geom_point(alpha=0.5)+
-  stat_smooth(aes(group=temperature))+
+  stat_smooth(aes(group=temperature), method="lm")+
   theme_classic()+
   xlab("Hour");plot1
 
@@ -307,7 +335,7 @@ plot1a<-full_data%>%
 
   ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature, group=temperature))+
   geom_point(alpha=0.5)+
-  stat_smooth(method="loess")+
+  stat_smooth(method="lm")+
   theme_classic()+
   xlab("Hour");plot1a
 
@@ -316,20 +344,21 @@ plot1a<-full_data%>%
 
 # Metabolic rates across thermal range 
 
-Subset data for the ending time point, which indicates change in fluorescence over the entire trial. 
+Calculate total metabolic activity as area under the curve. 
 
 ```{r}
-end_data<-full_data%>%
-  filter(timepoint=="5")%>%
-  mutate(temperature_num = as.numeric(str_extract(temperature, "\\d+")))
+auc_data<-full_data%>%
+  mutate(time=as.numeric(timepoint))%>%
+  group_by(date, plate, well, temperature) %>%
+  summarise(AUC = trapz(time, value.mm))
 
-head(end_data)
+head(auc_data)
 ```
 
 Plot metabolic rates for each treatment over the temperatures. 
 
 ```{r}
-plot5<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
+plot5<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   geom_point(alpha = 0.6, position = position_jitter(height = 0.03)) +
   stat_smooth(aes(group=1)) +
   labs(
@@ -338,24 +367,27 @@ plot5<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
   ) +
   theme_classic();plot5
 
-plot5a<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
+plot5a<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   geom_violin(colour="darkgray")+
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
   stat_smooth(aes(group=1), colour="black", method="loess") +
-  geom_text(aes(x=3, y=7), label="p<0.001")+
+  geom_text(aes(x=2, y=9), label="p<0.001")+
   labs(
-    title = "",
-    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Temperature"
+    title = "A",
+    y = "AUC", x = "Temperature"
   ) +
   theme_classic();plot5a
 
-#ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=4, height=5)
+ggsave(plot5a, filename="figures/thermal-curve/auc_temperatures.png", width=4, height=5)
 ```
 
 Analyze effect of temperature. 
 
 ```{r}
-tpc_model<-aov((value.mm)^(1/3) ~ temperature, data=end_data)
+hist(auc_data$AUC)
+hist((auc_data$AUC)^(1/3))
+
+tpc_model<-aov((AUC)^(1/3) ~ temperature, data=auc_data)
 
 summary(tpc_model)
 ```
@@ -372,21 +404,27 @@ pairs(emm)
 Plot fluorescence data by size.  
 ß
 ```{r}
-plot6a<-ggplot(end_data, aes(x = length.mm, y = fluorescence.norm)) +
+plot6a<-full_data%>%
+  filter(timepoint=="5")%>%
+  
+  ggplot(., aes(x = length.mm, y = fluorescence.norm)) +
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
   stat_smooth(aes(group=1), colour="black", method="lm") +
-  geom_text(aes(x=5.5, y=35), label="p<0.001")+
+  geom_text(aes(x=6.5, y=35), label="p<0.001")+
   labs(
     title = "",
-    y = expression(paste(Delta, "Fluorescence")), x = "Length (mm)"
+    y = "Fold Change in Fluorescence", x = "Length (mm)"
   ) +
   theme_classic();plot6a
 
-#ggsave(plot6a, filename="figures/spat-stress/metabolism_size.png", width=5, height=5)
+ggsave(plot6a, filename="figures/thermal-curve/metabolism_size.png", width=5, height=5)
 ```
 
 ```{r}
-size_model<-lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=end_data)
+size_model<-full_data%>%
+  filter(timepoint=="5")%>%
+  
+  lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=.)
 
 summary(size_model)
 Anova(size_model)
