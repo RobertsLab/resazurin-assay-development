@@ -36,6 +36,7 @@ library(car)
 library(effects)
 library(emmeans)
 library(tools)
+library(pracma)
 ```
 
 # Resazurin metabolic rates
@@ -275,17 +276,8 @@ full_data%>%
 ```
 
 ```{r}
-full_data%>%
-  ggplot(aes(x=timepoint, y=value.mm, colour=spat_treatment, group=interaction(date, plate, well)))+
-  facet_wrap(~temperature)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("control"="darkgray", "treated"="darkred"))+
-  theme_classic()
-```
-
-```{r}
 hist(full_data$value.mm)
+hist(full_data$length.mm)
 ```
 
 Plot again. 
@@ -303,7 +295,7 @@ model<-lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well) + (
 
 summary(model)
 anova(model)
-rand(model)
+#rand(model)
 
 qqPlot(residuals(model))
 ```
@@ -463,47 +455,34 @@ data_42C<-full_data%>%
 str(data_42C)
 ```
 
-Plot
-
-```{r}
-plot4<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mortality), fill = as.factor(mortality))) +
-  facet_wrap(~spat_treatment)+
-  geom_point(alpha = 0.6, position = position_jitter(height = 0.03)) +
-  stat_smooth(aes(group=mortality)) +
-  scale_colour_manual(values=c("darkgray", "darkred"), labels=c("alive", "dead"), name="Mortality")+
-  scale_fill_manual(values=c("darkgray", "darkred"), labels=c("alive", "dead"), name="Mortality")+
-  labs(
-    title = "",
-    y = "Metabolic Rate",
-    x = "Hours"
-  ) +
-  theme_classic();plot4
-```
-
 Analyze the effect of mortality on metabolic rates. 
 ```{r}
+hist(data_42C$value.mm)
+data_42C<-data_42C%>%
+  filter(value.mm<4) #remove outliers
+
 mortality_model<-lmer((value.mm)^(1/3) ~ timepoint * mortality + (1|spat_treatment) + (1|holding_tank) + (1|spat_treatment:tank), data=data_42C)
 
 summary(mortality_model)
-Anova(mortality_model)
+anova(mortality_model)
 
 qqPlot(residuals(mortality_model))
 ```
 
 Time and mortality is significant 
 
-Plot again without treatment. 
+Plot by mortality. 
 
 ```{r}
 plot4a<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mortality), fill = as.factor(mortality))) +
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01)) +
   stat_smooth(aes(group=mortality), method="lm") +
-  scale_colour_manual(values=c("cyan4", "orange"), labels=c("alive", "dead"), name="Mortality")+
-  scale_fill_manual(values=c("cyan4", "orange"), labels=c("alive", "dead"), name="Mortality")+
-  geom_text(aes(x=3, y=5), label="p=0.018", colour="black")+
+  scale_colour_manual(values=c("black", "darkgray"), labels=c("alive", "dead"), name="Mortality")+
+  scale_fill_manual(values=c("black", "darkgray"), labels=c("alive", "dead"), name="Mortality")+
+  geom_text(aes(x=3, y=4), label="p<0.001", colour="black")+
   labs(
-    title = "",
-    y = expression(paste(Delta, " Size-Normalized Fluorescence")),
+    title = "C",
+    y = expression(paste("Fold Change Fluorescence mm" ^-1)),
     x = "Hours"
   ) +
   theme_classic();plot4a
@@ -511,53 +490,92 @@ plot4a<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mort
 ggsave(plot4a, filename="figures/spat-stress/mortality_metabolic_rates_42C.png", width=5, height=5)
 ```
 
-# Metabolic rates across thermal range 
-
-Subset data for the ending time point, which indicates change in fluorescence over the entire trial. 
+Calculate AUC for alive and dead oysters and plot. 
 
 ```{r}
-end_data<-full_data%>%
-  filter(timepoint=="4")%>%
-  mutate(temperature_num = as.numeric(str_extract(temperature, "\\d+")))
+auc_data<-data_42C%>%
+  mutate(time=as.numeric(timepoint))%>%
+  group_by(date, plate, well, temperature, mortality) %>%
+  summarise(AUC = trapz(time, value.mm))%>%
+  mutate(mortality=if_else(mortality=="0", "alive", "dead"))
 
-head(end_data)
+head(auc_data)
 ```
 
-Plot metabolic rates for each treatment over the temperatures. 
+```{r}
+plot4b<-auc_data%>%
+  group_by(mortality)%>%
+  summarise(mean=mean(AUC), se=sd(AUC)/sqrt(length(AUC)))%>%
+  
+  ggplot(., aes(x = mortality, y = mean, color = mortality, fill = mortality)) +
+  geom_point() +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.1) +
+  scale_colour_manual(values=c("black", "darkgray"), name="Mortality")+
+ scale_fill_manual(values=c("black", "darkgray"), name="Mortality")+
+  geom_text(aes(x=1.5, y=4.5), label="p<0.001", colour="black")+
+  ylim(0,5)+
+  labs(
+    title = "D",
+    y = expression(paste("AUC")),
+    x = "Mortality"
+  ) +
+  theme_classic()+
+  theme(legend.position="none");plot4b
+
+ggsave(plot4b, filename="figures/spat-stress/mortality_metabolic_rates_42C_mean.png", width=3, height=4)
+```
 
 ```{r}
-plot5<-ggplot(end_data, aes(x = temperature, y = value.mm, color = spat_treatment, fill = spat_treatment, group=spat_treatment)) +
-  geom_point(alpha = 0.6, position = position_jitter(height = 0.03)) +
-  stat_smooth(aes(group=spat_treatment)) +
-  scale_colour_manual(values=c("cyan4", "orange"))+
-  scale_fill_manual(values=c("cyan4", "orange"))+
-  labs(
-    title = "",
-    y = "Metabolic Rate",
-  ) +
-  theme_classic();plot5
+hist(auc_data$AUC)
 
-plot5a<-ggplot(end_data, aes(x = temperature, y = value.mm)) +
+tpc_model<-aov((AUC)^(1/3) ~ mortality, data=auc_data)
+
+summary(tpc_model)
+anova(tpc_model)
+qqPlot(residuals(tpc_model))
+```
+
+# Metabolic rates across thermal range 
+
+Calculate total metabolic activity as area under the curve.  
+
+```{r}
+auc_data<-full_data%>%
+  mutate(time=as.numeric(timepoint))%>%
+  group_by(date, plate, well, temperature, spat_treatment, tank, holding_tank) %>%
+  summarise(AUC = trapz(time, value.mm))%>%
+  mutate(temperature = str_replace_all(temperature, "C", ""))
+
+head(auc_data)
+```
+
+Plot metabolic rates over the temperatures. 
+
+```{r}
+plot5a<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   geom_violin(colour="darkgray")+
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
   stat_smooth(aes(group=1), colour="black", method="loess") +
-  geom_text(aes(x=3, y=7), label="p<0.001")+
+  geom_text(aes(x=3, y=15), label="p<0.001")+
   labs(
-    title = "",
-    y = expression(paste(Delta, " Size-Normalized Fluorescence")), x = "Temperature"
+    title = "B",
+    y = "AUC", x = "Temperature"
   ) +
   theme_classic();plot5a
 
-ggsave(plot5a, filename="figures/spat-stress/tpc.png", width=4, height=5)
+ggsave(plot5a, filename="figures/spat-stress/auc_spat.png", width=4, height=5)
 ```
 
 Analyze effect of temperature. 
 
 ```{r}
-tpc_model<-lmer((value.mm)^(1/3) ~ temperature + (1|holding_tank) + (1|spat_treatment) + (1|spat_treatment:tank), data=end_data)
+hist(auc_data$AUC)
+
+tpc_model<-lmer((AUC)^(1/3) ~ temperature + (1|holding_tank) + (1|spat_treatment) + (1|spat_treatment:tank), data=auc_data)
 
 summary(tpc_model)
-Anova(tpc_model)
+anova(tpc_model)
+qqPlot(residuals(tpc_model))
 ```
 
 Posthoc test.  
@@ -572,13 +590,16 @@ pairs(emm)
 Plot fluorescence data by size.  
 ß
 ```{r}
-plot6a<-ggplot(end_data, aes(x = length.mm, y = fluorescence.norm)) +
+plot6a<-full_data%>%
+  filter(timepoint=="4")%>%
+  
+  ggplot(., aes(x = length.mm, y = fluorescence.norm)) +
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
   stat_smooth(aes(group=1), colour="black", method="lm") +
-  geom_text(aes(x=5.5, y=35), label="p<0.001")+
+  geom_text(aes(x=4.5, y=35), label="p<0.001")+
   labs(
-    title = "",
-    y = expression(paste(Delta, "Fluorescence")), x = "Length (mm)"
+    title = "A",
+    y = "Fold Change in Fluorescence", x = "Length (mm)"
   ) +
   theme_classic();plot6a
 
@@ -586,10 +607,14 @@ ggsave(plot6a, filename="figures/spat-stress/metabolism_size.png", width=5, heig
 ```
 
 ```{r}
-size_model<-lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=end_data)
+size_model<-full_data%>%
+  filter(timepoint=="4")%>%
+  
+  lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=.)
 
 summary(size_model)
-Anova(size_model)
+anova(size_model)
+qqPlot(residuals(size_model))
 ```
 
 
