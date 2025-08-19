@@ -294,7 +294,12 @@ full_data%>%
 
 ```{r}
 hist(full_data$value.mm)
-hist((full_data$value.mm)^(1/3))
+
+#remove outlier
+full_data<-full_data%>%
+  filter(value.mm<5)
+
+hist((full_data$value.mm))
 ```
 
 
@@ -303,7 +308,7 @@ model<-lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well), da
 
 summary(model)
 anova(model)
-rand(model)
+#rand(model)
 
 qqPlot(residuals(model))
 ```
@@ -326,8 +331,9 @@ Plot with individual points with geom smooth lines.
 plot1<-full_data%>%
 
   ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature))+
+  facet_grid(~date)+
   geom_point(alpha=0.5)+
-  stat_smooth(aes(group=temperature), method="lm")+
+  stat_smooth(aes(group=temperature), method="loess")+
   theme_classic()+
   xlab("Hour");plot1
 
@@ -335,14 +341,14 @@ plot1a<-full_data%>%
 
   ggplot(aes(x=timepoint, y=value.mm, color=temperature, fill=temperature, group=temperature))+
   geom_point(alpha=0.5)+
-  stat_smooth(method="lm")+
+  stat_smooth(method="loess")+
   theme_classic()+
   xlab("Hour");plot1a
 
 #ggsave(plot1a, filename="figures/spat-stress/metabolism_temperature.png", width=7, height=5)
 ```
 
-# Metabolic rates across thermal range 
+# Total metabolic activity 
 
 Calculate total metabolic activity as area under the curve. 
 
@@ -396,6 +402,8 @@ Posthoc test.
 
 ```{r}
 emm<-emmeans(tpc_model, ~temperature)
+library(multcomp)
+cld(emm)
 pairs(emm)
 ```
 
