@@ -1193,7 +1193,7 @@ ab_data<-ab_data%>%
 corr_data<-left_join(fl_data, ab_data)
 ```
 
-Calculate absorbance as the reciprocal. 
+Calculate absorbence as the reciprocal. 
 ```{r}
 corr_data$abs.corr.mm<-corr_data$abs.corr.mm*-1
 ```
@@ -1204,10 +1204,11 @@ Plot fluorescence vs absorbance measurements.
 plot7<-corr_data%>%
   
   ggplot(aes(x=fluorescence.corr.mm, y=abs.corr.mm))+
-  geom_point()+
-  stat_smooth(method="lm", color="red")+
-  xlab("Fluorescence")+
-  ylab("Absorbance")+
+  geom_point(color="darkgray", alpha=0.5)+
+  stat_smooth(method="lm", color="black")+
+  xlab(expression(paste("Scaled Fluorescence (mm" ^-1, ")")))+
+  ylab(expression(paste("Scaled Absorbance (mm" ^-1, ")")))+ 
+  ggtitle("A")+
   theme_classic(); plot7
 
 ggsave(plot7, filename="figures/usda-families/ab_fl_correlation.png", width=6, height=6, units="in")
@@ -1241,15 +1242,18 @@ diff_values <- abs_norm - fluor_norm
 
 # Bland–Altman plot
 plot(mean_values, diff_values,
-     main = "Bland–Altman Plot",
+     main = "",
      xlab = "Mean of Absorbance and Fluorescence",
      ylab = "Difference in Absorbance and Fluorescence")
 
-abline(h = mean(diff_values), col = "red")  # mean bias
-abline(h = mean(diff_values) + 1.96 * sd(diff_values), col = "blue", lty = 2)
-abline(h = mean(diff_values) - 1.96 * sd(diff_values), col = "blue", lty = 2)
+abline(h = mean(diff_values), col = "black")  # mean bias
+abline(h = mean(diff_values) + 1.96 * sd(diff_values), col = "black", lty = 2)
+abline(h = mean(diff_values) - 1.96 * sd(diff_values), col = "black", lty = 2)
 
-lines(lowess(mean_values, diff_values), col = "darkorange", lwd = 2)
+lines(lowess(mean_values, diff_values), col = "red", lwd = 2)
+
+# Add figure panel label "B" in the upper left
+mtext("B", side = 3, line = 0.5, adj = -0.2, cex = 1, font = 1)
 ```
 
 We are looking for random distribution of values around the red line and within the blue lines. 
