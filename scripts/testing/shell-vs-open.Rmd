@@ -128,7 +128,6 @@ plot2<-data%>%
   scale_linetype_manual(values=c("solid", "solid"))+
   theme_classic();plot2
 
-
 ggsave(plot2, filename="figures/testing/shell_live_normalized.png", width=5, height=4)
 ```
 
