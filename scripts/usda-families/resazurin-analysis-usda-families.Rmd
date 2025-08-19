@@ -341,15 +341,20 @@ full_data%>%
 
 ```{r}
 plot1<-full_data%>%
-  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well)))+
-  facet_wrap(~family)+
-  geom_point()+
+  ggplot(aes(x=timepoint, y=value, colour=temperature, group=interaction(date, well), fill=temperature))+
+  facet_grid(~family)+
+  geom_point(alpha=0.3)+
   geom_vline(xintercept=4, linetype="dashed")+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
+  scale_colour_manual(values=c("darkgray", "darkred"), name="")+
+  scale_fill_manual(values=c("darkgray", "darkred"), name="")+
   geom_line()+
+  ylab(expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")))+
+  xlab("Hours")+
+  ggtitle("A")+
+  #geom_smooth(aes(group=interaction(family, temperature)), method="lm")+
   theme_classic();plot1
 
-ggsave(plot1, filename="figures/usda-families/fl_family_trajectories.png", width=8, height=8, units="in")
+ggsave(plot1, filename="figures/usda-families/fl_family_trajectories.png", width=12, height=5, units="in")
 ```
 
 ## Calculate change due to temperature exposure   
@@ -418,13 +423,27 @@ Plot separate segments.
 ```
 
 ```{r}
-segment_data%>%
-  ggplot(aes(x=time_exposure, y=value, colour=temperature, group=interaction(date,well, temperature)))+
-  facet_wrap(~family)+
-  geom_point()+
-  geom_line()+
-  scale_colour_manual(values=c("darkblue", "darkred"))+
-  theme_classic()
+hist((segment_data$value))
+
+#filter upper outliers
+segment_data<-segment_data%>%
+  filter(value<0.04)
+```
+
+```{r}
+seg_plot<-segment_data%>%
+  ggplot(aes(x=time_exposure, y=value, fill=temperature, colour=temperature, group=interaction(date,well, temperature)))+
+  facet_grid(~family)+
+  geom_point(alpha=0.3)+
+  geom_smooth(aes(group=temperature), method="lm")+
+  scale_colour_manual(values=c("darkgray", "darkred"), name="")+
+  scale_fill_manual(values=c("darkgray", "darkred"), name="")+
+  xlab("Hours")+
+  ggtitle("B")+
+  ylab(expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")))+
+  theme_classic();seg_plot
+
+ggsave(seg_plot, filename="figures/usda-families/fl_family_averages.png", width=12, height=5, units="in")
 ```
 
 Run a model on metabolic rates. 
@@ -441,6 +460,9 @@ emm<-emmeans(model, ~family)
 pairs(emm)
 
 emm<-emmeans(model, ~temperature)
+pairs(emm)
+
+emm<-emmeans(model, ~temperature|family)
 pairs(emm)
 ```
 Significant interaction of temperature and time as well as family and time. This indicates temperature and family effects on metabolic rate.   
