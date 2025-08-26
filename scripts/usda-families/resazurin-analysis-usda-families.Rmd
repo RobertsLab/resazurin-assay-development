@@ -373,7 +373,7 @@ full_data<-full_data%>%
     timepoint=="6" ~ 3
   ))
 
-#replicate data from time point 3 as time of exposure 0 for 42C treatment and time of exposure 3 for 18C treatment
+#replicate data from time point 3 as time of exposure 0 for 40C treatment and time of exposure 3 for 18C treatment
 
 str(full_data)
 
@@ -387,7 +387,7 @@ ambient_rows <- hour3_rows %>%
 
 # Create high temperature treatment version
 high_temp_rows <- hour3_rows %>%
-  mutate(temperature = "42C", time_exposure = 0)
+  mutate(temperature = "40C", time_exposure = 0)
 
 # Combine with original data
 segment_data <- full_data %>%
@@ -403,7 +403,7 @@ ambient_rows<-segment_data%>%
   filter(temperature=="18C")
 
 high_rows<-segment_data%>%
-  filter(temperature=="42C")%>%
+  filter(temperature=="40C")%>%
   arrange(date, sample)%>%
   mutate(value=value-first(value))
 
@@ -494,8 +494,8 @@ slopes <- nested %>%
 slope_summary <- slopes %>%
   pivot_wider(names_from = temperature, values_from = slope) %>%
   mutate(
-    absolute_change = `42C` - `18C`,
-    percent_change = 100 * (`42C` - `18C`) / `18C`
+    absolute_change = `40C` - `18C`,
+    percent_change = 100 * (`40C` - `18C`) / `18C`
   )
 ```
 
@@ -977,7 +977,7 @@ full_data<-full_data%>%
     timepoint=="5" ~ 2
   ))
 
-#replicate data from time point 3 as time of exposure 0 for 42C treatment and time of exposure 3 for 18C treatment
+#replicate data from time point 3 as time of exposure 0 for 40C treatment and time of exposure 3 for 18C treatment
 
 str(full_data)
 
@@ -991,7 +991,7 @@ ambient_rows <- hour3_rows %>%
 
 # Create high temperature treatment version
 high_temp_rows <- hour3_rows %>%
-  mutate(temperature = "42C", time_exposure = 0)
+  mutate(temperature = "40C", time_exposure = 0)
 
 # Combine with original data
 segment_data <- full_data %>%
@@ -1007,7 +1007,7 @@ ambient_rows<-segment_data%>%
   filter(temperature=="18C")
 
 high_rows<-segment_data%>%
-  filter(temperature=="42C")%>%
+  filter(temperature=="40C")%>%
   arrange(date, sample)%>%
   mutate(value=value-first(value))
 
@@ -1054,8 +1054,8 @@ slopes <- nested %>%
 slope_summary <- slopes %>%
   pivot_wider(names_from = temperature, values_from = slope) %>%
   mutate(
-    absolute_change = `42C` - `18C`,
-    percent_change = 100 * (`42C` - `18C`) / `18C`
+    absolute_change = `40C` - `18C`,
+    percent_change = 100 * (`40C` - `18C`) / `18C`
   )
 ```
 
