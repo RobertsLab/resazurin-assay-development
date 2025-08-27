@@ -93,7 +93,7 @@ Our research team has conducted four major studies testing the resazurin assay a
 **Industry implication:** Breeding programs can select for metabolically robust lines, creating more resilient oyster stocks for farmers.
 
 
-## 4. VIMS / ABC Trials
+## 4. Breeding Program Scale Assessment (VIMS / ABC Trials)
 
 **What we tested:** Resazurin metabolic assays tested across multiple oyster families, ploidy types (diploid vs triploid), and environmental stress conditions to predict performance traits.
 
