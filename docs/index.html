@@ -23,6 +23,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -73,6 +107,8 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script type="module" src="site_libs/quarto-ojs/quarto-ojs-runtime.js"></script>
+<link href="site_libs/quarto-ojs/quarto-ojs.css" rel="stylesheet">
 
 
 </head>
@@ -240,6 +276,188 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 </section>
+<section id="interactive-recipe-calculator" class="level1">
+<h1>Interactive Recipe Calculator</h1>
+<p>Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup:</p>
+<div class="cell">
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="170" data-source-offset="-19"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 169;"><span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>viewof plateType <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>  [</span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>    <span class="st">"96-well plate (35 mL per plate)"</span><span class="op">,</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>    <span class="st">"48-well plate (25 mL per plate)"</span><span class="op">,</span> </span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>    <span class="st">"24-well plate (15 mL per plate)"</span><span class="op">,</span></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>    <span class="st">"12-well plate (10 mL per plate)"</span><span class="op">,</span></span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Custom volume"</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Plate type:"</span><span class="op">,</span></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">"96-well plate (35 mL per plate)"</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>viewof numPlates <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">20</span>]<span class="op">,</span> {</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of plates:"</span><span class="op">,</span></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span></span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a>viewof customVolume <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">500</span>]<span class="op">,</span> {</span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Custom total volume (mL):"</span><span class="op">,</span></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">35</span><span class="op">,</span></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>  <span class="dt">disabled</span><span class="op">:</span> plateType <span class="op">!==</span> <span class="st">"Custom volume"</span></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>viewof extraPercent <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">50</span>]<span class="op">,</span> {</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Extra volume for safety (%):"</span><span class="op">,</span></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">5</span></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a><span class="co">// Calculations</span></span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>plateVolumes <span class="op">=</span> <span class="kw">new</span> <span class="bu">Map</span>([</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"96-well plate (35 mL per plate)"</span><span class="op">,</span> <span class="dv">35</span>]<span class="op">,</span></span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"48-well plate (25 mL per plate)"</span><span class="op">,</span> <span class="dv">25</span>]<span class="op">,</span></span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"24-well plate (15 mL per plate)"</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> </span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"12-well plate (10 mL per plate)"</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span></span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Custom volume"</span><span class="op">,</span> customVolume]</span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>baseVolume <span class="op">=</span> plateVolumes<span class="op">.</span><span class="fu">get</span>(plateType) <span class="op">*</span> numPlates</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>totalVolume <span class="op">=</span> baseVolume <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> extraPercent <span class="op">/</span> <span class="dv">100</span>)</span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>seawaterVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.98666</span></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>resazurinVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.00222</span></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>dmsoVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.001</span></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>antibioticVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.01</span></span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a><span class="co">// Helper function to format volumes appropriately</span></span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">formatVolume</span>(volume) {</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (volume <span class="op">&gt;=</span> <span class="dv">1</span>) {</span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> volume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>) <span class="op">+</span> <span class="st">" mL"</span><span class="op">;</span></span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (volume <span class="op">*</span> <span class="dv">1000</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">0</span>) <span class="op">+</span> <span class="st">" µL"</span><span class="op">;</span></span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="co">// Display results</span></span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`</span></span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;"&gt;</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;h3 style="color: #2c3e50; margin-top: 0;"&gt;📋 Recipe for </span><span class="sc">${</span>totalVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL Working Solution&lt;/h3&gt;</span></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;"&gt;</span></span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Experimental setup:&lt;/strong&gt; </span><span class="sc">${</span>numPlates<span class="sc">}</span><span class="vs"> × </span><span class="sc">${</span>plateType<span class="op">.</span><span class="fu">split</span>(<span class="st">' ('</span>)[<span class="dv">0</span>]<span class="sc">}</span><span class="vs"> </span></span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>plateType <span class="op">!==</span> <span class="st">"Custom volume"</span> <span class="op">?</span> <span class="vs">`(</span><span class="sc">${</span>baseVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL base volume)`</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}</span><span class="vs">&lt;/p&gt;</span></span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Safety margin:&lt;/strong&gt; +</span><span class="sc">${</span>extraPercent<span class="sc">}</span><span class="vs">% extra volume&lt;/p&gt;</span></span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px;"&gt;</span></span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;h4 style="color: #27ae60; margin-top: 0;"&gt;🧪 Required Ingredients:&lt;/h4&gt;</span></span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;ul style="font-size: 16px; line-height: 1.8;"&gt;</span></span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(seawaterVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered &amp;lt;1μm seawater)&lt;/li&gt;</span></span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(resazurinVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; resazurin stock solution (from step 1 above)&lt;/li&gt;</span></span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(dmsoVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; DMSO&lt;/li&gt;</span></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(antibioticVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; antibiotic solution (100x Penn/Strep &amp; 100x Fungizone)&lt;/li&gt;</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/ul&gt;</span></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px;"&gt;</span></span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;💡 Tip:&lt;/strong&gt; Remember to thaw the antibiotic solution in the dark before use, and store the resazurin stock solution in a dark fridge or freezer.</span></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-1" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-2" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-3" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-4" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-5" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-6" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-7" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-8" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-9" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-10" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-11" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-12" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-13" data-nodetype="expression">
+
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="recent-slidedecks" class="level1">
 <h1>Recent Slidedecks</h1>
 <p><img src="http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png" class="img-fluid" width="300"></p>
@@ -249,6 +467,17 @@ ul.task-list li input[type="checkbox"] {
 </section>
 
 </main> <!-- /main -->
+<script type="ojs-module-contents">
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxuLy8gSW5wdXQgY29udHJvbHNcbnZpZXdvZiBwbGF0ZVR5cGUgPSBJbnB1dHMuc2VsZWN0KFxuICBbXG4gICAgXCI5Ni13ZWxsIHBsYXRlICgzNSBtTCBwZXIgcGxhdGUpXCIsXG4gICAgXCI0OC13ZWxsIHBsYXRlICgyNSBtTCBwZXIgcGxhdGUpXCIsIFxuICAgIFwiMjQtd2VsbCBwbGF0ZSAoMTUgbUwgcGVyIHBsYXRlKVwiLFxuICAgIFwiMTItd2VsbCBwbGF0ZSAoMTAgbUwgcGVyIHBsYXRlKVwiLFxuICAgIFwiQ3VzdG9tIHZvbHVtZVwiXG4gIF0sXG4gIHtcbiAgICBsYWJlbDogXCJQbGF0ZSB0eXBlOlwiLFxuICAgIHZhbHVlOiBcIjk2LXdlbGwgcGxhdGUgKDM1IG1MIHBlciBwbGF0ZSlcIlxuICB9XG4pXG5cbnZpZXdvZiBudW1QbGF0ZXMgPSBJbnB1dHMucmFuZ2UoWzEsIDIwXSwge1xuICBsYWJlbDogXCJOdW1iZXIgb2YgcGxhdGVzOlwiLFxuICB2YWx1ZTogMSxcbiAgc3RlcDogMVxufSlcblxudmlld29mIGN1c3RvbVZvbHVtZSA9IElucHV0cy5yYW5nZShbMSwgNTAwXSwge1xuICBsYWJlbDogXCJDdXN0b20gdG90YWwgdm9sdW1lIChtTCk6XCIsXG4gIHZhbHVlOiAzNSxcbiAgc3RlcDogMSxcbiAgZGlzYWJsZWQ6IHBsYXRlVHlwZSAhPT0gXCJDdXN0b20gdm9sdW1lXCJcbn0pXG5cbnZpZXdvZiBleHRyYVBlcmNlbnQgPSBJbnB1dHMucmFuZ2UoWzAsIDUwXSwge1xuICBsYWJlbDogXCJFeHRyYSB2b2x1bWUgZm9yIHNhZmV0eSAoJSk6XCIsXG4gIHZhbHVlOiAxMCxcbiAgc3RlcDogNVxufSlcblxuLy8gQ2FsY3VsYXRpb25zXG5wbGF0ZVZvbHVtZXMgPSBuZXcgTWFwKFtcbiAgW1wiOTYtd2VsbCBwbGF0ZSAoMzUgbUwgcGVyIHBsYXRlKVwiLCAzNV0sXG4gIFtcIjQ4LXdlbGwgcGxhdGUgKDI1IG1MIHBlciBwbGF0ZSlcIiwgMjVdLFxuICBbXCIyNC13ZWxsIHBsYXRlICgxNSBtTCBwZXIgcGxhdGUpXCIsIDE1XSwgXG4gIFtcIjEyLXdlbGwgcGxhdGUgKDEwIG1MIHBlciBwbGF0ZSlcIiwgMTBdLFxuICBbXCJDdXN0b20gdm9sdW1lXCIsIGN1c3RvbVZvbHVtZV1cbl0pXG5cbmJhc2VWb2x1bWUgPSBwbGF0ZVZvbHVtZXMuZ2V0KHBsYXRlVHlwZSkgKiBudW1QbGF0ZXNcbnRvdGFsVm9sdW1lID0gYmFzZVZvbHVtZSAqICgxICsgZXh0cmFQZXJjZW50IC8gMTAwKVxuXG5zZWF3YXRlclZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC45ODY2NlxucmVzYXp1cmluVm9sdW1lID0gdG90YWxWb2x1bWUgKiAwLjAwMjIyXG5kbXNvVm9sdW1lID0gdG90YWxWb2x1bWUgKiAwLjAwMVxuYW50aWJpb3RpY1ZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC4wMVxuXG4vLyBIZWxwZXIgZnVuY3Rpb24gdG8gZm9ybWF0IHZvbHVtZXMgYXBwcm9wcmlhdGVseVxuZnVuY3Rpb24gZm9ybWF0Vm9sdW1lKHZvbHVtZSkge1xuICBpZiAodm9sdW1lID49IDEpIHtcbiAgICByZXR1cm4gdm9sdW1lLnRvRml4ZWQoMikgKyBcIiBtTFwiO1xuICB9IGVsc2Uge1xuICAgIHJldHVybiAodm9sdW1lICogMTAwMCkudG9GaXhlZCgwKSArIFwiIMK1TFwiO1xuICB9XG59XG5cbi8vIERpc3BsYXkgcmVzdWx0c1xuaHRtbGBcbjxkaXYgc3R5bGU9XCJiYWNrZ3JvdW5kOiAjZjhmOWZhOyBwYWRkaW5nOiAyMHB4OyBib3JkZXItcmFkaXVzOiA4cHg7IG1hcmdpbjogMjBweCAwO1wiPlxuICA8aDMgc3R5bGU9XCJjb2xvcjogIzJjM2U1MDsgbWFyZ2luLXRvcDogMDtcIj7wn5OLIFJlY2lwZSBmb3IgJHt0b3RhbFZvbHVtZS50b0ZpeGVkKDEpfSBtTCBXb3JraW5nIFNvbHV0aW9uPC9oMz5cbiAgXG4gIDxkaXYgc3R5bGU9XCJiYWNrZ3JvdW5kOiB3aGl0ZTsgcGFkZGluZzogMTVweDsgYm9yZGVyLXJhZGl1czogNXB4OyBtYXJnaW46IDEwcHggMDtcIj5cbiAgICA8cD48c3Ryb25nPkV4cGVyaW1lbnRhbCBzZXR1cDo8L3N0cm9uZz4gJHtudW1QbGF0ZXN9IMOXICR7cGxhdGVUeXBlLnNwbGl0KCcgKCcpWzBdfSBcbiAgICAke3BsYXRlVHlwZSAhPT0gXCJDdXN0b20gdm9sdW1lXCIgPyBgKCR7YmFzZVZvbHVtZS50b0ZpeGVkKDEpfSBtTCBiYXNlIHZvbHVtZSlgIDogJyd9PC9wPlxuICAgIDxwPjxzdHJvbmc+U2FmZXR5IG1hcmdpbjo8L3N0cm9uZz4gKyR7ZXh0cmFQZXJjZW50fSUgZXh0cmEgdm9sdW1lPC9wPlxuICA8L2Rpdj5cblxuICA8ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogd2hpdGU7IHBhZGRpbmc6IDE1cHg7IGJvcmRlci1yYWRpdXM6IDVweDtcIj5cbiAgICA8aDQgc3R5bGU9XCJjb2xvcjogIzI3YWU2MDsgbWFyZ2luLXRvcDogMDtcIj7wn6eqIFJlcXVpcmVkIEluZ3JlZGllbnRzOjwvaDQ+XG4gICAgPHVsIHN0eWxlPVwiZm9udC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMS44O1wiPlxuICAgICAgPGxpPjxzdHJvbmc+JHtmb3JtYXRWb2x1bWUoc2Vhd2F0ZXJWb2x1bWUpfTwvc3Ryb25nPiBmaWx0ZXJlZCBzZWF3YXRlciAoREkgd2F0ZXIgd2l0aCBJbnN0YW50IE9jZWFuIGFkanVzdGVkIHRvIDIzLTI1IHBwdCBvciBmaWx0ZXJlZCAmbHQ7Mc68bSBzZWF3YXRlcik8L2xpPlxuICAgICAgPGxpPjxzdHJvbmc+JHtmb3JtYXRWb2x1bWUocmVzYXp1cmluVm9sdW1lKX08L3N0cm9uZz4gcmVzYXp1cmluIHN0b2NrIHNvbHV0aW9uIChmcm9tIHN0ZXAgMSBhYm92ZSk8L2xpPlxuICAgICAgPGxpPjxzdHJvbmc+JHtmb3JtYXRWb2x1bWUoZG1zb1ZvbHVtZSl9PC9zdHJvbmc+IERNU088L2xpPlxuICAgICAgPGxpPjxzdHJvbmc+JHtmb3JtYXRWb2x1bWUoYW50aWJpb3RpY1ZvbHVtZSl9PC9zdHJvbmc+IGFudGliaW90aWMgc29sdXRpb24gKDEwMHggUGVubi9TdHJlcCAmIDEwMHggRnVuZ2l6b25lKTwvbGk+XG4gICAgPC91bD5cbiAgPC9kaXY+XG4gIFxuICA8ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogI2ZmZjNjZDsgcGFkZGluZzogMTBweDsgYm9yZGVyLXJhZGl1czogNXB4OyBtYXJnaW4tdG9wOiAxNXB4OyBmb250LXNpemU6IDE0cHg7XCI+XG4gICAgPHN0cm9uZz7wn5KhIFRpcDo8L3N0cm9uZz4gUmVtZW1iZXIgdG8gdGhhdyB0aGUgYW50aWJpb3RpYyBzb2x1dGlvbiBpbiB0aGUgZGFyayBiZWZvcmUgdXNlLCBhbmQgc3RvcmUgdGhlIHJlc2F6dXJpbiBzdG9jayBzb2x1dGlvbiBpbiBhIGRhcmsgZnJpZGdlIG9yIGZyZWV6ZXIuXG4gIDwvZGl2PlxuPC9kaXY+XG5gXG4ifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ3BsYXRlVHlwZScpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdudW1QbGF0ZXMnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnY3VzdG9tVm9sdW1lJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2V4dHJhUGVyY2VudCcpIn1dfQ==
+</script>
+<script type="module">
+if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
+window._ojs.paths.runtimeToDoc = "../..";
+window._ojs.paths.runtimeToRoot = "../..";
+window._ojs.paths.docToRoot = "";
+window._ojs.selfContained = false;
+window._ojs.runtime.interpretFromScriptTags();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
