@@ -49,7 +49,7 @@ of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of
 ![Resorufin is highly fluorescent (excitation \~570 nm, emission \~585
 nm). The amount of resorufin produced is directly proportional to the
 metabolic activity of the
-cells.](http://gannet.fish.washington.edu/seashell/snaps/Monosnap_httpsgannet.fish.washington.eduseashellsnaps2025-VIMS-Roberts.pdf_2025-08-27_16-08-26.png)
+cells.](http://gannet.fish.washington.edu/seashell/snaps/Monosnap_httpsgannet.fish.washington.eduseashellsnaps2025-VIMS-Roberts.pdf_2025-08-27_16-08-26.png){width="75%"}
 
 # Highlights to date
 
@@ -74,7 +74,9 @@ results.
 
 # Video Demo
 
-{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
+<div style="width:75%; margin:auto;">
+  {{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
+</div>
 
 # Preparing solutions
 
