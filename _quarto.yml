@@ -5,6 +5,11 @@ project:
 website:
   # Omitting the title will hide it
   navbar:
+    left:
+      - text: "Technical Documentation"
+        file: index.qmd
+      - text: "Public Summary"
+        file: public-summary.qmd
     right:
       - icon: github
         href: https://github.com/RobertsLab/resazurin-assay-development

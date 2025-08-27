@@ -22,6 +22,12 @@ glimpse real-time activity in from the lab
 with the [Canonical
 Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 
+::: {.callout-note}
+## 📖 New: Public Summary Available
+
+For a general audience overview of this research, including implications for the aquaculture industry and key findings to date, see our **[Public Summary: Resazurin Assay for Oyster Health Assessment](public-summary.qmd)**.
+:::
+
 ------------------------------------------------------------------------
 
 # Summary
