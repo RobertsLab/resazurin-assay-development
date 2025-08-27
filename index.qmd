@@ -159,6 +159,101 @@ if more is required. 
 -   1.5 mL antibiotic solution [100x Penn/Strep & 100x
     Fungizone](https://us.vwr.com/store/product/4648458/null) 
 
+# Interactive Recipe Calculator
+
+Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup:
+
+```{ojs}
+//| echo: false
+
+// Input controls
+viewof plateType = Inputs.select(
+  [
+    "96-well plate (35 mL per plate)",
+    "48-well plate (25 mL per plate)", 
+    "24-well plate (15 mL per plate)",
+    "12-well plate (10 mL per plate)",
+    "Custom volume"
+  ],
+  {
+    label: "Plate type:",
+    value: "96-well plate (35 mL per plate)"
+  }
+)
+
+viewof numPlates = Inputs.range([1, 20], {
+  label: "Number of plates:",
+  value: 1,
+  step: 1
+})
+
+viewof customVolume = Inputs.range([1, 500], {
+  label: "Custom total volume (mL):",
+  value: 35,
+  step: 1,
+  disabled: plateType !== "Custom volume"
+})
+
+viewof extraPercent = Inputs.range([0, 50], {
+  label: "Extra volume for safety (%):",
+  value: 10,
+  step: 5
+})
+
+// Calculations
+plateVolumes = new Map([
+  ["96-well plate (35 mL per plate)", 35],
+  ["48-well plate (25 mL per plate)", 25],
+  ["24-well plate (15 mL per plate)", 15], 
+  ["12-well plate (10 mL per plate)", 10],
+  ["Custom volume", customVolume]
+])
+
+baseVolume = plateVolumes.get(plateType) * numPlates
+totalVolume = baseVolume * (1 + extraPercent / 100)
+
+seawaterVolume = totalVolume * 0.98666
+resazurinVolume = totalVolume * 0.00222
+dmsoVolume = totalVolume * 0.001
+antibioticVolume = totalVolume * 0.01
+
+// Helper function to format volumes appropriately
+function formatVolume(volume) {
+  if (volume >= 1) {
+    return volume.toFixed(2) + " mL";
+  } else {
+    return (volume * 1000).toFixed(0) + " µL";
+  }
+}
+
+// Display results
+html`
+<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+  <h3 style="color: #2c3e50; margin-top: 0;">📋 Recipe for ${totalVolume.toFixed(1)} mL Working Solution</h3>
+  
+  <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
+    <p><strong>Experimental setup:</strong> ${numPlates} × ${plateType.split(' (')[0]} 
+    ${plateType !== "Custom volume" ? `(${baseVolume.toFixed(1)} mL base volume)` : ''}</p>
+    <p><strong>Safety margin:</strong> +${extraPercent}% extra volume</p>
+  </div>
+
+  <div style="background: white; padding: 15px; border-radius: 5px;">
+    <h4 style="color: #27ae60; margin-top: 0;">🧪 Required Ingredients:</h4>
+    <ul style="font-size: 16px; line-height: 1.8;">
+      <li><strong>${formatVolume(seawaterVolume)}</strong> filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered &lt;1μm seawater)</li>
+      <li><strong>${formatVolume(resazurinVolume)}</strong> resazurin stock solution (from step 1 above)</li>
+      <li><strong>${formatVolume(dmsoVolume)}</strong> DMSO</li>
+      <li><strong>${formatVolume(antibioticVolume)}</strong> antibiotic solution (100x Penn/Strep & 100x Fungizone)</li>
+    </ul>
+  </div>
+  
+  <div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px;">
+    <strong>💡 Tip:</strong> Remember to thaw the antibiotic solution in the dark before use, and store the resazurin stock solution in a dark fridge or freezer.
+  </div>
+</div>
+`
+```
+
 # Recent Slidedecks
 
 ![](http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png){width="300px"}
