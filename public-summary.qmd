@@ -37,10 +37,10 @@ Oyster farming is a critical industry worth billions of dollars globally, but fa
 
 ### Current Challenges in Oyster Farming
 
-Traditional methods for assessing oyster health often involve:
-- Waiting to see mortality (too late for intervention)
-- Destructive testing that kills the animals being assessed
-- Time-consuming methods that can't keep pace with changing conditions
+Traditional methods for assessing oyster health often involve:    
+- Waiting to see mortality (too late for intervention)   
+- Destructive testing that kills the animals being assessed   
+- Time-consuming methods that can't keep pace with changing conditions   
 - Inability to predict which oysters will survive stress
 
 ### How Resazurin Assays Help

@@ -5,7 +5,7 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-07-07 # UPDATE
+date-modified: 2025-08-27 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
@@ -22,10 +22,13 @@ glimpse real-time activity in from the lab
 with the [Canonical
 Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 
-::: {.callout-note}
+::: callout-note
 ## 📖 New: Public Summary Available
 
-For a general audience overview of this research, including implications for the aquaculture industry and key findings to date, see our **[Public Summary: Resazurin Assay for Oyster Health Assessment](public-summary.qmd)**.
+For a general audience overview of this research, including implications
+for the aquaculture industry and key findings to date, see our [**Public
+Summary: Resazurin Assay for Oyster Health
+Assessment**](public-summary.qmd).
 :::
 
 ------------------------------------------------------------------------
@@ -43,31 +46,31 @@ Fluorescence measurements are conducted using an excitation wavelength
 of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of
 590 nm (or a 590/20 nm bandpass filter) using a plate reader.
 
-::: callout-note
-## Notes on Eastern Oyster
-
-In July 2025 we ran assays at VIMS using *C. virginica.* The protocol was
-modified slightly and involved allocating oysters to 24 well plates, taking
-images for size analysis, adding chilled resazurin (4°C ) solution,
-taking initial measurements (T0), incubating plates at 40°C, staggering
-plate readings, taking hourly measurements (T1, T2), chilling plates at
-4°C after 2.5 hours of exposure, and taking final measurements (T3, T4).
-:::
+![Resorufin is highly fluorescent (excitation \~570 nm, emission \~585
+nm). The amount of resorufin produced is directly proportional to the
+metabolic activity of the
+cells.](http://gannet.fish.washington.edu/seashell/snaps/Monosnap_httpsgannet.fish.washington.eduseashellsnaps2025-VIMS-Roberts.pdf_2025-08-27_16-08-26.png)
 
 # Highlights to date
 
--   Resazurin fluorescence provides a reliable indicator of oyster
-    metabolic activity from small seed to adult oysters.
--   Thermal performance assays reveal metabolic optima and tipping
-    points where metabolic stimulation shifts to depression under
-    temperature stress.
--   Resazurin fluorescence detects genetic differences in metabolic
-    rates between oyster family groups.
--   Under acute stress, increased metabolism of seed at high temperature
-    predicts short-term mortality. In contrast, metabolic depression is
-    associated with higher survival.
--   Resazurin fluorescence assays provide an exciting potential tool to
-    survey oyster performance.
+• **Metabolic rate is a reliable predictor of stress resilience** —
+oysters that suppress metabolic activity under stress tend to survive
+better than those with heightened activity.\
+• **Rapid assessment is possible** — survival potential can be predicted
+within hours using the resazurin assay, eliminating the need for
+long-term trials.\
+• **Genetic background drives metabolic performance** — consistent
+family-level and line-level differences demonstrate that stress-tolerant
+metabolic traits are heritable.\
+• **Assay is scalable across life stages and conditions** — works
+effectively from tiny spat (\~7 mm) to adult oysters, across temperature
+and salinity stressors.\
+• **Parental and ploidy effects matter** — offspring inherit stress
+resistance from conditioned parents, and diploid vs triploid oysters
+show distinct metabolic signatures.\
+• **Multiple assay methods align** — both fluorescence and absorbance
+measurements give consistent outcomes, strengthening confidence in
+results.
 
 # Video Demo
 
@@ -83,7 +86,7 @@ resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal
 solution (1%). Adjust the total volume based on the number and size of
 organisms being tested, ensuring animals are fully submerged. Trials are
 typically scaled for small (≤7 mm), medium (15–40 mm), or large
-(\>40 mm) seed using appropriately sized containers. 
+(\>40 mm) seed using appropriately sized containers.
 
 ### Detailed example
 
@@ -123,23 +126,26 @@ seed (10-30mm). 
 
 To prepare the working solution of resazurin, prepare the following. 
 
--   Desired working volume x 0.98666 = ___ mL filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt
-    or filtered (\<1um) seawater) 
+-   Desired working volume x 0.98666 = \_\_\_ mL filtered seawater (DI
+    water with Instant Ocean adjusted to 23-25 ppt or filtered (\<1um)
+    seawater) 
 
--   Desired working volume x 0.00222 = ___ mL resazurin stock solution as made above in step 1 
+-   Desired working volume x 0.00222 = \_\_\_ mL resazurin stock
+    solution as made above in step 1 
 
--   Desired working volume x 0.001 = ___ mL DMSO
+-   Desired working volume x 0.001 = \_\_\_ mL DMSO
 
--   Desired working volume x 0.01 = ___ mL  antibiotic solution [100x Penn/Strep & 100x
+-   Desired working volume x 0.01 = \_\_\_ mL antibiotic solution [100x
+    Penn/Strep & 100x
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
 
-Here is an example recipe for 150 mL of working stock. To run a single 96 well
-plate, approximately 35 mL will be required (allowing for extra for
-re-do's or errors). For example, if we are running 4 total plates, we
-will need to prepare 4 x 35 mL = 150 mL of working solution. Increase if
-more is required. 
+Here is an example recipe for 150 mL of working stock. To run a single
+96 well plate, approximately 35 mL will be required (allowing for extra
+for re-do's or errors). For example, if we are running 4 total plates,
+we will need to prepare 4 x 35 mL = 150 mL of working solution. Increase
+if more is required. 
 
 -   148 mL seawater (DI water with Instant Ocean adjusted to 23-25 ppt
     or filtered (\<1um) seawater) 
@@ -157,12 +163,3 @@ more is required. 
 
 [📄 View VIMS 2025 talk
 (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
-
-# Podcast ?
-
-While not solely focused on resazurin... a majority of content covers
-what we are doing in this space.
-
-<iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.podcasts.apple.com/us/podcast/gene-pooling/id1802677296">
-
-</iframe>
