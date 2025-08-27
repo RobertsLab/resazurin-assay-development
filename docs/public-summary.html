@@ -10,7 +10,7 @@
 <meta name="author" content="Louis Plough (USDA)">
 <meta name="author" content="Steven Roberts">
 
-<title>Blue Notes and Bivalves</title>
+<title>Resazurin Assay for Oyster Health Assessment</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -44,8 +44,6 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-6bd9cfa162949bde0a231f530c97869d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark-b2511bcbb01c2159fd96a78deb42ffd9.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<script src="site_libs/quarto-contrib/videojs/video.min.js"></script>
-<link href="site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -90,11 +88,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Technical Documentation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./public-summary.html"> 
+    <a class="nav-link active" href="./public-summary.html" aria-current="page"> 
 <span class="menu-text">Public Summary</span></a>
   </li>  
 </ul>
@@ -127,8 +125,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Blue Notes and Bivalves</h1>
-<p class="subtitle lead">Exploring oyster metabolism with a jazzy <em>resazurin</em> twist</p>
+<h1 class="title">Resazurin Assay for Oyster Health Assessment</h1>
+<p class="subtitle lead">A Public Summary: Measuring Oyster Vitality for Sustainable Aquaculture</p>
 </div>
 
 
@@ -148,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">July 7, 2025</p>
+      <p class="date-modified">August 27, 2025</p>
     </div>
   </div>
     
@@ -159,103 +157,251 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><a href="https://doi.org/10.5281/zenodo.15694305"><img src="https://zenodo.org/badge/978997852.svg"></a></p>
-<p>Landing page for quick info on where we are with <strong>implementing easy resazurin metabolism assays</strong> for oysters. Please explore the <a href="https://github.com/RobertsLab/resazurin-assay-development">Github Repo</a>, glimpse real-time activity in from the lab <a href="https://genefish.wordpress.com/?s=resazurin">here</a>, and dive deeper with the <a href="https://robertslab.github.io/resources/protocols/resazurin-assay/">Canonical Protocol</a>.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-📖 New: Public Summary Available
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>For a general audience overview of this research, including implications for the aquaculture industry and key findings to date, see our <strong><a href="./public-summary.html">Public Summary: Resazurin Assay for Oyster Health Assessment</a></strong>.</p>
-</div>
-</div>
-<hr>
-<section id="summary" class="level1">
-<h1>Summary</h1>
-<p>This protocol uses a resazurin-based assay to measure individual metabolic responses to elevated temperature stress over a 5-hour period. Resazurin is a redox-sensitive dye that changes fluorescence and color as it is reduced by cellular respiration, providing a proxy for metabolic activity. Individuals are incubated in a resazurin working solution at a high temperature (e.g., ~42°C), and metabolic activity is monitored through fluorescence measurements taken at hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (or a 590/20 nm bandpass filter) using a plate reader.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Notes on Eastern Oyster
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In July 2025 we ran assays at VIMS using <em>C. virginica.</em> The protocol was modified slightly and involved allocating oysters to 24 well plates, taking images for size analysis, adding chilled resazurin (4°C ) solution, taking initial measurements (T0), incubating plates at 40°C, staggering plate readings, taking hourly measurements (T1, T2), chilling plates at 4°C after 2.5 hours of exposure, and taking final measurements (T3, T4).</p>
-</div>
-</div>
-</section>
-<section id="highlights-to-date" class="level1">
-<h1>Highlights to date</h1>
-<ul>
-<li>Resazurin fluorescence provides a reliable indicator of oyster metabolic activity from small seed to adult oysters.</li>
-<li>Thermal performance assays reveal metabolic optima and tipping points where metabolic stimulation shifts to depression under temperature stress.</li>
-<li>Resazurin fluorescence detects genetic differences in metabolic rates between oyster family groups.</li>
-<li>Under acute stress, increased metabolism of seed at high temperature predicts short-term mortality. In contrast, metabolic depression is associated with higher survival.</li>
-<li>Resazurin fluorescence assays provide an exciting potential tool to survey oyster performance.</li>
-</ul>
-</section>
-<section id="video-demo" class="level1">
-<h1>Video Demo</h1>
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov"></video></div>
-</section>
-<section id="preparing-solutions" class="level1">
-<h1>Preparing solutions</h1>
-<p>To prepare the resazurin assay solutions, first make a stock by combining resazurin salt with water and a small amount of DMSO. Store this stock in a dark refrigerator or freezer. The working solution consists primarily of seawater (about 98.5%), with small proportions of resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal solution (1%). Adjust the total volume based on the number and size of organisms being tested, ensuring animals are fully submerged. Trials are typically scaled for small (≤7 mm), medium (15–40 mm), or large (&gt;40 mm) seed using appropriately sized containers.</p>
-<section id="detailed-example" class="level3">
-<h3 class="anchored" data-anchor-id="detailed-example">Detailed example</h3>
+<section id="what-is-the-resazurin-assay" class="level1">
+<h1>What is the Resazurin Assay?</h1>
+<p>The resazurin assay is a powerful, non-destructive tool that measures how “metabolically active” or healthy oysters are by detecting their cellular respiration in real-time. Think of it as taking the pulse of an oyster’s metabolism.</p>
+<section id="how-it-works" class="level2">
+<h2 class="anchored" data-anchor-id="how-it-works">How It Works</h2>
+<p>Resazurin is a blue dye that changes color and fluorescence when living cells use oxygen for respiration. When healthy oysters are placed in a solution containing resazurin:</p>
 <ol type="1">
-<li>Stock resazurin solution&nbsp;</li>
+<li><strong>Healthy, active oysters</strong> consume more oxygen and cause the dye to change from blue to pink/red, creating a measurable fluorescent signal</li>
+<li><strong>Stressed or unhealthy oysters</strong> consume less oxygen, resulting in less color change and lower fluorescence</li>
+<li><strong>Dead oysters</strong> produce no signal at all</li>
 </ol>
-<p>To make the resazurin stock solution (10 mL) mix the following. We will use this solution for multiple trials.&nbsp;</p>
+<p>This color change can be measured precisely using laboratory instruments, giving researchers a quantitative measure of oyster health and stress response.</p>
+</section>
+<section id="why-this-matters-for-aquaculture" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-matters-for-aquaculture">Why This Matters for Aquaculture</h2>
+<p>Oyster farming is a critical industry worth billions of dollars globally, but farmers face increasing challenges from:</p>
 <ul>
-<li><p><a href="https://www.thermofisher.com/order/catalog/product/R12204">0.5 g resazurin salt</a></p></li>
-<li><p>10 mL DI water</p></li>
-<li><p>10 µL DMSO</p></li>
+<li><strong>Climate change</strong> and rising ocean temperatures</li>
+<li><strong>Disease outbreaks</strong> that can devastate farms</li>
+<li><strong>Ocean acidification</strong> affecting shell formation</li>
+<li><strong>Unpredictable mortality events</strong> causing economic losses</li>
 </ul>
-<p>Store in a dark fridge or freezer.&nbsp;</p>
-<ol start="2" type="1">
-<li>Working resazurin solution</li>
-</ol>
-<p>First, determine the volume of resazurin required depending on the size of your organism and the container size. Here are some examples that we have used before. We recommend performing preliminary trials to ensure that a change in resazurin fluorescence can be detected over the time scale desired. This protocol was developed to detect a change in resazurin fluorescence within 5 hours in small seed (&lt;7mm) and larger seed (10-30mm).&nbsp;</p>
+<section id="current-challenges-in-oyster-farming" class="level3">
+<h3 class="anchored" data-anchor-id="current-challenges-in-oyster-farming">Current Challenges in Oyster Farming</h3>
+<p>Traditional methods for assessing oyster health often involve: - Waiting to see mortality (too late for intervention) - Destructive testing that kills the animals being assessed - Time-consuming methods that can’t keep pace with changing conditions - Inability to predict which oysters will survive stress</p>
+</section>
+<section id="how-resazurin-assays-help" class="level3">
+<h3 class="anchored" data-anchor-id="how-resazurin-assays-help">How Resazurin Assays Help</h3>
+<p>The resazurin assay offers oyster farmers and researchers a <strong>predictive tool</strong> that can:</p>
 <ul>
-<li><p>Small seed (&lt;7mm length): trials conducted in 96 well plates (300uL volume in each well)</p></li>
-<li><p>Medium seed (15-40 mm length): trials conducted in small plastic cups (20 mL volume) or 12, 24, or 48-well plates</p></li>
-<li><p>Large seed/adults (&gt;40 mm length): trials can be conducted in tripour cups, beakers, or plastic cups. Scale volume appropriately. The animals should be fully submerged.&nbsp;</p></li>
-</ul>
-<p>To prepare the working solution of resazurin, prepare the following.&nbsp;</p>
-<ul>
-<li><p>Desired working volume x 0.98666 = ___ mL filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered (&lt;1um) seawater)&nbsp;</p></li>
-<li><p>Desired working volume x 0.00222 = ___ mL resazurin stock solution as made above in step 1&nbsp;</p></li>
-<li><p>Desired working volume x 0.001 = ___ mL DMSO</p></li>
-<li><p>Desired working volume x 0.01 = ___ mL antibiotic solution&nbsp;<a href="https://us.vwr.com/store/product/4648458/null">100x Penn/Strep &amp; 100x Fungizone</a>&nbsp;- this should be kept frozen in a dark freezer and thawed before use (thaw in the dark or cover with aluminum foil)</p></li>
-</ul>
-<p>Here is an example recipe for 150 mL of working stock. To run a single 96 well plate, approximately 35 mL will be required (allowing for extra for re-do’s or errors). For example, if we are running 4 total plates, we will need to prepare 4 x 35 mL = 150 mL of working solution. Increase if more is required.&nbsp;</p>
-<ul>
-<li><p>148 mL seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered (&lt;1um) seawater)&nbsp;</p></li>
-<li><p>333 µL resazurin stock solution as made above in step 1&nbsp;</p></li>
-<li><p>150 µL DMSO</p></li>
-<li><p>1.5 mL antibiotic solution&nbsp;<a href="https://us.vwr.com/store/product/4648458/null">100x Penn/Strep &amp; 100x Fungizone</a>&nbsp;</p></li>
+<li><strong>Identify resilient oysters</strong> before breeding programs</li>
+<li><strong>Detect stress early</strong> before visible signs of illness</li>
+<li><strong>Screen large numbers</strong> of oysters quickly and cost-effectively</li>
+<li><strong>Test environmental conditions</strong> to optimize farm management</li>
+<li><strong>Select for heat tolerance</strong> as ocean temperatures rise</li>
 </ul>
 </section>
 </section>
-<section id="recent-slidedecks" class="level1">
-<h1>Recent Slidedecks</h1>
-<p><img src="http://gannet.fish.washington.edu/seashell/snaps/2025-06-18_09-31-35.png" class="img-fluid" width="300"></p>
-<p><a href="http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf">📄 View VIMS 2025 talk (PDF)</a></p>
 </section>
-<section id="podcast" class="level1">
-<h1>Podcast ?</h1>
-<p>While not solely focused on resazurin… a majority of content covers what we are doing in this space.</p>
-<iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.podcasts.apple.com/us/podcast/gene-pooling/id1802677296">
-</iframe>
+<section id="key-findings-from-our-research" class="level1">
+<h1>Key Findings from Our Research</h1>
+<p>Our research team has conducted three major studies testing the resazurin assay across different oyster life stages and conditions:</p>
+<section id="heat-tolerance-screening-10k-seed-project" class="level2">
+<h2 class="anchored" data-anchor-id="heat-tolerance-screening-10k-seed-project">1. Heat Tolerance Screening (10K Seed Project)</h2>
+<p><strong>What we tested:</strong> 10,000 young oysters exposed to various environmental conditions, then tested for heat tolerance</p>
+<p><strong>Key discoveries:</strong> - Oysters with <strong>higher metabolic activity</strong> under heat stress had <strong>lower survival rates</strong> - Oysters showing <strong>metabolic depression</strong> (slowing down) under stress were more likely to survive - The assay can predict which oysters will survive thermal stress within hours, not weeks</p>
+<p><strong>Industry implication:</strong> Farmers can identify heat-tolerant oyster lines for breeding programs, crucial as ocean temperatures continue to rise.</p>
+</section>
+<section id="early-life-stage-assessment-spat-stress-project" class="level2">
+<h2 class="anchored" data-anchor-id="early-life-stage-assessment-spat-stress-project">2. Early Life Stage Assessment (Spat Stress Project)</h2>
+<p><strong>What we tested:</strong> Young oyster spat (juveniles) from different genetic backgrounds exposed to temperature stress</p>
+<p><strong>Key discoveries:</strong> - The assay works effectively on very small oysters (as small as 7mm) - <strong>Genetic background influences</strong> metabolic response to stress - Different temperatures reveal different patterns of metabolic performance - Parental conditioning affects offspring stress resistance</p>
+<p><strong>Industry implication:</strong> Selective breeding can start at the earliest life stages, and hatcheries can optimize conditions based on genetic lines.</p>
+</section>
+<section id="genetic-variation-assessment-usda-families-project" class="level2">
+<h2 class="anchored" data-anchor-id="genetic-variation-assessment-usda-families-project">3. Genetic Variation Assessment (USDA Families Project)</h2>
+<p><strong>What we tested:</strong> Five distinct oyster family lines from USDA breeding programs</p>
+<p><strong>Key discoveries:</strong> - <strong>Significant genetic differences</strong> in metabolic rates between families - Both fluorescence and absorbance measurements give consistent results - Some family lines consistently outperform others under stress - Metabolic traits appear to be heritable</p>
+<p><strong>Industry implication:</strong> Breeding programs can select for metabolically robust lines, creating more resilient oyster stocks for farmers.</p>
+</section>
+</section>
+<section id="practical-applications-in-aquaculture" class="level1">
+<h1>Practical Applications in Aquaculture</h1>
+<section id="for-oyster-farmers" class="level2">
+<h2 class="anchored" data-anchor-id="for-oyster-farmers">For Oyster Farmers</h2>
+<section id="breeding-stock-selection" class="level3">
+<h3 class="anchored" data-anchor-id="breeding-stock-selection"><strong>Breeding Stock Selection</strong></h3>
+<ul>
+<li>Test parent oysters before breeding to select for stress tolerance</li>
+<li>Identify oysters that maintain stable metabolism under challenging conditions</li>
+<li>Reduce mortality in subsequent generations</li>
+</ul>
+</section>
+<section id="environmental-monitoring" class="level3">
+<h3 class="anchored" data-anchor-id="environmental-monitoring"><strong>Environmental Monitoring</strong></h3>
+<ul>
+<li>Test how different temperature conditions affect oyster health</li>
+<li>Optimize farm placement and management practices</li>
+<li>Predict and prepare for stress events</li>
+</ul>
+</section>
+<section id="quality-assessment" class="level3">
+<h3 class="anchored" data-anchor-id="quality-assessment"><strong>Quality Assessment</strong></h3>
+<ul>
+<li>Evaluate oyster health before market</li>
+<li>Assess the impact of different farming practices</li>
+<li>Monitor recovery after stress events</li>
+</ul>
+</section>
+</section>
+<section id="for-researchers-and-hatcheries" class="level2">
+<h2 class="anchored" data-anchor-id="for-researchers-and-hatcheries">For Researchers and Hatcheries</h2>
+<section id="breeding-program-optimization" class="level3">
+<h3 class="anchored" data-anchor-id="breeding-program-optimization"><strong>Breeding Program Optimization</strong></h3>
+<ul>
+<li>Rapidly screen thousands of individuals</li>
+<li>Identify metabolic traits linked to survival</li>
+<li>Accelerate genetic improvement programs</li>
+</ul>
+</section>
+<section id="environmental-research" class="level3">
+<h3 class="anchored" data-anchor-id="environmental-research"><strong>Environmental Research</strong></h3>
+<ul>
+<li>Study how climate change affects oyster physiology</li>
+<li>Test the effectiveness of different mitigation strategies</li>
+<li>Understand the mechanisms of stress resistance</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="schematic-resazurin-assay-applications" class="level1">
+<h1>Schematic: Resazurin Assay Applications</h1>
+<p>The following diagram illustrates how the resazurin assay can be applied across different sectors of the aquaculture industry:</p>
+<pre><code>                     RESAZURIN ASSAY APPLICATIONS
+                              │
+              ┌───────────────┼───────────────┐
+              │               │               │
+         HATCHERY       FARM MANAGEMENT    RESEARCH
+              │               │               │
+    ┌─────────┼─────────┐    │    ┌─────────┼─────────┐
+    │         │         │    │    │         │         │
+BREEDING  QUALITY   GENETIC │ STOCK     ENVIRONMENT MARKET
+SELECTION CONTROL  STUDIES │ SELECTION  MONITORING READINESS
+    │         │         │    │    │         │         │
+    ▼         ▼         ▼    ▼    ▼         ▼         ▼
+Select    Test      Study      Choose    Monitor   Assess
+heat-     juvenile  stress     tolerant  farm      oyster
+tolerant  health    response   breeding  conditions health
+parents             patterns   lines</code></pre>
+<p><strong>Detailed Application Flow:</strong><br>
+1. <strong>Sample Collection</strong> → Oysters placed in resazurin solution<br>
+2. <strong>Stress Application</strong> → Temperature or other stressors applied<br>
+3. <strong>Fluorescence Measurement</strong> → Metabolic activity quantified over time<br>
+4. <strong>Data Analysis</strong> → Health status and stress tolerance assessed<br>
+5. <strong>Decision Making</strong> → Selection, management, or research decisions implemented</p>
+<p><strong>Key Measurement Outcomes:</strong><br>
+- <strong>High fluorescence</strong> = Active metabolism (may indicate stress response)<br>
+- <strong>Moderate fluorescence</strong> = Healthy, stable metabolism<br>
+- <strong>Low fluorescence</strong> = Metabolic depression (may indicate survival strategy)<br>
+- <strong>No fluorescence</strong> = Non-viable organism</p>
+<p><em>For a detailed visual breakdown of applications, see <a href="./figures/resazurin-applications-diagram.html">figures/resazurin-applications-diagram.md</a>.</em></p>
+</section>
+<section id="current-research-status-and-performance" class="level1">
+<h1>Current Research Status and Performance</h1>
+<section id="assay-validation" class="level2">
+<h2 class="anchored" data-anchor-id="assay-validation">Assay Validation</h2>
+<p>✅ <strong>Proven effective</strong> across oyster sizes from 7mm juveniles to adult oysters<br>
+✅ <strong>Temperature range tested</strong> from ambient (20°C) to extreme stress (42°C)<br>
+✅ <strong>Multiple measurement methods</strong> validated (fluorescence and absorbance)<br>
+✅ <strong>Rapid results</strong> - metabolic assessment within 5 hours<br>
+✅ <strong>Non-destructive</strong> - oysters can be returned to culture after testing</p>
+</section>
+<section id="research-contexts" class="level2">
+<h2 class="anchored" data-anchor-id="research-contexts">Research Contexts</h2>
+<p>The resazurin assay has been successfully applied in:</p>
+<ul>
+<li><strong>Thermal stress testing</strong> - identifying heat-tolerant oysters</li>
+<li><strong>Genetic screening</strong> - comparing family lines for breeding</li>
+<li><strong>Environmental assessment</strong> - testing impacts of different conditions</li>
+<li><strong>Mortality prediction</strong> - identifying oysters at risk</li>
+<li><strong>Breeding program optimization</strong> - accelerating genetic improvement</li>
+</ul>
+</section>
+<section id="technical-advantages" class="level2">
+<h2 class="anchored" data-anchor-id="technical-advantages">Technical Advantages</h2>
+<ul>
+<li><strong>High throughput</strong> - can test hundreds of oysters simultaneously</li>
+<li><strong>Cost effective</strong> - minimal equipment and reagent costs</li>
+<li><strong>Standardized protocol</strong> - reproducible across different laboratories</li>
+<li><strong>Real-time monitoring</strong> - tracks metabolic changes over time</li>
+<li><strong>Multi-species potential</strong> - applicable to other shellfish species</li>
+</ul>
+</section>
+</section>
+<section id="future-directions" class="level1">
+<h1>Future Directions</h1>
+<section id="immediate-development-goals" class="level2">
+<h2 class="anchored" data-anchor-id="immediate-development-goals">Immediate Development Goals</h2>
+<section id="field-application" class="level3">
+<h3 class="anchored" data-anchor-id="field-application"><strong>Field Application</strong></h3>
+<ul>
+<li>Develop portable testing equipment for on-farm use</li>
+<li>Create simplified protocols for farmers and hatchery managers</li>
+<li>Establish reference ranges for different oyster populations</li>
+</ul>
+</section>
+<section id="expanded-applications" class="level3">
+<h3 class="anchored" data-anchor-id="expanded-applications"><strong>Expanded Applications</strong></h3>
+<ul>
+<li>Test effectiveness with other shellfish species (mussels, clams, scallops)</li>
+<li>Develop protocols for different stress types (salinity, pH, disease)</li>
+<li>Integrate with existing aquaculture management systems</li>
+</ul>
+</section>
+</section>
+<section id="long-term-vision" class="level2">
+<h2 class="anchored" data-anchor-id="long-term-vision">Long-term Vision</h2>
+<section id="industry-integration" class="level3">
+<h3 class="anchored" data-anchor-id="industry-integration"><strong>Industry Integration</strong></h3>
+<ul>
+<li><strong>Breeding programs</strong> routinely use metabolic screening</li>
+<li><strong>Farmers</strong> have access to stress-tolerance testing</li>
+<li><strong>Insurance and certification</strong> programs incorporate metabolic health assessments</li>
+<li><strong>Climate adaptation</strong> strategies include metabolic resilience selection</li>
+</ul>
+</section>
+<section id="research-expansion" class="level3">
+<h3 class="anchored" data-anchor-id="research-expansion"><strong>Research Expansion</strong></h3>
+<ul>
+<li><strong>Mechanistic understanding</strong> of metabolic stress responses</li>
+<li><strong>Genomic integration</strong> linking metabolic traits to genetic markers</li>
+<li><strong>Ecosystem applications</strong> for wild oyster restoration projects</li>
+<li><strong>Climate change mitigation</strong> through enhanced oyster resilience</li>
+</ul>
+</section>
+<section id="technology-development" class="level3">
+<h3 class="anchored" data-anchor-id="technology-development"><strong>Technology Development</strong></h3>
+<ul>
+<li><strong>Automated systems</strong> for high-throughput screening</li>
+<li><strong>Real-time monitoring</strong> in farm environments</li>
+<li><strong>Predictive models</strong> combining metabolic data with environmental conditions</li>
+<li><strong>Mobile applications</strong> for data collection and analysis</li>
+</ul>
+</section>
+</section>
+<section id="expected-industry-impact" class="level2">
+<h2 class="anchored" data-anchor-id="expected-industry-impact">Expected Industry Impact</h2>
+<p><strong>Short-term (1-3 years):</strong> - Research institutions adopt standardized protocols - Pilot programs in commercial hatcheries begin - Initial breeding program implementations</p>
+<p><strong>Medium-term (3-7 years):</strong> - Commercial availability of testing services - Integration into major oyster breeding programs - Regulatory acceptance for aquaculture applications</p>
+<p><strong>Long-term (7+ years):</strong> - Industry-standard tool for oyster health assessment - Improved oyster survival rates and farm profitability - Enhanced climate resilience of cultured oyster populations</p>
+</section>
+</section>
+<section id="why-this-research-matters" class="level1">
+<h1>Why This Research Matters</h1>
+<p>As our oceans continue to change due to climate change, the need for resilient aquaculture becomes increasingly critical. Oysters are not just a valuable food source - they also provide essential ecosystem services including water filtration and coastal protection.</p>
+<p>The resazurin assay represents a significant step forward in our ability to:</p>
+<ul>
+<li><strong>Protect aquaculture investments</strong> by selecting resilient stock</li>
+<li><strong>Improve food security</strong> through more reliable oyster production</li>
+<li><strong>Support coastal communities</strong> dependent on shellfish farming</li>
+<li><strong>Enhance ecosystem restoration</strong> with stress-tolerant oyster populations</li>
+</ul>
+<p>This research bridges the gap between laboratory science and practical aquaculture applications, providing tools that can make a real difference in the sustainability and profitability of oyster farming in a changing world.</p>
+<hr>
+<p><em>For technical details and protocols, visit our <a href="./index.html">main research page</a> or explore our <a href="https://github.com/RobertsLab/resazurin-assay-development">GitHub repository</a>.</em></p>
 
 
 </section>
@@ -823,7 +969,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>videojs(video_shortcode_videojs_video1);</script>
 
 
 

@@ -146,17 +146,17 @@ tolerant  health    response   breeding  conditions health
 parents             patterns   lines
 ```
 
-**Detailed Application Flow:**
-1. **Sample Collection** → Oysters placed in resazurin solution
-2. **Stress Application** → Temperature or other stressors applied  
-3. **Fluorescence Measurement** → Metabolic activity quantified over time
-4. **Data Analysis** → Health status and stress tolerance assessed
-5. **Decision Making** → Selection, management, or research decisions implemented
+**Detailed Application Flow:**    
+1. **Sample Collection** → Oysters placed in resazurin solution    
+2. **Stress Application** → Temperature or other stressors applied     
+3. **Fluorescence Measurement** → Metabolic activity quantified over time    
+4. **Data Analysis** → Health status and stress tolerance assessed   
+5. **Decision Making** → Selection, management, or research decisions implemented   
 
-**Key Measurement Outcomes:**
-- **High fluorescence** = Active metabolism (may indicate stress response)
-- **Moderate fluorescence** = Healthy, stable metabolism  
-- **Low fluorescence** = Metabolic depression (may indicate survival strategy)
+**Key Measurement Outcomes:**   
+- **High fluorescence** = Active metabolism (may indicate stress response)   
+- **Moderate fluorescence** = Healthy, stable metabolism    
+- **Low fluorescence** = Metabolic depression (may indicate survival strategy)    
 - **No fluorescence** = Non-viable organism
 
 *For a detailed visual breakdown of applications, see [figures/resazurin-applications-diagram.md](figures/resazurin-applications-diagram.md).*
