@@ -5,7 +5,7 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-08-27 # UPDATE
+date-modified: 2025-08-28 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
@@ -36,15 +36,15 @@ Assessment**](public-summary.qmd).
 # Summary
 
 This protocol uses a resazurin-based assay to measure individual
-metabolic responses to elevated temperature stress over a 5-hour period.
-Resazurin is a redox-sensitive dye that changes fluorescence and color
+metabolic responses to elevated temperature stress over a 4-5-hour period.
+Resazurin is a redox-sensitive dye that fluoresces
 as it is reduced by cellular respiration, providing a proxy for
 metabolic activity. Individuals are incubated in a resazurin working
 solution at a high temperature (e.g., \~42°C), and metabolic activity is
 monitored through fluorescence measurements taken at hourly intervals.
 Fluorescence measurements are conducted using an excitation wavelength
-of 530 nm (or a 528/20 nm bandpass filter) and an emission wavelength of
-590 nm (or a 590/20 nm bandpass filter) using a plate reader.
+of 530 nm (e.g., a 528/20 nm bandpass filter) and an emission wavelength of
+590 nm (e.g., a 590/20 nm bandpass filter) using a fluorescence plate reader.
 
 ![Resorufin is highly fluorescent (excitation \~570 nm, emission \~585
 nm). The amount of resorufin produced is directly proportional to the
@@ -53,24 +53,22 @@ cells.](http://gannet.fish.washington.edu/seashell/snaps/Monosnap_httpsgannet.fi
 
 # Highlights to date
 
-• **Metabolic rate is a reliable predictor of stress resilience** —
+• **Metabolic rate is a reliable predictor of short-term stress resilience** —
 oysters that suppress metabolic activity under stress tend to survive
-better than those with heightened activity.\
-• **Rapid assessment is possible** — survival potential can be predicted
+better than those with heightened activity in laboratory tests.\
+• **Rapid assessment is possible** — metabolism can be measured rapidly at at high replication,
 within hours using the resazurin assay, eliminating the need for
-long-term trials.\
+long-term trials or multiple days of traditional respiration measurements.\
 • **Genetic background drives metabolic performance** — consistent
 family-level and line-level differences demonstrate that stress-tolerant
 metabolic traits are heritable.\
 • **Assay is scalable across life stages and conditions** — works
 effectively from tiny spat (\~7 mm) to adult oysters, across temperature
 and salinity stressors.\
-• **Parental and ploidy effects matter** — offspring inherit stress
-resistance from conditioned parents, and diploid vs triploid oysters
+• **Parental and ploidy effects matter** — offspring stress
+resistance is affected by parental histry, and diploid vs triploid oysters
 show distinct metabolic signatures.\
-• **Multiple assay methods align** — both fluorescence and absorbance
-measurements give consistent outcomes, strengthening confidence in
-results.
+• **High sensitivity measurements** — fluorescence measurements provide highly sensitive measurements of oyster metabolism.
 
 # Video Demo
 
@@ -88,9 +86,10 @@ resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal
 solution (1%). Adjust the total volume based on the number and size of
 organisms being tested, ensuring animals are fully submerged. Trials are
 typically scaled for small (≤7 mm), medium (15–40 mm), or large
-(\>40 mm) seed using appropriately sized containers.
+(\>40 mm) seed using appropriately sized containers. See our widget below to calculate the solutions required! See our [Canonical
+Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/) for further details. 
 
-### Detailed example
+### Solutions required
 
 1.  Stock resazurin solution 
 
@@ -125,39 +124,24 @@ seed (10-30mm). 
 -   Large seed/adults (\>40 mm length): trials can be conducted in
     tripour cups, beakers, or plastic cups. Scale volume appropriately.
     The animals should be fully submerged. 
+    
+Use the calculator below to calculate the formula for your working solution.  
 
-To prepare the working solution of resazurin, prepare the following. 
+The working solution requires the following: 
 
--   Desired working volume x 0.98666 = \_\_\_ mL filtered seawater (DI
-    water with Instant Ocean adjusted to 23-25 ppt or filtered (\<1um)
+-   Filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered (\<1um)
     seawater) 
 
--   Desired working volume x 0.00222 = \_\_\_ mL resazurin stock
+-   Resazurin stock
     solution as made above in step 1 
 
--   Desired working volume x 0.001 = \_\_\_ mL DMSO
+-   DMSO
 
--   Desired working volume x 0.01 = \_\_\_ mL antibiotic solution [100x
+-   Antibiotic solution [100x
     Penn/Strep & 100x
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
-
-Here is an example recipe for 150 mL of working stock. To run a single
-96 well plate, approximately 35 mL will be required (allowing for extra
-for re-do's or errors). For example, if we are running 4 total plates,
-we will need to prepare 4 x 35 mL = 150 mL of working solution. Increase
-if more is required. 
-
--   148 mL seawater (DI water with Instant Ocean adjusted to 23-25 ppt
-    or filtered (\<1um) seawater) 
-
--   333 µL resazurin stock solution as made above in step 1 
-
--   150 µL DMSO
-
--   1.5 mL antibiotic solution [100x Penn/Strep & 100x
-    Fungizone](https://us.vwr.com/store/product/4648458/null) 
 
 # Interactive Recipe Calculator
 

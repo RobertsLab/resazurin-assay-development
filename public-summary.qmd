@@ -5,7 +5,7 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-08-27
+date-modified: 2025-08-28
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
@@ -45,7 +45,7 @@ Traditional methods for assessing oyster health often involve:
 
 ### How Resazurin Assays Help
 
-The resazurin assay offers oyster farmers and researchers a **predictive tool** that can:
+The resazurin assay offers exciting potential for oyster farmers and researchers to use a **predictive tool** to:
 
 - **Identify resilient oysters** before breeding programs
 - **Detect stress early** before visible signs of illness
@@ -55,22 +55,22 @@ The resazurin assay offers oyster farmers and researchers a **predictive tool** 
 
 # Key Findings from Our Research
 
-Our research team has conducted four major studies testing the resazurin assay across different oyster life stages and conditions:
+Our research team has conducted four major studies testing the resazurin assay across different oyster life stages and conditions. This assay is currently under development. Check back regularly to view updates as we continue to test and improve the assay! Note that our work has been primarily conducted in the laboratory and we are currently conducting field tests to apply the resazurin assay to real-world oyster monitoring!  
 
-## 1. Heat Tolerance Screening (10K Seed Project)
+## 1. Heat Tolerance Screening 
 
-**What we tested:** 10,000 young oysters exposed to various environmental conditions, then tested for heat tolerance
+**What we tested:** 500 young oysters exposed to various environmental conditions, then tested for heat tolerance
 
 **Key discoveries:**   
 - Oysters with **higher metabolic activity** under heat stress had **lower survival rates**    
 - Oysters showing **metabolic depression** (slowing down) under stress were more likely to survive   
-- The assay can predict which oysters will survive thermal stress within hours, not weeks
+- The assay can predict which oysters will survive short-term thermal stress within hours in laboratory testing
 
-**Industry implication:** Farmers can identify heat-tolerant oyster lines for breeding programs, crucial as ocean temperatures continue to rise.
+**Future industry implication:** Potential for farmers can identify heat-tolerant oyster lines for breeding programs, crucial as ocean temperatures continue to rise.
 
-## 2. Early Life Stage Assessment (Spat Stress Project)
+## 2. Early Life Stage Assessments 
 
-**What we tested:** Young oyster spat (juveniles) from different genetic backgrounds exposed to temperature stress
+**What we tested:** Young oyster spat from different genetic backgrounds exposed to temperature stress
 
 **Key discoveries:**   
 - The assay works effectively on very small oysters (as small as 7mm)   
@@ -78,32 +78,31 @@ Our research team has conducted four major studies testing the resazurin assay a
 - Different temperatures reveal different patterns of metabolic performance   
 - Parental conditioning affects offspring stress resistance   
 
-**Industry implication:** Selective breeding can start at the earliest life stages, and hatcheries can optimize conditions based on genetic lines.
+**Future industry implication:** Selective breeding and selection based on metabolic traits can start at the earliest life stages, and hatcheries can optimize conditions based on genetic lines.
 
-## 3. Genetic Variation Assessment (USDA Families Project)
+## 3. Genetic Variation Assessment 
 
-**What we tested:** Five distinct oyster family lines from USDA breeding programs
+**What we tested:** Metablic responses in five distinct oyster family lines from USDA breeding programs
 
 **Key discoveries:**  
 - **Significant genetic differences** in metabolic rates between families  
-- Both fluorescence and absorbance measurements give consistent results  
 - Some family lines consistently outperform others under stress  
-- Metabolic traits appear to be heritable    
+- Metabolic traits appear to be heritable and distinct between families    
 
-**Industry implication:** Breeding programs can select for metabolically robust lines, creating more resilient oyster stocks for farmers.
-
+**Future industry implication:** Breeding programs can select for metabolically robust lines, creating more resilient oyster stocks for farmers.
 
 ## 4. Breeding Program Scale Assessment (VIMS / ABC Trials)
 
-**What we tested:** Resazurin metabolic assays tested across multiple oyster families, ploidy types (diploid vs triploid), and environmental stress conditions to predict performance traits.
+**What we tested:** Resazurin metabolic assays tested across 50 oyster families, ploidy types (diploid vs triploid), and environmental stress conditions to predict performance traits at the Virginia Institute of Marine Science.
 
 **Key discoveries:**  
-- Metabolic activity **significantly predicts survival in low-salinity environments**.   
-- Acute stress response (within first hour) correlates with long-term performance traits     
-- Distinct metabolic profiles between **triploid and diploid oysters**   
-- Family-level genetic variation supporting selective breeding applications     
+- Metabolic activity **significantly correlates with predicted survival in low-salinity environments**.   
+- Acute stress response (within first hour) correlates with long-term predicted performance traits     
+- Distinct metabolic profiles between **triploid and diploid oysters** with higher metabolic rates in diploid oysters   
+- Family-level genetic variation supporting selective breeding applications  
+- In progress field tracking and assessment will allow us to determine how metabolic response relates to field performance 
 
-**Industry implication:** The research enables accelerated breeding programs (6-12 months vs 18-24 months), potential 15-30% reduction in environmental stress mortality, and cost-effective screening ($2-5 per assay vs $0.50-2.00 per oyster mortality cost).
+**Future industry implication:** The research enables accelerated assessment of breeding programs, potential reductions in environmental stress mortality due to family selection, and cost-effective screening ($2-5 per assay vs $0.50-2.00 per oyster mortality cost).
 
 # Practical Applications in Aquaculture
 
@@ -118,17 +117,18 @@ Our research team has conducted four major studies testing the resazurin assay a
 - Test how different temperature conditions affect oyster health
 - Optimize farm placement and management practices
 - Predict and prepare for stress events
+- Monitor health of stocks using rapid assessments 
 
 ### **Quality Assessment**
-- Evaluate oyster health before market
-- Assess the impact of different farming practices
+- Evaluate oyster health during stress events 
+- Assess the impact of different farming practices on oyster health
 - Monitor recovery after stress events
 
 ## For Researchers and Hatcheries
 
 ### **Breeding Program Optimization**
 - Rapidly screen thousands of individuals
-- Identify metabolic traits linked to survival
+- Identify metabolic traits linked to survival and desirable traits 
 - Accelerate genetic improvement programs
 
 ### **Environmental Research**
@@ -178,26 +178,27 @@ parents             patterns   lines
 
 ## Assay Validation
 
-✅ **Proven effective** across oyster sizes from 7mm juveniles to adult oysters  
-✅ **Temperature range tested** from ambient (20°C) to extreme stress (42°C)  
-✅ **Multiple measurement methods** validated (fluorescence and absorbance)  
-✅ **Rapid results** - metabolic assessment within 5 hours  
-✅ **Non-destructive** - oysters can be returned to culture after testing  
+✅ **Proven effective** across oyster sizes from  4mm  spat/seed to adult oysters  
+✅ **Temperature range tested** from ambient (20°C) to extreme stress (45°C)
+✅ **Sensitive measurement methods** validated fluorescence
+✅ **Rapid results** - metabolic assessment within 4-5 hours  
+✅ **Non-destructive** - oysters can be returned to culture after testing or indiividually tragged and tracked
 
 ## Research Contexts
 
 The resazurin assay has been successfully applied in:
 
 - **Thermal stress testing** - identifying heat-tolerant oysters
+- **Thermal performance curves** - identifying metabolic optima and tipping points
 - **Genetic screening** - comparing family lines for breeding
 - **Environmental assessment** - testing impacts of different conditions
-- **Mortality prediction** - identifying oysters at risk
+- **Mortality prediction** - identifying oysters at risk of short-term mortality
 - **Breeding program optimization** - accelerating genetic improvement
 
 ## Technical Advantages
 
-- **High throughput** - can test hundreds of oysters simultaneously
-- **Cost effective** - minimal equipment and reagent costs
+- **High throughput** - can test hundreds to thousands of oysters simultaneously
+- **Cost effective** - minimal reagent costs, but requires access to a fluorescence plate reader
 - **Standardized protocol** - reproducible across different laboratories
 - **Real-time monitoring** - tracks metabolic changes over time
 - **Multi-species potential** - applicable to other shellfish species
@@ -210,6 +211,7 @@ The resazurin assay has been successfully applied in:
 - Develop portable testing equipment for on-farm use
 - Create simplified protocols for farmers and hatchery managers
 - Establish reference ranges for different oyster populations
+- Track field performance to determine relationship between rapid metabolic assay and real-world performance 
 
 ### **Expanded Applications**
 - Test effectiveness with other shellfish species (mussels, clams, scallops)
