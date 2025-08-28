@@ -181,20 +181,20 @@ viewof plateType = Inputs.select(
   }
 )
 
-viewof numPlates = Inputs.range([1, 20], {
+viewof numPlates = Inputs.range([1, 80], {
   label: "Number of plates:",
   value: 1,
   step: 1
 })
 
-viewof customVolume = Inputs.range([1, 500], {
+viewof customVolume = Inputs.range([1, 2000], {
   label: "Custom total volume (mL):",
   value: 35,
   step: 1,
   disabled: plateType !== "Custom volume"
 })
 
-viewof extraPercent = Inputs.range([0, 50], {
+viewof extraPercent = Inputs.range([0, 20], {
   label: "Extra volume for safety (%):",
   value: 10,
   step: 5
