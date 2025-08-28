@@ -161,7 +161,7 @@ if more is required. 
 
 # Interactive Recipe Calculator
 
-Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup:
+Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup. 
 
 ```{ojs}
 //| echo: false
