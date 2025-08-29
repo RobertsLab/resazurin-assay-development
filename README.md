@@ -3,7 +3,7 @@
 
 This repository contains all code, data, and documentation for the development and application of the resazurin assay to measure oyster metabolic responses to environmental stress. The project integrates multiple experimental datasets, analysis scripts, and outputs, supporting research in oyster health, aquaculture, and genetics.
 
-See our [landing page](oyster.pink) for information on resazurin protocols, recent findings, experimental design tools, and data explor apps! 
+See our [landing page](https://robertslab.github.io/resazurin-assay-development/) for information on resazurin protocols, recent findings, experimental design tools, and data explor apps! 
 
 ## Repository Structure
 
