@@ -276,7 +276,7 @@ assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figu
 Direct link: <http://resazur.in/explorer>
 
 _Embedded below (may take a moment to load):_
-<div style="position:relative;width:100%;padding-bottom:62.5%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;">
+<div style="position:relative;width:100%;padding-bottom:120%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;">
   <iframe
     src="http://resazur.in/explorer"
     title="Resazurin Trials Explorer"
