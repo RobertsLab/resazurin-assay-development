@@ -275,12 +275,7 @@ assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figu
 
 Direct link: <http://resazur.in/explorer>
 
-::: {.callout-important appearance="minimal"}
-Embedded App (interactive): <iframe src="http://resazur.in/explorer"
-        width="100%" height="900" style="border:1px solid #ccc;border-radius:6px;" loading="lazy"></iframe>
-:::
-
-
+_Embedded below (may take a moment to load):_
 <div style="position:relative;width:100%;padding-bottom:62.5%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;">
   <iframe
     src="http://resazur.in/explorer"
