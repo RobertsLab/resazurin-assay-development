@@ -36,15 +36,16 @@ Assessment**](public-summary.qmd).
 # Summary
 
 This protocol uses a resazurin-based assay to measure individual
-metabolic responses to elevated temperature stress over a 4-5-hour period.
-Resazurin is a redox-sensitive dye that fluoresces
-as it is reduced by cellular respiration, providing a proxy for
-metabolic activity. Individuals are incubated in a resazurin working
-solution at a high temperature (e.g., \~42°C), and metabolic activity is
-monitored through fluorescence measurements taken at hourly intervals.
+metabolic responses to elevated temperature stress over a 4-5-hour
+period. Resazurin is a redox-sensitive dye that fluoresces as it is
+reduced by cellular respiration, providing a proxy for metabolic
+activity. Individuals are incubated in a resazurin working solution at a
+high temperature (e.g., \~42°C), and metabolic activity is monitored
+through fluorescence measurements taken at hourly intervals.
 Fluorescence measurements are conducted using an excitation wavelength
-of 530 nm (e.g., a 528/20 nm bandpass filter) and an emission wavelength of
-590 nm (e.g., a 590/20 nm bandpass filter) using a fluorescence plate reader.
+of 530 nm (e.g., a 528/20 nm bandpass filter) and an emission wavelength
+of 590 nm (e.g., a 590/20 nm bandpass filter) using a fluorescence plate
+reader.
 
 ![Resorufin is highly fluorescent (excitation \~570 nm, emission \~585
 nm). The amount of resorufin produced is directly proportional to the
@@ -53,28 +54,31 @@ cells.](http://gannet.fish.washington.edu/seashell/snaps/Monosnap_httpsgannet.fi
 
 # Highlights to date
 
-• **Metabolic rate is a reliable predictor of short-term stress resilience** —
-oysters that suppress metabolic activity under stress tend to survive
-better than those with heightened activity in laboratory tests.\
-• **Rapid assessment is possible** — metabolism can be measured rapidly at at high replication,
-within hours using the resazurin assay, eliminating the need for
-long-term trials or multiple days of traditional respiration measurements.\
+• **Metabolic rate is a reliable predictor of short-term stress
+resilience** — oysters that suppress metabolic activity under stress
+tend to survive better than those with heightened activity in laboratory
+tests.\
+• **Rapid assessment is possible** — metabolism can be measured rapidly
+at at high replication, within hours using the resazurin assay,
+eliminating the need for long-term trials or multiple days of
+traditional respiration measurements.\
 • **Genetic background drives metabolic performance** — consistent
 family-level and line-level differences demonstrate that stress-tolerant
 metabolic traits are heritable.\
 • **Assay is scalable across life stages and conditions** — works
 effectively from tiny spat (\~7 mm) to adult oysters, across temperature
 and salinity stressors.\
-• **Parental and ploidy effects matter** — offspring stress
-resistance is affected by parental histry, and diploid vs triploid oysters
-show distinct metabolic signatures.\
-• **High sensitivity measurements** — fluorescence measurements provide highly sensitive measurements of oyster metabolism.
+• **Parental and ploidy effects matter** — offspring stress resistance
+is affected by parental histry, and diploid vs triploid oysters show
+distinct metabolic signatures.\
+• **High sensitivity measurements** — fluorescence measurements provide
+highly sensitive measurements of oyster metabolism.
 
 # Video Demo
 
-<div style="width:75%; margin:auto;">
-  {{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
-</div>
+::: {style="width:75%; margin:auto;"}
+{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
+:::
 
 # Preparing solutions
 
@@ -86,8 +90,10 @@ resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal
 solution (1%). Adjust the total volume based on the number and size of
 organisms being tested, ensuring animals are fully submerged. Trials are
 typically scaled for small (≤7 mm), medium (15–40 mm), or large
-(\>40 mm) seed using appropriately sized containers. See our widget below to calculate the solutions required! See our [Canonical
-Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/) for further details. 
+(\>40 mm) seed using appropriately sized containers. See our widget
+below to calculate the solutions required! See our [Canonical
+Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
+for further details.
 
 ### Solutions required
 
@@ -124,28 +130,28 @@ seed (10-30mm). 
 -   Large seed/adults (\>40 mm length): trials can be conducted in
     tripour cups, beakers, or plastic cups. Scale volume appropriately.
     The animals should be fully submerged. 
-    
-Use the calculator below to calculate the formula for your working solution.  
+
+Use the calculator below to calculate the formula for your working
+solution.
 
 The working solution requires the following: 
 
--   Filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered (\<1um)
-    seawater) 
+-   Filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt
+    or filtered (\<1um) seawater) 
 
--   Resazurin stock
-    solution as made above in step 1 
+-   Resazurin stock solution as made above in step 1 
 
 -   DMSO
 
--   Antibiotic solution [100x
-    Penn/Strep & 100x
+-   Antibiotic solution [100x Penn/Strep & 100x
     Fungizone](https://us.vwr.com/store/product/4648458/null) - this
     should be kept frozen in a dark freezer and thawed before use (thaw
     in the dark or cover with aluminum foil)
 
 # Interactive Recipe Calculator
 
-Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup. 
+Use this calculator to automatically determine the required amounts of
+each ingredient based on your experimental setup.
 
 ```{ojs}
 //| echo: false
@@ -240,13 +246,23 @@ html`
 
 # Examples of resazurin plates
 
-![Oyster seed loaded into a 48-well plate for resazurin testing.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/oyster_loading.jpeg?raw=true){width="75%"}
+![Oyster seed loaded into a 48-well plate for resazurin
+testing.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/oyster_loading.jpeg?raw=true){width="75%"}
 
-![Oyster seed with resazurin solution at the start of a resazurin trial. Note the dark blue color of the resazurin at the beginning of the trial.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/start-plate.jpeg?raw=true){width="75%"}
+![Oyster seed with resazurin solution at the start of a resazurin trial.
+Note the dark blue color of the resazurin at the beginning of the
+trial.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/start-plate.jpeg?raw=true){width="75%"}
 
-![Oyster seed with resazurin solution at the end of a 4 h resazurin trial. Note the pink color indicates fluorescence of resorufin as metabolism occurs. The variation in color indication variable metabolic responses with higher metabolism in brighter pink wells. The dark blue wells in the right hand row are blanks, required for data analysis.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/end_plate.jpeg?raw=true){width="75%"}
+![Oyster seed with resazurin solution at the end of a 4 h resazurin
+trial. Note the pink color indicates fluorescence of resorufin as
+metabolism occurs. The variation in color indication variable metabolic
+responses with higher metabolism in brighter pink wells. The dark blue
+wells in the right hand row are blanks, required for data
+analysis.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/end_plate.jpeg?raw=true){width="75%"}
 
-![Testing multiple plates with hundreds to thousands of oysters is achievable with the resazurin assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/plates.jpeg?raw=true){width="75%"}
+![Testing multiple plates with hundreds to thousands of oysters is
+achievable with the resazurin
+assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/plates.jpeg?raw=true){width="75%"}
 
 # Recent Slidedecks
 
@@ -254,3 +270,12 @@ html`
 
 [📄 View VIMS 2025 talk
 (PDF)](http://gannet.fish.washington.edu/seashell/snaps/2025-VIMS-Roberts.pdf)
+
+# Data Explorer
+
+Direct link: <http://resazur.in/explorer>
+
+::: {.callout-important appearance="minimal"}
+Embedded App (interactive): <iframe src="http://resazur.in/explorer"
+        width="100%" height="900" style="border:1px solid #ccc;border-radius:6px;" loading="lazy"></iframe>
+:::
