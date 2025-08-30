@@ -246,12 +246,19 @@ html`
 
 # Examples of resazurin plates
 
+::: panel-tabset
+## Oyster seed
+
 ![Oyster seed loaded into a 48-well plate for resazurin
 testing.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/oyster_loading.jpeg?raw=true){width="75%"}
+
+## Oyster seed with resazurin solution
 
 ![Oyster seed with resazurin solution at the start of a resazurin trial.
 Note the dark blue color of the resazurin at the beginning of the
 trial.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/start-plate.jpeg?raw=true){width="75%"}
+
+## At the end of a 4h assay
 
 ![Oyster seed with resazurin solution at the end of a 4 h resazurin
 trial. Note the pink color indicates fluorescence of resorufin as
@@ -260,9 +267,13 @@ responses with higher metabolism in brighter pink wells. The dark blue
 wells in the right hand row are blanks, required for data
 analysis.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/end_plate.jpeg?raw=true){width="75%"}
 
+## Multiple plates
+
 ![Testing multiple plates with hundreds to thousands of oysters is
 achievable with the resazurin
 assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/plates.jpeg?raw=true){width="75%"}
+
+:::
 
 # Recent Slidedecks
 
@@ -275,12 +286,13 @@ assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figu
 
 Direct link: <http://resazur.in/explorer>
 
-_Embedded below (may take a moment to load):_
-<div style="position:relative;width:100%;padding-bottom:120%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;">
-  <iframe
+*Embedded below (may take a moment to load):*
+
+::: {style="position:relative;width:100%;padding-bottom:120%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;"}
+<iframe
     src="http://resazur.in/explorer"
     title="Resazurin Trials Explorer"
     style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
     loading="lazy"
   ></iframe>
-</div>
+:::
