@@ -250,13 +250,13 @@ html`
 ## Oyster seed
 
 ![Oyster seed loaded into a 48-well plate for resazurin
-testing.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/oyster_loading.jpeg?raw=true){width="75%"}
+testing.](figures/images/oyster_loading.jpeg){width="75%"}
 
 ## Oyster seed with resazurin solution
 
 ![Oyster seed with resazurin solution at the start of a resazurin trial.
 Note the dark blue color of the resazurin at the beginning of the
-trial.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/start-plate.jpeg?raw=true){width="75%"}
+trial.](figures/images/start-plate.jpeg){width="75%"}
 
 ## At the end of a 4h assay
 
@@ -265,13 +265,13 @@ trial. Note the pink color indicates fluorescence of resorufin as
 metabolism occurs. The variation in color indication variable metabolic
 responses with higher metabolism in brighter pink wells. The dark blue
 wells in the right hand row are blanks, required for data
-analysis.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/end_plate.jpeg?raw=true){width="75%"}
+analysis.](figures/images/end_plate.jpeg){width="75%"}
 
 ## Multiple plates
 
 ![Testing multiple plates with hundreds to thousands of oysters is
 achievable with the resazurin
-assay.](https://github.com/RobertsLab/resazurin-assay-development/blob/main/figures/images/plates.jpeg?raw=true){width="75%"}
+assay.](figures/images/plates.jpeg){width="75%"}
 
 :::
 
