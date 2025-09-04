@@ -558,7 +558,7 @@ plot5a<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   stat_smooth(aes(group=1), colour="black", method="loess") +
   geom_text(aes(x=3, y=15), label="p<0.001")+
   labs(
-    title = "B",
+    title = "A",
     y = "AUC", x = "Temperature"
   ) +
   theme_classic();plot5a
