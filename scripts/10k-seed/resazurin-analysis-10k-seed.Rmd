@@ -270,8 +270,9 @@ View metabolic rates over time as a function of size.
 ```{r}
 model.size<-main_data%>%
   filter(time=="4")%>%
+  filter(temperature=="18C")%>%
   
-  lmer(sqrt(value) ~ scale(length.mm) + (1|temperature) + (1|bag), data=.)
+  lmer(sqrt(value) ~ scale(length.mm) + (1|bag), data=.)
 
 summary(model.size)
 anova(model.size)
@@ -282,6 +283,7 @@ qqPlot(residuals(model.size))
 ```{r}
 size_plot<-main_data%>%
   filter(time=="4")%>%
+  filter(temperature=="18C")%>%
   
   ggplot(data=., aes(x=length.mm, y=value, group=paste(date, bag, sample)))+
   #facet_wrap(~temperature)+
