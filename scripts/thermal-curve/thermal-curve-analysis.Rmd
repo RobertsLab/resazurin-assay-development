@@ -408,10 +408,35 @@ cld(emm)
 pairs(emm)
 ```
 
+Calculate Q10 values. 
+```{r}
+# df must have columns: temp_C (°C) and rate (>0)
+df<-auc_data%>%
+  #filter(temperature %in% c("20", "36", "42"))%>%
+  mutate(temp_C=as.numeric(temperature), rate=AUC)
+
+# df has columns: temp_C (°C) and rate (>0)
+df2 <- df %>%
+  group_by(temp_C) %>%                   # average replicates at each T (optional)
+  summarise(rate = mean(rate, na.rm = TRUE), .groups = "drop") %>%
+  arrange(temp_C) %>%
+  mutate(
+    T1     = temp_C,
+    T2     = lead(temp_C),
+    rate_T1 = rate,
+    rate_T2 = lead(rate),
+    Q10    = (rate_T2 / rate_T1)^(10 / (T2 - T1))
+  ) %>%
+  filter(!is.na(Q10))
+
+df2
+# Yields rows for 21→26, 26→32, 32→37, 37→42, 42→45 with their Q10s
+```
+
 # Metabolic rates ~ size 
 
 Plot fluorescence data by size.  
-ß
+
 ```{r}
 plot6a<-full_data%>%
   filter(timepoint=="5")%>%
