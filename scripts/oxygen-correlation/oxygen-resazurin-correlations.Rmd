@@ -46,8 +46,14 @@ head(df)
 
 Check for outliers 
 ```{r}
-hist(df$resazurin_slope)
+hist(df$resazurin_total)
 hist(df$R.umol.mm.min)
+```
+
+Remove resazurin outliers
+```{r}
+df<-df%>%
+  filter(resazurin_total<1.1)
 ```
 
 Change respiration to inverse so that a higher value means higher metabolic rate. 
@@ -70,22 +76,13 @@ hist(df$R.umol.mm.min)
 Transform variables. 
 
 ```{r}
-df$resazurin_slope_t<-log(1+df$resazurin_slope)
+df$resazurin_total_t<-log(1+df$resazurin_total)
 
-hist(df$resazurin_slope_t)
+hist(df$resazurin_total_t)
 
 df$R.umol.mm.min_t<-(df$R.umol.mm.min)^(1/3)
 
 hist(df$R.umol.mm.min_t)
-```
-
-Remove outliers in resazurin data. 
-
-```{r}
-#df<-df%>%
-  #filter(resazurin_slope_t<0.5)
-
-#hist(df$resazurin_slope_t)
 ```
 
 # Plot correlation 
@@ -93,21 +90,25 @@ Remove outliers in resazurin data.
 ```{r}
 plot1<-df%>%
   
-  ggplot(aes(x=R.umol.mm.min_t, y=resazurin_slope_t))+
+  ggplot(aes(x=R.umol.mm.min, y=resazurin_total))+
   geom_point(color="darkgray")+
   geom_smooth(method="lm", color="black")+
-  xlab(expression(paste("Oxygen consumption (µmol O" [2], "mm" ^-1, ")" ^(-1/3))))+
-  ylab(expression(paste("log(Fold change fluorescence mm" ^-1, ")")))+
+  xlab(expression(paste("Oxygen consumption (µmol O" [2], "mm" ^-1, ")")))+
+  ylab(expression(paste("Fold change fluorescence mm" ^-1)))+
+  geom_text(label="p=0.012", x=4e-04, y=0.8)+
   theme_classic(); plot1
 
 ggsave(plot1, filename="figures/oxygen-correlation/correlation.png", width=4, height=4)
 ```
 
 We expect a positive correlation because I am showing the reciprocal of the respiration values (higher slope = more oxygen produced). 
-Conduct correlation test. 
+
+Conduct correlation test on transformed data. 
 
 ```{r}
-cor.test(df$R.umol.mm.min, df$resazurin_slope)
+hist(df$R.umol.mm.min_t)
+hist(df$resazurin_total_t)
+cor.test(df$R.umol.mm.min_t, df$resazurin_total_t, method=c("pearson"))
 ```
 
 

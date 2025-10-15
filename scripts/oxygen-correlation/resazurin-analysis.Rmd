@@ -276,11 +276,11 @@ plot1<-full_data%>%
   theme_classic();plot1
 ```
 
-## Calculate total change in fluorescence 
+## Calculate change in fluorescence at hour 1 (same time line as oxygen measurements) 
 
 ```{r}
 total<-full_data%>%
-  filter(timepoint=="5")
+  filter(timepoint=="1")
 ```
 
 Plot total change in fluorescence for each oyster. 
