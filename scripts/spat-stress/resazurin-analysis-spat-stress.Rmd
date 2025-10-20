@@ -612,37 +612,36 @@ df2
 
 # Metabolic rates ~ size 
 
-Plot fluorescence data by size.  
+Calculate AUC prior to size normalization. 
 
 ```{r}
-plot6a<-full_data%>%
-  filter(timepoint=="4")%>%
-  filter(temperature %in% c("36C", "38C"))%>%
+auc.size<-full_data%>%
+  filter(temperature=="20C")%>%
+  filter(mortality=="0")%>%
+  ungroup()%>%
+  select(date, well, plate, timepoint, length.mm, fluorescence.norm)%>%
   
-  ggplot(., aes(x = length.mm, y = fluorescence.norm)) +
-  geom_point(alpha = 0.6, position = position_jitter(height = 0.01), colour="darkgray") +
-  stat_smooth(aes(group=1), colour="black", method="lm") +
-  geom_text(aes(x=4.5, y=35), label="p=0.002")+
-  labs(
-    title = "A",
-    y = "Fold Change in Fluorescence", x = "Length (mm)"
-  ) +
-  theme_classic();plot6a
-
-ggsave(plot6a, filename="figures/spat-stress/metabolism_size.png", width=5, height=5)
+  mutate(time=as.numeric(timepoint))%>%
+  group_by(date, well, plate, length.mm) %>%
+  dplyr::summarise(AUC = trapz(time, fluorescence.norm));auc.size
+  
 ```
 
 ```{r}
-size_model<-full_data%>%
-  filter(timepoint=="4")%>%
-  filter(temperature %in% c("36C", "38C"))%>%
+size_plot<-auc.size%>%
   
-  lmer((fluorescence.norm)^(1/3) ~ scale(length.mm) + (1|temperature), data=.)
-
-summary(size_model)
-anova(size_model)
-qqPlot(residuals(size_model))
+  ggplot(data=., aes(x=length.mm, y=AUC, group=paste(date, well, plate)))+
+  geom_point(colour="darkgray")+
+  geom_smooth(aes(group=1), method="lm", colour="black")+
+  xlab("Length (mm)")+
+  ylab("AUC")+
+  theme_classic();size_plot
 ```
 
+Export data for aggregate size analysis. 
 
+```{r}
+auc.size%>%
+  write.csv("output/size/spat_size.csv")
+```
 

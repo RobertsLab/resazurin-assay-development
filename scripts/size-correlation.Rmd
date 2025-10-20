@@ -1,0 +1,82 @@
+---
+title: PolyIC resazurin testing for batch 2 seed 
+author: "AS Huffmyer"
+date: '2024'
+output:
+  github_document: null
+  md_document: default
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+This script analyzes size correlations from resazurin experiments.    
+
+# Set up 
+
+Set up workspace, set options, and load required packages.    
+```{r}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries. 
+```{r}
+library(MASS) 
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(cowplot)
+library(lme4)
+library(lmerTest)
+library(car)
+library(effects)
+library(emmeans)
+library(tools)
+library(pracma)
+```
+
+# Read in data 
+
+Read in data from two experiments conducted at the same facility with the same size range. 
+
+```{r}
+data1<-read_csv("output/size/10k_seed_size.csv")%>%select(length.mm,AUC)%>%mutate(experiment="Seed (15-35 mm)")
+
+data2<-read_csv("output/size/usda_families_size.csv")%>%select(length.mm,AUC)%>%mutate(experiment="Seed (15-25 mm)")
+```
+
+Combine data
+```{r}
+data<-rbind(data1, data2)
+```
+
+# Plot AUC ~ size 
+
+```{r}
+size_plot<-data%>%
+  
+  ggplot(data=., aes(x=length.mm, y=AUC))+
+  geom_point(color="darkgray")+
+  geom_smooth(aes(group=1), method="lm", colour="black")+
+  xlab("Length (mm)")+
+  ylab("AUC")+
+  theme_classic();size_plot
+
+ggsave(size_plot, filename="figures/testing/size_correlation.png", width=5, height=5)
+```
+
+# Correlations
+
+```{r}
+hist(data$length.mm)
+hist(data$AUC)
+```
+
+```{r}
+cor.test(data$AUC, data$length.mm, method="spearman")
+```
+

@@ -267,36 +267,41 @@ hist(main_data$value)
 
 View metabolic rates over time as a function of size. 
 
+Calculate AUC prior to size normalization. 
+
 ```{r}
-model.size<-main_data%>%
-  filter(time=="4")%>%
+auc.size<-main_data%>%
   filter(temperature=="18C")%>%
+  filter(incubation.mortality=="alive")%>%
+  ungroup()%>%
+  select(date, bag, sample, time, length.mm, value)%>%
   
-  lmer(sqrt(value) ~ scale(length.mm) + (1|bag), data=.)
-
-summary(model.size)
-anova(model.size)
-
-qqPlot(residuals(model.size))
+  mutate(time=as.numeric(time))%>%
+  group_by(date, bag, sample, length.mm) %>%
+  dplyr::summarise(AUC = trapz(time, value));auc.size
+  
 ```
 
 ```{r}
-size_plot<-main_data%>%
-  filter(time=="4")%>%
-  filter(temperature=="18C")%>%
+size_plot<-auc.size%>%
   
-  ggplot(data=., aes(x=length.mm, y=value, group=paste(date, bag, sample)))+
+  ggplot(data=., aes(x=length.mm, y=AUC, group=paste(date, bag, sample)))+
   #facet_wrap(~temperature)+
   geom_point(colour="darkgray")+
   geom_smooth(aes(group=1), method="lm", colour="black")+
-  ggtitle("C")+
   xlab("Length (mm)")+
-  ylab("Fold Change in Fluorescence")+
-  geom_text(x=20, y=12, label="p<0.001")+
+  ylab("AUC")+
   theme_classic();size_plot
-
-ggsave(size_plot, filename="figures/10k-seed/size_scaling.png", width=5, height=5)
 ```
+
+Export data for aggregate size analysis. 
+
+```{r}
+auc.size%>%
+  write.csv("output/size/10k_seed_size.csv")
+
+```
+
 
 # Analysis: Metabolic rates 
 
@@ -719,7 +724,7 @@ Plot effects on next mortality status.
 
 ```{r}
 # Logistic regression model for predictions
-model_pred1 <- glmer(next_status ~ scale(value.mm) * temperature + (1|hardening) + (1|bag:sample), family = binomial(link = "logit"), data = model_data)
+model_pred1 <- glmer(next_status ~ scale(value.mm) + (1|hardening) + (1|bag:sample), family = binomial(link = "logit"), data = model_data)
 
 # Generate predicted probabilities
 model_data$predicted_mortality <- predict(model_pred1, type = "response")
