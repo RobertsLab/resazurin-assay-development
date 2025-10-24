@@ -14,6 +14,9 @@ editor_options:
   chunk_output_type: console
 ---
 
+
+ADD plots for time of death (1, 2, 3, or 4 h) 
+
 # Set up 
 
 Set up workspace, set options, and load required packages.    
@@ -35,6 +38,7 @@ library(effects)
 library(emmeans)
 library(RColorBrewer)
 library(pROC)
+library(pracma)
 ```
 
 # Load data 
@@ -392,6 +396,7 @@ model<-lmer((value.mm)^(1/2) ~ time * temperature + (1|hardening) + (1|date:bag:
 
 summary(model)
 anova(model)
+lmerTest::rand(model)
 
 qqPlot(residuals(model))
 ```

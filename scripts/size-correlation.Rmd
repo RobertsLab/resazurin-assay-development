@@ -80,3 +80,12 @@ hist(data$AUC)
 cor.test(data$AUC, data$length.mm, method="spearman")
 ```
 
+# Linear regression
+
+```{r}
+model<-lm(sqrt(1+AUC) ~ length.mm, data=data )
+qqPlot(residuals(model))
+
+summary(model)
+```
+

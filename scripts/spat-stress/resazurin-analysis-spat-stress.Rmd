@@ -445,6 +445,20 @@ plot3<-ggplot(surv_model_data, aes(x = temperature, y = predicted_mortality, col
 
 # Metabolic rates ~ mortality 
 
+First re do the analysis of metabolism over time with only live oysters. 
+```{r}
+model<-full_data%>%
+  filter(mortality==0)%>%
+  
+  lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment), data=.)
+
+summary(model)
+anova(model)
+#rand(model)
+
+qqPlot(residuals(model))
+```
+
 Plot metabolic rates at 42°C (treatment with highest mortality) for those that lived and those that died in each treatment. 
 
 ```{r}
@@ -541,6 +555,7 @@ Calculate total metabolic activity as area under the curve.
 
 ```{r}
 auc_data<-full_data%>%
+  filter(mortality==0)%>%
   mutate(time=as.numeric(timepoint))%>%
   group_by(date, plate, well, temperature, spat_treatment, tank, holding_tank) %>%
   summarise(AUC = trapz(time, value.mm))%>%
