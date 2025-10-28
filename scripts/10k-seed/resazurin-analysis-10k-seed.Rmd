@@ -17,6 +17,7 @@ editor_options:
 
 ADD plots for time of death (1, 2, 3, or 4 h) 
 
+
 # Set up 
 
 Set up workspace, set options, and load required packages.    
@@ -412,7 +413,7 @@ plot1<-alive_4h_data%>%
   scale_colour_manual(values=c("darkgrey", "darkred"), name="")+
   scale_fill_manual(values=c("darkgrey", "darkred"), name="")+
   theme_classic()+
-  ylab(expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")))+
+  ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
   ggtitle("A")+
   xlab("Hour");plot1
 
@@ -453,12 +454,13 @@ plot1b<-auc_data%>%
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.1) +
   scale_colour_manual(values=c("darkgray", "darkred"), name="Mortality")+
   scale_fill_manual(values=c("darkgray", "darkred"), name="Mortality")+
+  scale_x_discrete(labels=c("18", "42"))+
   geom_text(aes(x=1.5, y=0.45), label="p<0.001", colour="black")+
   ylim(0,0.5)+
   labs(
     title = "B",
-    y = expression(paste("AUC")),
-    x = "Temperature"
+    y = expression(paste("Metabolism (AUC)")),
+    x = "Temperature (°C)"
   ) +
   theme_classic()+
   theme(legend.position="none");plot1b
@@ -591,12 +593,12 @@ plot1a<-high_4h_data%>%
 
   ggplot(aes(x=time, y=value.mm, color=incubation.mortality, fill=incubation.mortality))+
   geom_point(alpha=0.3)+
-  geom_smooth(aes(group=incubation.mortality), method="lm")+
+  geom_smooth(aes(group=incubation.mortality), method="loess")+
   scale_colour_manual(name="Mortality", values=c("black", "gray"))+
   scale_fill_manual(name="Mortality", values=c("black",  "gray"))+
   theme_classic()+
   geom_text(x=2.5, y=0.25, label="p<0.001", colour="black")+
-  ylab(expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")))+
+  ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
   ggtitle("A")+
   xlab("Hours");plot1a
 
@@ -684,7 +686,7 @@ plot4b<-auc_data_dead%>%
   ylim(0,0.4)+
   labs(
     title = "B",
-    y = expression(paste("AUC")),
+    y = expression(paste("Metabolism (AUC)")),
     x = "Mortality"
   ) +
   theme_classic()+
@@ -759,13 +761,55 @@ plot12<-ggplot(model_data, aes(x = value.mm, y = predicted_mortality)) +
   geom_smooth(method = "glm", method.args = list(family = "binomial"), se = TRUE, colour="black") +
   labs(
     title = "",
-    x = expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")),
+    x = expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")),
     y = "Predicted Mortality"
   ) +
   theme_classic();plot12
 
 ggsave(plot12, filename="figures/10k-seed/mortality_risk_metabolic_rate_42C_4h.png", width=5, height=4)
 ```
+
+## Plotting metabolism by time of mortality 
+
+Plotting metabolism by time of mortality. 
+```{r}
+df_with_mortality <- main_data %>%
+  group_by(date, bag, sample, hardening, incubation.mortality) %>%
+  
+  mutate(
+    time_mortality = if (any(status == 1)) {
+      time[which(status == 1)[1]]
+    } else {
+      NA  # if oyster never dies
+    }
+  ) %>%
+  ungroup();df_with_mortality
+
+#return a table with sample sizes 
+df_with_mortality %>%
+  distinct(date, bag, sample, incubation.mortality, time_mortality) %>%  # one row per oyster
+  group_by(time_mortality, incubation.mortality)%>%
+  count(time_mortality, name = "n") %>%    # count oysters per mortality time
+  arrange(time_mortality)
+```
+
+Plot by each time of mortality. 
+
+```{r}
+plot_time1<-df_with_mortality%>%
+
+  ggplot(aes(x=time, y=value.mm))+
+  facet_grid(~time_mortality)+
+  geom_point(alpha=0.3, colour="darkgray")+
+  geom_smooth(aes(group=time_mortality), method="loess", colour="black")+
+  theme_classic()+
+  ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
+  ggtitle("")+
+  xlab("Hours");plot_time1
+
+ggsave(plot_time1, filename="figures/10k-seed/timing_mortality.png", width=6, height=5)
+```
+
 
 # Analysis: Survival and classification 
 

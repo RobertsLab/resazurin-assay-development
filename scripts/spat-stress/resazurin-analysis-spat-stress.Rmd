@@ -490,13 +490,13 @@ Plot by mortality.
 ```{r}
 plot4a<-ggplot(data_42C, aes(x = timepoint, y = value.mm, color = as.factor(mortality), fill = as.factor(mortality))) +
   geom_point(alpha = 0.6, position = position_jitter(height = 0.01)) +
-  stat_smooth(aes(group=mortality), method="lm") +
+  stat_smooth(aes(group=mortality), method="loess") +
   scale_colour_manual(values=c("black", "darkgray"), labels=c("alive", "dead"), name="Mortality")+
   scale_fill_manual(values=c("black", "darkgray"), labels=c("alive", "dead"), name="Mortality")+
   geom_text(aes(x=3, y=4), label="p<0.001", colour="black")+
   labs(
     title = "C",
-    y = expression(paste("Fold Change Fluorescence mm" ^-1)),
+    y = expression(paste("Metabolism (fold change fluorescence mm" ^-1)),
     x = "Hours"
   ) +
   theme_classic();plot4a
@@ -530,7 +530,7 @@ plot4b<-auc_data%>%
   ylim(0,5)+
   labs(
     title = "D",
-    y = expression(paste("AUC")),
+    y = expression(paste("Metabolism (AUC)")),
     x = "Mortality"
   ) +
   theme_classic()+
@@ -574,7 +574,7 @@ plot5a<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   geom_text(aes(x=3, y=15), label="p<0.001")+
   labs(
     title = "A",
-    y = "AUC", x = "Temperature"
+    y = "Metabolism (AUC)", x = "Temperature (°C)"
   ) +
   theme_classic();plot5a
 

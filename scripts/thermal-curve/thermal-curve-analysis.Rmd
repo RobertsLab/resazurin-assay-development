@@ -380,7 +380,7 @@ plot5a<-ggplot(auc_data, aes(x = temperature, y = AUC)) +
   geom_text(aes(x=2, y=9), label="p<0.001")+
   labs(
     title = "B",
-    y = "AUC", x = "Temperature"
+    y = "Metabolism (AUC)", x = "Temperature (°C)"
   ) +
   theme_classic();plot5a
 

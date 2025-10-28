@@ -63,7 +63,7 @@ size_plot<-data%>%
   geom_point(color="darkgray")+
   geom_smooth(aes(group=1), method="lm", colour="black")+
   xlab("Length (mm)")+
-  ylab("AUC")+
+  ylab("Metabolism (AUC)")+
   theme_classic();size_plot
 
 ggsave(size_plot, filename="figures/testing/size_correlation.png", width=5, height=5)

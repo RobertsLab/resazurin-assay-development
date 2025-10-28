@@ -437,8 +437,8 @@ seg_plot<-segment_data%>%
   scale_colour_manual(values=c("darkgray", "darkred"), name="")+
   scale_fill_manual(values=c("darkgray", "darkred"), name="")+
   xlab("Hours")+
-  ggtitle("B")+
-  ylab(expression(paste("Fold Change in Fluorescence (mm" ^-1, ")")))+
+  ggtitle("")+
+  ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
   theme_classic();seg_plot
 
 ggsave(seg_plot, filename="figures/usda-families/fl_family_averages.png", width=12, height=5, units="in")
