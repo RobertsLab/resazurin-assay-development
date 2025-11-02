@@ -67,11 +67,12 @@ data<-data%>%
 plot1<-data%>%
   ggplot(aes(x=timepoint, y=fluorescence.norm, colour=type, group=well, linetype=type))+
   geom_point()+
-  ylab("Metabolism (fold change fluorescence")+
-  xlab("Time Point")+
+  ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
+  xlab("Hour")+
   geom_smooth(aes(group=type), method="lm", se=FALSE)+
-  scale_colour_manual(values=c("darkgray", "black", "darkgray"))+
-  scale_linetype_manual(values=c("dotted", "solid", "solid"))+
+  scale_colour_manual(values=c("darkgray", "black", "darkgray"), name="")+
+  scale_linetype_manual(values=c("dotted", "solid", "solid"), name="")+
+  scale_x_discrete(labels=c("0", "1", "2", "3", "4"))+
   theme_classic();plot1
 
 ggsave(plot1, filename="figures/testing/shell_live_raw.png", width=5, height=4)
