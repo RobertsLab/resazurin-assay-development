@@ -414,7 +414,7 @@ plot1<-alive_4h_data%>%
   scale_fill_manual(values=c("darkgrey", "darkred"), name="")+
   theme_classic()+
   ylab(expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")))+
-  ggtitle("A")+
+  ggtitle("C")+
   xlab("Hour");plot1
 
 ggsave(plot1, filename="figures/10k-seed/temperature_alive4h.png", width=5, height=4)
@@ -458,7 +458,7 @@ plot1b<-auc_data%>%
   geom_text(aes(x=1.5, y=0.45), label="p<0.001", colour="black")+
   ylim(0,0.5)+
   labs(
-    title = "B",
+    title = "D",
     y = expression(paste("Metabolism (AUC)")),
     x = "Temperature (°C)"
   ) +
@@ -760,7 +760,7 @@ plot12<-ggplot(model_data, aes(x = value.mm, y = predicted_mortality)) +
   geom_point(aes(y = next_status), alpha = 0.5, position = position_jitter(height = 0.03), colour="darkgray") +
   geom_smooth(method = "glm", method.args = list(family = "binomial"), se = TRUE, colour="black") +
   labs(
-    title = "",
+    title = "E",
     x = expression(paste("Metabolism (fold change fluorescence mm" ^-1, ")")),
     y = "Predicted Mortality"
   ) +
@@ -856,7 +856,7 @@ plot3<-ggplot(surv_data, aes(x = as.numeric(time), y = predicted_mortality, colo
   scale_colour_manual(values=c("darkgrey", "darkred"))+
   scale_fill_manual(values=c("darkgrey", "darkred"))+
   labs(
-    title = "C",
+    title = "E",
     y = "Mortality",
     x = "Hours"
   ) +
