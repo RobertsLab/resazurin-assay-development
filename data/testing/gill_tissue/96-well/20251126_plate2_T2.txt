@@ -1,0 +1,46 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\srlab\Desktop\resazurin_oysters\gill-tissue\20251126_gill_tiral.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_96well.prt
+
+
+
+Plate Number	Plate 6
+Date	11/26/2025
+Time	12:14:44 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	96 WELL PLATE
+Eject plate on completion	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 1 mm
+
+
+
+Actual Temperature:	24.9
+
+Results
+	1	2	3	4	5	6	7	8	9	10	11	12
+A	32128	29907	28118	0	0	0	0	0	0	0	0	0	528/20,590/20
+B	21316	28040	25495	0	0	0	0	0	0	0	0	0	528/20,590/20
+C	616	536	714	0	0	0	0	0	0	0	0	0	528/20,590/20
+D	0	1	1	0	0	1	0	0	0	1	0	0	528/20,590/20
+E	0	0	0	0	0	2	0	1	0	0	0	0	528/20,590/20
+F	0	0	1	0	0	0	0	0	0	0	0	0	528/20,590/20
+G	0	1	0	0	0	0	0	1	0	0	1	1	528/20,590/20
+H	0	0	0	0	2	0	0	1	0	0	0	0	528/20,590/20
+
