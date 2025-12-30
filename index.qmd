@@ -5,7 +5,7 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-08-28 # UPDATE
+date-modified: 2025-12-31 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
@@ -23,12 +23,11 @@ with the [Canonical
 Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 
 ::: callout-note
-## 📖 New: Public Summary Available
+## 📖 New: Manuscript
 
-For a general audience overview of this research, including implications
-for the aquaculture industry and key findings to date, see our [**Public
-Summary: Resazurin Assay for Oyster Health
-Assessment**](public-summary.qmd).
+Huffmyer AS, N Ozguner, M Baird, C Elvrum, C Kounellas, D Dicksion, SJ White, L Plough, MR Gavery, N Krebs, W Walton, J Small, M Pitsenbarger, H Ealy-Whitfield, S Roberts. **From blue to pink: Resazurin as a high-throughput proxy for metabolic rate in oysters**. In review. PeerJ.
+Available on bioRxiv at <http://doi.org/10.1101/2025.11.06.686367>.
+
 :::
 
 ------------------------------------------------------------------------
