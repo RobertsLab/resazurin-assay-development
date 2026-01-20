@@ -221,7 +221,7 @@ full_data%>%
   theme_classic()
 ```
 
-Calculate size normalized fluorescence at each time point normalized to the starting value at time 0. 
+Calculate normalized fluorescence at each time point normalized to the starting value at time 0. 
 ```{r}
 full_data<-full_data%>%
   group_by(date, plate, well, individual, temperature, plate.vol)%>%
