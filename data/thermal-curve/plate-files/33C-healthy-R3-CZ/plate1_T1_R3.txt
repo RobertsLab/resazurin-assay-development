@@ -1,0 +1,88 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\christina\Desktop\33C.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_48well.prt
+
+
+
+Plate Number	Plate 21
+Date	2/26/2026
+Time	3:28:19 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	48 WELL PLATE
+Eject plate on completion	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	24.6
+
+Results
+	1	2	3	4	5	6	7	8
+A	1019	1493	1891	903	652	445	2664	135	528/20,590/20
+B	652	1097	1439	1854	650	2046	626	126	528/20,590/20
+C	3224	1554	1679	1809	1783	1250	1678	124	528/20,590/20
+D	1272	478	860	2358	1027	2396	302	139	528/20,590/20
+E	1242	2255	2620	918	410	316	1062	129	528/20,590/20
+F	663	399	446	1968	602	325	1795	144	528/20,590/20
+
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\christina\Desktop\33C.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_48well.prt
+
+
+
+Plate Number	Plate 29
+Date	2/26/2026
+Time	3:55:51 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	48 WELL PLATE
+Eject plate on completion	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	25.2
+
+Results
+	1	2	3	4	5	6	7	8
+A	1148	2224	3032	1485	2092	653	3955	140	528/20,590/20
+B	1080	2093	2422	3158	1193	3150	1165	129	528/20,590/20
+C	4983	2458	2692	3065	3235	2349	2792	129	528/20,590/20
+D	2170	845	1732	3812	1950	3796	402	144	528/20,590/20
+E	2319	3587	4339	1369	541	458	2323	134	528/20,590/20
+F	904	536	575	3030	740	392	2841	148	528/20,590/20
+

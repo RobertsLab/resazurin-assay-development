@@ -1,0 +1,44 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\christina\Desktop\33C.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_48well.prt
+
+
+
+Plate Number	Plate 58
+Date	2/26/2026
+Time	5:51:52 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	48 WELL PLATE
+Eject plate on completion	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.4
+
+Results
+	1	2	3	4	5	6	7	8
+A	5694	4253	4482	3628	5724	5098	5290	156	528/20,590/20
+B	7517	5526	6736	6205	5411	8276	6497	190	528/20,590/20
+C	11720	3004	9258	6841	5568	7851	4601	150	528/20,590/20
+D	3765	6885	7415	5694	3971	4286	8656	180	528/20,590/20
+E	4022	5861	5272	5289	6455	4916	5594	170	528/20,590/20
+F	7071	1217	7572	6545	5908	2442	6745	192	528/20,590/20
+
