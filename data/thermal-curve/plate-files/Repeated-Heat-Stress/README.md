@@ -1,5 +1,6 @@
 # Raw data for testing the effects of repeated thermal stress on Pacific oyster (Crassostrea gigas) metabolic performance using resazurin assay
 
+Experiment ran by Christina Zhang
 Reciprocal treatment plates set up as follows:
 Plate 1: received no heat followed by no heat
 Plate 2: received no heat followed by heat
@@ -13,7 +14,7 @@ Three rounds of data were collected for each experimental temperature.
 
 ### Round 1
 **Folder:** `XXC-healthy-CZ`  
-First round of data under the **XX °C temperature treatment**.
+First round of data under the **XX °C temperature treatment**. Oysters are under **healthy** condition. **CZ** stands for Christina Zhang initials.
 
 File naming format:
 `plateX_TX`
