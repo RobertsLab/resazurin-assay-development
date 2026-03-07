@@ -14,7 +14,7 @@ Three rounds of data were collected for each experimental temperature.
 
 ### Round 1
 **Folder:** `XXC-healthy-CZ`  
-First round of data under the **XX °C temperature treatment**. Oysters are under **healthy** condition. **CZ** stands for Christina Zhang initials.
+First round of data under the **XX °C temperature treatment**. Oysters are in **healthy** conditions (define as no unusual mortalities under room temperature for 7 days period of time during preliminary testing). **CZ** stands for Christina Zhang initials.
 
 File naming format:
 `plateX_TX`
