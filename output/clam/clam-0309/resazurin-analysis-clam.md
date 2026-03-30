@@ -1,53 +1,43 @@
----
-title: "Clam resazurin metabolic rate analysis"
-author: "AS Huffmyer"
-date: '2026'
-params:
-  experiment: "clam-0309"
-output:
-  github_document: null
-  md_document: default
-  html_document:
-    code_folding: hide
-    toc: true
-    toc_depth: 6
-    toc_float: true
-editor_options: 
-  chunk_output_type: console
----
+Clam resazurin metabolic rate analysis
+================
+AS Huffmyer
+2026
 
-This script analyzes resazurin assays for clam samples from BioTek Synergy HTX exports (24-well or 48-well plate layouts). Column 1 wells contain clam samples; column 2 wells contain blanks.
+This script analyzes resazurin assays for clam samples using a 48-well
+plate format (BioTek Synergy HTX reader). Column 1 wells contain clam
+samples; column 2 wells contain blanks.
 
-# Set up 
+# Set up
 
-Set up workspace, set options, and load required packages.    
-```{r}
+Set up workspace, set options, and load required packages.
+
+``` r
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-Load libraries. 
-```{r}
+Load libraries.
+
+``` r
 library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(tools)
 ```
 
-`knitr::knit()` does not populate `params`; `rmarkdown::render()` does. When knitting outside `render()`, use the same default as `params:` in the YAML header above.
+`knitr::knit()` does not populate `params`; `rmarkdown::render()` does.
+When knitting outside `render()`, use the same default as `params:` in
+the YAML header above.
 
-```{r include=FALSE}
-if (!exists("params", inherits = FALSE)) {
-  params <- list(experiment = "clam-0309")
-}
-```
-
-# Load data 
+# Load data
 
 ## Parse plate reader files
 
-Define a function to parse BioTek Synergy HTX .txt files. Each file may contain one or more plate readings separated by a "Results" header. For files with multiple readings the fluorescence values are averaged across readings.
+Define a function to parse BioTek Synergy HTX .txt files. Each file may
+contain one or more plate readings separated by a “Results” header. For
+files with multiple readings the fluorescence values are averaged across
+readings.
 
-```{r}
+``` r
 parse_plate_file <- function(file) {
   lines <- readLines(file, warn = FALSE)
   
@@ -107,9 +97,11 @@ parse_plate_file <- function(file) {
 }
 ```
 
-Read and combine all plate files from `data/clam/<experiment>/` (or `data/clam/` if `experiment` is empty). Filenames may look like `plate1_t0.txt` or `plate01-T3.25.txt`.
+Read and combine all plate files from `data/clam/<experiment>/` (or
+`data/clam/` if `experiment` is empty). Filenames may look like
+`plate1_t0.txt` or `plate01-T3.25.txt`.
 
-```{r}
+``` r
 find_repo_root <- function() {
   candidates <- c(
     getwd(),
@@ -169,11 +161,20 @@ combined_data <- bind_rows(data_list)
 head(combined_data)
 ```
 
+    ##   Row sample_fluor blank_fluor  plate timepoint well
+    ## 1   A         3025        2239 plate1       0.5   A1
+    ## 2   B         1315        2484 plate1       0.5   B1
+    ## 3   C         3642        2485 plate1       0.5   C1
+    ## 4   D         1695        1465 plate1       0.5   D1
+    ## 5   A          592         537 plate1       0.0   A1
+    ## 6   B          419         425 plate1       0.0   B1
+
 ## Normalize to T0
 
-Divide each well's fluorescence by the T0 (baseline) value to express fluorescence as fold-change relative to the start of the assay.
+Divide each well’s fluorescence by the T0 (baseline) value to express
+fluorescence as fold-change relative to the start of the assay.
 
-```{r}
+``` r
 combined_data <- combined_data %>%
   group_by(plate, well) %>%
   arrange(timepoint, .by_group = TRUE) %>%
@@ -186,11 +187,23 @@ combined_data <- combined_data %>%
 head(combined_data)
 ```
 
+    ## # A tibble: 6 × 8
+    ##   Row   sample_fluor blank_fluor plate  timepoint well  sample_norm blank_norm
+    ##   <chr>        <dbl>       <dbl> <chr>      <dbl> <chr>       <dbl>      <dbl>
+    ## 1 A              592         537 plate1      0    A1           1          1   
+    ## 2 A             3025        2239 plate1      0.5  A1           5.11       4.17
+    ## 3 A             5323        2833 plate1      1    A1           8.99       5.28
+    ## 4 A             7447        3729 plate1      2    A1          12.6        6.94
+    ## 5 A             7805        4480 plate1      2.5  A1          13.2        8.34
+    ## 6 A             8300        5168 plate1      3.25 A1          14.0        9.62
+
 ## Blank correction
 
-Calculate the mean normalized blank fluorescence per plate and timepoint, then subtract it from the normalized sample fluorescence (adding 1 to keep values centred at 1 at T0).
+Calculate the mean normalized blank fluorescence per plate and
+timepoint, then subtract it from the normalized sample fluorescence
+(adding 1 to keep values centred at 1 at T0).
 
-```{r}
+``` r
 blanks <- combined_data %>%
   group_by(plate, timepoint) %>%
   summarise(mean_blank_norm = mean(blank_norm, na.rm = TRUE), .groups = "drop")
@@ -201,11 +214,22 @@ combined_data <- left_join(combined_data, blanks, by = c("plate", "timepoint")) 
 head(combined_data)
 ```
 
+    ## # A tibble: 6 × 10
+    ##   Row   sample_fluor blank_fluor plate  timepoint well  sample_norm blank_norm
+    ##   <chr>        <dbl>       <dbl> <chr>      <dbl> <chr>       <dbl>      <dbl>
+    ## 1 A              592         537 plate1      0    A1           1          1   
+    ## 2 A             3025        2239 plate1      0.5  A1           5.11       4.17
+    ## 3 A             5323        2833 plate1      1    A1           8.99       5.28
+    ## 4 A             7447        3729 plate1      2    A1          12.6        6.94
+    ## 5 A             7805        4480 plate1      2.5  A1          13.2        8.34
+    ## 6 A             8300        5168 plate1      3.25 A1          14.0        9.62
+    ## # ℹ 2 more variables: mean_blank_norm <dbl>, fluorescence_corr <dbl>
+
 # Plotting
 
 ## Raw fluorescence over time
 
-```{r}
+``` r
 plot_raw <- combined_data %>%
   ggplot(aes(x = timepoint, y = sample_fluor,
              colour = plate, group = interaction(plate, well))) +
@@ -220,13 +244,22 @@ plot_raw <- combined_data %>%
   theme_classic()
 
 plot_raw
+```
 
+<figure>
+<img src="figure/unnamed-chunk-8-1.png"
+alt="plot of chunk unnamed-chunk-8" />
+<figcaption aria-hidden="true">plot of chunk
+unnamed-chunk-8</figcaption>
+</figure>
+
+``` r
 ggsave(plot_raw, filename = file.path(fig_dir, "raw_fluorescence.png"), width = 6, height = 4)
 ```
 
 ## Normalized fluorescence over time
 
-```{r}
+``` r
 plot_norm <- combined_data %>%
   ggplot(aes(x = timepoint, y = sample_norm,
              colour = plate, group = interaction(plate, well))) +
@@ -241,13 +274,22 @@ plot_norm <- combined_data %>%
   theme_classic()
 
 plot_norm
+```
 
+<figure>
+<img src="figure/unnamed-chunk-9-1.png"
+alt="plot of chunk unnamed-chunk-9" />
+<figcaption aria-hidden="true">plot of chunk
+unnamed-chunk-9</figcaption>
+</figure>
+
+``` r
 ggsave(plot_norm, filename = file.path(fig_dir, "normalized_fluorescence.png"), width = 6, height = 4)
 ```
 
 ## Blank-corrected fluorescence over time
 
-```{r}
+``` r
 plot_corr <- combined_data %>%
   ggplot(aes(x = timepoint, y = fluorescence_corr,
              colour = plate, group = interaction(plate, well))) +
@@ -262,7 +304,16 @@ plot_corr <- combined_data %>%
   theme_classic()
 
 plot_corr
+```
 
+<figure>
+<img src="figure/unnamed-chunk-10-1.png"
+alt="plot of chunk unnamed-chunk-10" />
+<figcaption aria-hidden="true">plot of chunk
+unnamed-chunk-10</figcaption>
+</figure>
+
+``` r
 ggsave(plot_corr, filename = file.path(fig_dir, "corrected_fluorescence.png"), width = 6, height = 4)
 ```
 
@@ -270,7 +321,7 @@ ggsave(plot_corr, filename = file.path(fig_dir, "corrected_fluorescence.png"), w
 
 Plot group means ± SE.
 
-```{r}
+``` r
 summary_data <- combined_data %>%
   group_by(plate, timepoint) %>%
   summarise(
@@ -297,13 +348,22 @@ plot_mean <- summary_data %>%
   theme_classic()
 
 plot_mean
+```
 
+<figure>
+<img src="figure/unnamed-chunk-11-1.png"
+alt="plot of chunk unnamed-chunk-11" />
+<figcaption aria-hidden="true">plot of chunk
+unnamed-chunk-11</figcaption>
+</figure>
+
+``` r
 ggsave(plot_mean, filename = file.path(fig_dir, "mean_fluorescence.png"), width = 6, height = 4)
 ```
 
 ## Individual well trajectories faceted by plate
 
-```{r}
+``` r
 plot_facet <- combined_data %>%
   ggplot(aes(x = timepoint, y = fluorescence_corr,
              colour = well, group = well)) +
@@ -318,6 +378,15 @@ plot_facet <- combined_data %>%
   theme_classic()
 
 plot_facet
+```
 
+<figure>
+<img src="figure/unnamed-chunk-12-1.png"
+alt="plot of chunk unnamed-chunk-12" />
+<figcaption aria-hidden="true">plot of chunk
+unnamed-chunk-12</figcaption>
+</figure>
+
+``` r
 ggsave(plot_facet, filename = file.path(fig_dir, "individual_wells.png"), width = 8, height = 4)
 ```
