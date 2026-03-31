@@ -95,7 +95,8 @@ p_all <- ggplot(fluor_long, aes(x = time_hours, y = fluorescence, color = well, 
   geom_line(linewidth = 0.6, alpha = 0.9) +
   geom_point(size = 1.5, alpha = 0.9) +
   scale_color_manual(values = well_colors) +
-  facet_wrap(~ plate_id, scales = "free_y") +
+  facet_wrap(~ plate_id) +
+  coord_cartesian(ylim = c(0, 12000)) +
   labs(
     title = "Fluorescence at Each Time Point for Each Well",
     subtitle = "Faceted by plate (C-blue, C-red, S-blue, S-red)",
@@ -128,6 +129,7 @@ for (pid in plate_ids) {
     geom_line(linewidth = 0.7, alpha = 0.9) +
     geom_point(size = 1.8, alpha = 0.9) +
     scale_color_manual(values = well_colors) +
+    coord_cartesian(ylim = c(0, 12000)) +
     labs(
       title = paste("Plate", pid),
       x = "Time (hours)",
