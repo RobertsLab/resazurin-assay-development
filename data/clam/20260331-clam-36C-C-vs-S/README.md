@@ -16,7 +16,13 @@ Plate layout was randomized; Steven is currently the only person who knows the t
 IMPORTANT NOTES:
 
 - Seemed to be inconsistent heating, with interior wells usually ~1.5<sup>o</sup>C lower than rest of wells.
-- Plate C, C4 lost nearly half its volume. Not sure if it was due to spillage or clam spitting!
+
+The following wells have lost volume - possiblly due to clam spitting?
+
+- Plate A, C3
+- Plate C, C4
+- Plate B, A3
+- Plate D, B2
 
 ### FILES
 
