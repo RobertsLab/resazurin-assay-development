@@ -1,0 +1,274 @@
+---
+title: "Clam resazurin metabolic rate analysis – 40°C Control vs Selected"
+author: "SR Roberts"
+date: '2026-03-30'
+output:
+  github_document: null
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 6
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(cowplot)
+library(tools)
+```
+
+# Load & parse data
+
+Each file is a BioTek Synergy HTX export for a 24-well plate.
+Columns 1-5 contain individual clam samples; column 6 is blank (resazurin
+working solution, no animal). Two plates per treatment (blue / red).
+
+```{r parse-function}
+parse_plate_24well <- function(file) {
+  lines <- readLines(file, warn = FALSE)
+  results_idx <- which(trimws(lines) == "Results")
+  if (length(results_idx) == 0) stop("No 'Results' in ", file)
+
+  idx <- results_idx[1]
+  j <- idx + 2
+  data_lines <- character()
+  while (j <= length(lines)) {
+    line <- lines[j]
+    if (nchar(trimws(line)) == 0) break
+    if (!grepl("^[A-Da-d]\\t", line)) break
+    data_lines <- c(data_lines, line)
+    j <- j + 1
+  }
+
+  map_dfr(data_lines, function(row) {
+    parts  <- unlist(strsplit(row, "\t"))
+    row_id <- trimws(parts[1])
+    vals   <- suppressWarnings(as.numeric(parts[2:(length(parts) - 1)]))
+    tibble(
+      row_letter = row_id,
+      col        = seq_along(vals),
+      fluor      = vals
+    )
+  })
+}
+```
+
+```{r load-files}
+data_dir <- file.path(
+  rprojroot::find_rstudio_root_file(),
+  "data", "clam", "20260330-clam-40C-C-vs-S"
+)
+files <- list.files(data_dir, pattern = "\\.txt$", full.names = TRUE)
+
+all_data <- map_dfr(files, function(f) {
+  fn <- tolower(basename(f))
+  treatment <- if (grepl("plate-c", fn)) "Control" else "Selected"
+  plate_col <- str_extract(fn, "(?<=plate-[cs]-)(blue|red)")
+  tp        <- as.numeric(str_extract(fn, "(?<=-t)\\d+\\.\\d+"))
+  parse_plate_24well(f) %>%
+    mutate(treatment = treatment, plate_color = plate_col, timepoint = tp,
+           well = paste0(row_letter, col))
+})
+
+all_data <- all_data %>%
+  mutate(
+    well_type = if_else(col == 6, "blank", "sample"),
+    plate_id  = paste(treatment, plate_color, sep = "_")
+  )
+
+head(all_data)
+```
+
+# Data quality check
+
+```{r qc-blanks}
+blanks <- all_data %>% filter(well_type == "blank")
+
+ggplot(blanks, aes(x = factor(timepoint), y = fluor, colour = plate_id)) +
+  geom_jitter(width = 0.15, size = 2) +
+  labs(x = "Timepoint (h)", y = "Blank fluorescence (RFU)",
+       colour = "Plate", title = "Blank wells (column 6) over time") +
+  theme_classic()
+```
+
+Flag: Some S-red blank wells (rows B, C) show elevated fluorescence at later
+time points (potential contamination / wicking from adjacent sample wells).
+
+```{r qc-duplicate}
+s_blue_t0 <- all_data %>%
+  filter(treatment == "Selected", plate_color == "blue", timepoint == 0) %>%
+  select(row_letter, col, fluor)
+s_red_t0 <- all_data %>%
+  filter(treatment == "Selected", plate_color == "red", timepoint == 0) %>%
+  select(row_letter, col, fluor)
+
+if (identical(s_blue_t0, s_red_t0)) {
+  message("NOTE: plate-S-red-T0.0 and plate-S-blue-T0.0 contain identical data ",
+          "(same plate number and timestamp). The S-red T0 data may be a copy error.")
+}
+```
+
+# Blank correction
+
+Subtract per-plate, per-timepoint mean blank from every sample well.
+
+```{r blank-correct}
+blank_means <- all_data %>%
+  filter(well_type == "blank") %>%
+  group_by(plate_id, timepoint) %>%
+  summarise(blank_mean = mean(fluor, na.rm = TRUE), .groups = "drop")
+
+samples <- all_data %>%
+  filter(well_type == "sample") %>%
+  left_join(blank_means, by = c("plate_id", "timepoint")) %>%
+  mutate(fluor_corr = fluor - blank_mean)
+
+head(samples)
+```
+
+# Summary statistics
+
+```{r summary-stats}
+plate_summary <- samples %>%
+  group_by(treatment, plate_color, plate_id, timepoint) %>%
+  summarise(
+    n        = n(),
+    mean_rfu = mean(fluor_corr, na.rm = TRUE),
+    sd_rfu   = sd(fluor_corr,   na.rm = TRUE),
+    se_rfu   = sd_rfu / sqrt(n),
+    .groups  = "drop"
+  )
+
+treatment_summary <- samples %>%
+  group_by(treatment, timepoint) %>%
+  summarise(
+    n        = n(),
+    mean_rfu = mean(fluor_corr, na.rm = TRUE),
+    sd_rfu   = sd(fluor_corr,   na.rm = TRUE),
+    se_rfu   = sd_rfu / sqrt(n),
+    .groups  = "drop"
+  )
+
+treatment_summary
+```
+
+# Plots
+
+```{r fig-dir}
+fig_dir <- file.path(
+  rprojroot::find_rstudio_root_file(),
+  "figures", "clam", "20260330-clam-40C-C-vs-S"
+)
+dir.create(fig_dir, recursive = TRUE, showWarnings = FALSE)
+```
+
+## Individual well trajectories by plate
+
+```{r plot-individual, fig.width=10, fig.height=6}
+p_individual <- samples %>%
+  ggplot(aes(x = timepoint, y = fluor_corr,
+             colour = well, group = well)) +
+  facet_wrap(~plate_id) +
+  geom_point(size = 1) +
+  geom_line(alpha = 0.6) +
+  labs(x = "Time at 40°C (h)", y = "Blank-corrected fluorescence (RFU)") +
+  theme_classic() +
+  theme(legend.position = "none")
+
+p_individual
+
+ggsave(file.path(fig_dir, "individual_wells.png"),
+       p_individual, width = 10, height = 6)
+```
+
+## Plate-level means
+
+```{r plot-plate-means, fig.width=7, fig.height=5}
+p_plate <- plate_summary %>%
+  ggplot(aes(x = timepoint, y = mean_rfu,
+             colour = plate_id, fill = plate_id)) +
+  geom_ribbon(aes(ymin = mean_rfu - se_rfu,
+                  ymax = mean_rfu + se_rfu), alpha = 0.2, colour = NA) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Time at 40°C (h)", y = "Mean blank-corrected RFU ± SE",
+       colour = "Plate", fill = "Plate") +
+  theme_classic()
+
+p_plate
+
+ggsave(file.path(fig_dir, "plate_means.png"), p_plate, width = 7, height = 5)
+```
+
+## Treatment-level comparison: Control vs Selected
+
+```{r plot-treatment, fig.width=7, fig.height=5}
+p_treatment <- treatment_summary %>%
+  ggplot(aes(x = timepoint, y = mean_rfu,
+             colour = treatment, fill = treatment)) +
+  geom_ribbon(aes(ymin = mean_rfu - se_rfu,
+                  ymax = mean_rfu + se_rfu), alpha = 0.2, colour = NA) +
+  geom_point(size = 2.5) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = c("Control" = "#377eb8", "Selected" = "#e41a1c")) +
+  scale_fill_manual(values   = c("Control" = "#377eb8", "Selected" = "#e41a1c")) +
+  labs(x = "Time at 40°C (h)",
+       y = "Mean blank-corrected fluorescence (RFU ± SE)",
+       colour = "Treatment", fill = "Treatment",
+       title = "Resazurin metabolic activity: Control vs Selected clams at 40°C") +
+  theme_classic(base_size = 13)
+
+p_treatment
+
+ggsave(file.path(fig_dir, "treatment_CvsS.png"), p_treatment, width = 7, height = 5)
+```
+
+## Rate of fluorescence increase (metabolic rate proxy)
+
+Compute the slope of fluorescence over time for each well (linear fit across
+all time points) as a simple metabolic rate metric.
+
+```{r metabolic-rate, fig.width=6, fig.height=5}
+rates <- samples %>%
+  group_by(treatment, plate_color, plate_id, well) %>%
+  summarise(
+    slope = coef(lm(fluor_corr ~ timepoint))[2],
+    .groups = "drop"
+  )
+
+p_rate <- rates %>%
+  ggplot(aes(x = treatment, y = slope, fill = treatment)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.4, width = 0.5) +
+  geom_jitter(aes(colour = plate_color), width = 0.15, size = 1.5, alpha = 0.7) +
+  scale_fill_manual(values   = c("Control" = "#377eb8", "Selected" = "#e41a1c")) +
+  scale_colour_manual(values = c("blue" = "steelblue", "red" = "tomato")) +
+  labs(x = NULL, y = "Fluorescence rate of change (RFU / h)",
+       fill = "Treatment", colour = "Plate",
+       title = "Metabolic rate: Control vs Selected") +
+  theme_classic(base_size = 13)
+
+p_rate
+
+ggsave(file.path(fig_dir, "metabolic_rate_boxplot.png"),
+       p_rate, width = 6, height = 5)
+```
+
+```{r rate-stats}
+rate_summary <- rates %>%
+  group_by(treatment) %>%
+  summarise(
+    n          = n(),
+    mean_slope = mean(slope),
+    sd_slope   = sd(slope),
+    se_slope   = sd_slope / sqrt(n),
+    .groups    = "drop"
+  )
+
+rate_summary
+
+t_test <- t.test(slope ~ treatment, data = rates)
+t_test
+```
