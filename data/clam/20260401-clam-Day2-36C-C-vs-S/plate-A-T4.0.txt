@@ -1,0 +1,84 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 87
+Date	4/1/2026
+Time	12:36:56 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.4
+
+Results
+	1	2	3	4
+A	12578	10082	8365	9647	528/20,590/20
+B	7452	13394	10970	9441	528/20,590/20
+C	10565	7952	12716	225	528/20,590/20
+
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 90
+Date	4/1/2026
+Time	12:41:22 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.5
+
+Results
+	1	2	3	4
+A	12378	9866	8598	9711	528/20,590/20
+B	7693	13268	11030	10163	528/20,590/20
+C	10879	8018	12541	223	528/20,590/20
+

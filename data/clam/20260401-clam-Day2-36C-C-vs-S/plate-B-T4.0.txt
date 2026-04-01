@@ -1,0 +1,126 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 88
+Date	4/1/2026
+Time	12:38:08 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.4
+
+Results
+	1	2	3	4
+A	9485	6903	4931	11055	528/20,590/20
+B	9310	9449	8716	11539	528/20,590/20
+C	6295	10127	227	10272	528/20,590/20
+
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 89
+Date	4/1/2026
+Time	12:39:42 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.4
+
+Results
+	1	2	3	4
+A	12442	8903	11540	7877	528/20,590/20
+B	8767	10165	8712	8519	528/20,590/20
+C	219	10134	9227	8592	528/20,590/20
+
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 91
+Date	4/1/2026
+Time	12:42:08 PM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.5
+
+Results
+	1	2	3	4
+A	9668	6935	5357	11148	528/20,590/20
+B	9556	7228	8694	11449	528/20,590/20
+C	6634	10177	226	10327	528/20,590/20
+
