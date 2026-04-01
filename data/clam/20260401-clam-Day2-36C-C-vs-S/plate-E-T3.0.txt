@@ -1,0 +1,42 @@
+
+
+Software Version	3.16.10
+
+
+
+Experiment File Path:	C:\Users\Public\Documents\20260401-clam-36C-C-vs-S\Experiment1.xpt
+Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
+
+
+
+Plate Number	Plate 73
+Date	4/1/2026
+Time	11:38:04 AM
+Reader Type:	Synergy HTX
+Reader Serial Number:	25030704
+Reading Type	Reader
+
+Procedure Details
+
+Plate Type	12 WELL PLATE
+Eject plate on completion	
+Plate Out/In	
+Read	Fluorescence Endpoint
+	Full Plate
+	Filter Set 1
+	    Excitation: 528/20,  Emission: 590/20
+	    Optics: Top,  Gain: 35
+	Light Source: Tungsten,  Standard Dynamic Range
+	Read Speed: Normal,  Delay: 100 msec,  Measurements/Data Point: 10
+	Read Height: 4.5 mm
+
+
+
+Actual Temperature:	26.3
+
+Results
+	1	2	3	4
+A	6202	6429	7136	8506	528/20,590/20
+B	11148	7092	12267	8904	528/20,590/20
+C	222	3752	6737	7553	528/20,590/20
+
