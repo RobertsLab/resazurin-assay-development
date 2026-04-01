@@ -12,6 +12,31 @@ Plates were measured every 30mins on a Synergy HTX (Agilent) plate reader.
 
 Plate layout was randomized; Steven is currently the only person who knows the treatment assignments.
 
+### IMPORTANT NOTES
+
+#### Low volumes
+
+GA3
+JB1
+KA2
+LA4
+
+#### Plate Temps
+
+Wells were spot checked and range noted in table below.
+
+| PLATE | TIME | TEMP  |
+|-------|------|-------|
+| G     | 0    | 11-12 |
+| G     | 0.5  | 14-16 |
+| G     | 1    | 24-30 |
+| G     | 1.5  | 27-30 |
+| G     | 2    | 31-32 |
+| G     | 2.5  | 31-32 |
+| G     | 3    | 31-32 |
+| G     | 3.5  | 31-32 |
+| G     | 4    | 33    |
+
 ### FILES
 
 Filenames are in the following format: `plate-<G-L>-TN.N.txt`
