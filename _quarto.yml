@@ -8,6 +8,8 @@ website:
     left:
       - text: "Technical Documentation"
         file: index.qmd
+      - text: "Clam Dashboard"
+        file: clam-dashboard.qmd
       - text: "Public Summary"
         file: public-summary.qmd
     right:

@@ -5,6 +5,18 @@ This repository contains all code, data, and documentation for the development a
 
 See our [landing page](https://robertslab.github.io/resazurin-assay-development/) for information on resazurin protocols, recent findings, experimental design tools, and data explor apps! 
 
+## Clam dashboard
+
+This repository now includes an auto-updating clam dashboard page that is built from plate reader exports under `data/clam`.
+
+- Dashboard source page: `clam-dashboard.qmd`
+- Data build script: `scripts/clam/build_clam_dashboard_data.R`
+- Parser module: `scripts/clam/parse_plate_exports.R`
+- Output data artifacts: `output/clam/dashboard-data.csv` and `output/clam/dashboard-qc.csv`
+- GitHub Actions workflow: `.github/workflows/update-clam-dashboard.yml`
+
+When files matching `data/clam/**/plate-*-T*.txt` are pushed to `main`, the workflow rebuilds the dashboard dataset and redeploys the site.
+
 ## Repository Structure
 
 ```

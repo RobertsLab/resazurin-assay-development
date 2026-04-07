@@ -1,0 +1,64 @@
+name: Update clam dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/clam/**/*.txt"
+      - "scripts/clam/**/*.R"
+      - "clam-dashboard.qmd"
+      - "_quarto.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages(c("dplyr","purrr","readr","stringr","tidyr","tibble","lubridate","ggplot2","knitr"), repos="https://cloud.r-project.org")'
+
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Build clam dashboard data
+        run: |
+          Rscript scripts/clam/build_clam_dashboard_data.R
+
+      - name: Render site
+        run: |
+          quarto render
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

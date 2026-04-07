@@ -1,0 +1,195 @@
+---
+title: "Clam Dashboard"
+subtitle: "Auto-updated from plate exports in data/clam"
+format: html
+resources:
+  - output/clam/dashboard-data.csv
+---
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(knitr)
+
+data_path <- file.path("output", "clam", "dashboard-data.csv")
+qc_path <- file.path("output", "clam", "dashboard-qc.csv")
+
+if (!file.exists(data_path)) {
+  cat("## No dashboard data yet\n\n")
+  cat("Run scripts/clam/build_clam_dashboard_data.R to generate data.\n")
+  knitr::knit_exit()
+}
+
+dat <- readr::read_csv(data_path, show_col_types = FALSE)
+qc <- if (file.exists(qc_path)) readr::read_csv(qc_path, show_col_types = FALSE) else tibble()
+
+if (nrow(dat) == 0) {
+  cat("## Dashboard dataset is empty\n\n")
+  cat("No matching plate files were discovered under data/clam.\n")
+  knitr::knit_exit()
+}
+
+dat <- dat %>%
+  mutate(
+    experiment_plate = paste(experiment_dir, plate_id, sep = " | "),
+    sample_group = dplyr::coalesce(sample_label, well_id)
+  )
+```
+
+## What This Shows
+
+- Plate-wide trajectories across time for every well.
+- Per-well trajectories for all wells (filterable by experiment in the static report by scrolling to the relevant facets).
+- QC table with parse status and warning flags.
+
+## Interactive Explorer
+
+Use these selectors to focus on one experiment, one plate, or specific wells.
+
+```{ojs}
+dashboard = await FileAttachment("output/clam/dashboard-data.csv").csv({typed: true})
+
+experimentValues = [...new Set(dashboard.map(d => d.experiment_dir))]
+
+experimentSortKey = (name) => {
+  const m = /^([0-9]{8})/.exec(name)
+  if (!m) return Number.NEGATIVE_INFINITY
+  return Number.parseInt(m[1], 10)
+}
+
+mostRecentExperiment = experimentValues
+  .slice()
+  .sort((a, b) => {
+    const ka = experimentSortKey(a)
+    const kb = experimentSortKey(b)
+    if (ka !== kb) return kb - ka
+    return a.localeCompare(b)
+  })[0]
+
+experiments = ["All", ...experimentValues]
+viewof experimentSel = Inputs.select(experiments, {
+  label: "Experiment",
+  value: mostRecentExperiment || "All"
+})
+
+plateCandidates = dashboard
+  .filter(d => experimentSel === "All" || d.experiment_dir === experimentSel)
+plates = ["All", ...new Set(plateCandidates.map(d => d.plate_id))]
+viewof plateSel = Inputs.select(plates, {
+  label: "Plate",
+  value: "All"
+})
+
+wellCandidates = dashboard
+  .filter(d => (experimentSel === "All" || d.experiment_dir === experimentSel) &&
+               (plateSel === "All" || d.plate_id === plateSel))
+wells = [...new Set(wellCandidates.map(d => d.well_id))].sort()
+defaultWells = wells.slice(0, Math.min(6, wells.length))
+
+viewof wellSel = Inputs.select(wells, {
+  label: "Well(s)",
+  multiple: true,
+  value: defaultWells
+})
+
+filtered = dashboard.filter(d =>
+  (experimentSel === "All" || d.experiment_dir === experimentSel) &&
+  (plateSel === "All" || d.plate_id === plateSel) &&
+  (wellSel.length === 0 || wellSel.includes(d.well_id))
+)
+
+Plot.plot({
+  height: 420,
+  grid: true,
+  x: {label: "Time (hours)"},
+  y: {label: "Fluorescence"},
+  color: {legend: true, label: "Well"},
+  marks: [
+    Plot.line(filtered, {
+      x: "time_hr",
+      y: "value",
+      stroke: "well_id",
+      z: d => `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+    }),
+    Plot.dot(filtered, {
+      x: "time_hr",
+      y: "value",
+      fill: "well_id",
+      r: 2.5,
+      tip: true
+    })
+  ]
+})
+```
+
+## Plate-Wide View
+
+```{r}
+#| echo: false
+
+p_plate <- ggplot(dat, aes(x = time_hr, y = value, color = well_id, group = well_id)) +
+  geom_line(alpha = 0.7) +
+  geom_point(size = 1.5, alpha = 0.8) +
+  facet_wrap(~experiment_plate, scales = "free_y") +
+  labs(
+    x = "Time (hours)",
+    y = "Fluorescence",
+    color = "Well"
+  ) +
+  theme_bw(base_size = 11)
+
+print(p_plate)
+```
+
+## Individual Well View
+
+```{r}
+#| echo: false
+
+p_well <- ggplot(dat, aes(x = time_hr, y = value, group = interaction(experiment_plate, well_id))) +
+  geom_line(color = "#1f78b4", alpha = 0.4) +
+  geom_point(color = "#1f78b4", alpha = 0.6, size = 1.2) +
+  facet_wrap(~well_id, scales = "free_y") +
+  labs(
+    x = "Time (hours)",
+    y = "Fluorescence",
+    title = "Trajectories by Well Across Plates and Experiments"
+  ) +
+  theme_bw(base_size = 11)
+
+print(p_well)
+```
+
+## Latest Snapshot by Well
+
+```{r}
+#| echo: false
+
+latest <- dat %>%
+  group_by(experiment_dir, plate_id, well_id) %>%
+  filter(time_hr == max(time_hr, na.rm = TRUE)) %>%
+  ungroup() %>%
+  arrange(experiment_dir, plate_id, well_id) %>%
+  select(experiment_dir, plate_id, well_id, time_hr, value, sample_label, treatment, layout_status)
+
+knitr::kable(latest, caption = "Latest fluorescence value per well")
+```
+
+## Parse And Data Quality Status
+
+```{r}
+#| echo: false
+
+if (nrow(qc) > 0) {
+  qc_show <- qc %>%
+    arrange(desc(parse_ok), experiment_dir, source_file)
+  knitr::kable(qc_show, caption = "File-level parse status")
+} else {
+  cat("No QC data available.\n")
+}
+```

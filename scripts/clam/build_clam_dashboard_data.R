@@ -1,0 +1,172 @@
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(purrr)
+  library(readr)
+  library(stringr)
+  library(tidyr)
+  library(tibble)
+})
+
+repo_root <- getwd()
+if (!dir.exists(file.path(repo_root, "data", "clam"))) {
+  repo_root <- normalizePath(file.path(repo_root, ".."), mustWork = TRUE)
+}
+if (!dir.exists(file.path(repo_root, "data", "clam"))) {
+  stop("Could not find data/clam. Run this script from repository root or scripts/clam.")
+}
+
+source(file.path(repo_root, "scripts", "clam", "parse_plate_exports.R"))
+
+clam_root <- file.path(repo_root, "data", "clam")
+out_dir <- file.path(repo_root, "output", "clam")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+plate_files <- list.files(
+  path = clam_root,
+  pattern = "(?i)^plate-.*-T[0-9]+(?:\\.[0-9]+)?\\.txt$",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+if (length(plate_files) == 0) {
+  write_csv(tibble(), file.path(out_dir, "dashboard-data.csv"))
+  write_csv(tibble(), file.path(out_dir, "dashboard-qc.csv"))
+  message("No plate files found; wrote empty dashboard outputs.")
+  quit(save = "no")
+}
+
+parsed_results <- map(plate_files, function(path) {
+  tryCatch(
+    {
+      dat <- parse_plate_export(path)
+      list(ok = TRUE, data = dat, error = NA_character_, file = path)
+    },
+    error = function(e) {
+      list(ok = FALSE, data = tibble(), error = conditionMessage(e), file = path)
+    }
+  )
+})
+
+plate_data <- parsed_results %>%
+  keep(~.x$ok) %>%
+  map("data") %>%
+  bind_rows()
+
+parse_failures <- parsed_results %>%
+  keep(~!.x$ok) %>%
+  map_dfr(~tibble(
+    experiment_dir = basename(dirname(.x$file)),
+    source_file = .x$file,
+    parse_ok = FALSE,
+    parse_error = .x$error,
+    n_wells = 0L
+  ))
+
+if (nrow(plate_data) == 0) {
+  write_csv(tibble(), file.path(out_dir, "dashboard-data.csv"))
+  write_csv(parse_failures, file.path(out_dir, "dashboard-qc.csv"))
+  message("All parse attempts failed; wrote QC report.")
+  quit(save = "no")
+}
+
+# Join optional layout metadata by experiment directory and well.
+experiment_dirs <- unique(dirname(plate_data$source_file))
+layout_data <- map_dfr(experiment_dirs, function(exp_dir) {
+  parsed <- parse_layout_for_experiment(exp_dir)
+  parsed %>%
+    mutate(experiment_dir = basename(exp_dir))
+})
+
+if (nrow(layout_data) == 0) {
+  plate_data <- plate_data %>%
+    mutate(
+      sample_label = NA_character_,
+      treatment = NA_character_,
+      layout_status = "missing",
+      layout_file = NA_character_,
+      layout_raw = NA_character_
+    )
+} else {
+  parsed_layout <- layout_data %>% filter(!is.na(well_id))
+
+  plate_data <- plate_data %>%
+    left_join(
+      parsed_layout %>%
+        select(experiment_dir, well_id, sample_label, treatment, layout_status, layout_file, layout_raw),
+      by = c("experiment_dir", "well_id")
+    ) %>%
+    mutate(layout_status = coalesce(layout_status, "missing_or_unparsed"))
+
+  unparsed_layout <- layout_data %>%
+    filter(is.na(well_id)) %>%
+    select(experiment_dir, layout_status, layout_file, layout_raw)
+
+  if (nrow(unparsed_layout) > 0) {
+    plate_data <- plate_data %>%
+      left_join(unparsed_layout, by = "experiment_dir", suffix = c("", "_fallback")) %>%
+      mutate(
+        layout_status = if_else(
+          layout_status == "missing_or_unparsed" & !is.na(layout_status_fallback),
+          layout_status_fallback,
+          layout_status
+        ),
+        layout_file = coalesce(layout_file, layout_file_fallback),
+        layout_raw = coalesce(layout_raw, layout_raw_fallback)
+      ) %>%
+      select(-layout_status_fallback, -layout_file_fallback, -layout_raw_fallback)
+  }
+}
+
+# Add simple duplicate-timepoint flag by experiment + plate + well.
+dup_flags <- plate_data %>%
+  count(experiment_dir, plate_id, well_id, time_hr, name = "n_at_time") %>%
+  mutate(duplicate_timepoint = n_at_time > 1)
+
+plate_data <- plate_data %>%
+  left_join(
+    dup_flags %>% select(experiment_dir, plate_id, well_id, time_hr, duplicate_timepoint),
+    by = c("experiment_dir", "plate_id", "well_id", "time_hr")
+  )
+
+qc_success <- plate_data %>%
+  group_by(experiment_dir, source_file) %>%
+  summarise(
+    parse_ok = TRUE,
+    parse_error = NA_character_,
+    n_wells = n(),
+    min_time_hr = min(time_hr, na.rm = TRUE),
+    max_time_hr = max(time_hr, na.rm = TRUE),
+    layout_status = paste(sort(unique(layout_status)), collapse = ";"),
+    duplicate_timepoints = any(duplicate_timepoint, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+qc <- bind_rows(qc_success, parse_failures) %>%
+  arrange(experiment_dir, source_file)
+
+plate_data_out <- plate_data %>%
+  arrange(experiment_dir, plate_id, well_id, time_hr) %>%
+  select(
+    experiment_dir,
+    source_file,
+    source_name,
+    plate_id,
+    time_hr,
+    read_datetime,
+    actual_temperature,
+    excitation_emission,
+    row_id,
+    col_id,
+    well_id,
+    sample_label,
+    treatment,
+    layout_status,
+    duplicate_timepoint,
+    value
+  )
+
+write_csv(plate_data_out, file.path(out_dir, "dashboard-data.csv"))
+write_csv(qc, file.path(out_dir, "dashboard-qc.csv"))
+
+message("Wrote: ", file.path(out_dir, "dashboard-data.csv"))
+message("Wrote: ", file.path(out_dir, "dashboard-qc.csv"))
