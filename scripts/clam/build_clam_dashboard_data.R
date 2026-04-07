@@ -128,6 +128,19 @@ plate_data <- plate_data %>%
     by = c("experiment_dir", "plate_id", "well_id", "time_hr")
   )
 
+# Compute point-to-point delta fluorescence for each well trajectory.
+plate_data <- plate_data %>%
+  group_by(experiment_dir, plate_id, well_id) %>%
+  arrange(time_hr, read_datetime, source_name, .by_group = TRUE) %>%
+  mutate(
+    delta_value = if_else(
+      time_hr == min(time_hr, na.rm = TRUE),
+      0,
+      value - lag(value)
+    )
+  ) %>%
+  ungroup()
+
 qc_success <- plate_data %>%
   group_by(experiment_dir, source_file) %>%
   summarise(
@@ -162,7 +175,8 @@ plate_data_out <- plate_data %>%
     treatment,
     layout_status,
     duplicate_timepoint,
-    value
+    value,
+    delta_value
   )
 
 write_csv(plate_data_out, file.path(out_dir, "dashboard-data.csv"))

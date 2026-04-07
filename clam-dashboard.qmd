@@ -35,6 +35,7 @@ if (nrow(dat) == 0) {
 ## What This Shows
 
 - Interactive exploration of trajectories across experiments, plates, and wells.
+- Two data views: raw fluorescence and delta fluorescence between consecutive timepoints.
 
 ## Interactive Explorer
 
@@ -102,26 +103,39 @@ viewof wellSel = Inputs.select(wells, {
   value: defaultWells
 })
 
+viewModes = ["Raw fluorescence", "Delta fluorescence"]
+viewof dataViewSel = Inputs.select(viewModes, {
+  label: "Data view",
+  value: "Raw fluorescence"
+})
+
 selectedWells = (wellSel || []).filter(w => wells.includes(w))
 
 filtered = selectionRows.filter(d => selectedWells.length === 0 || selectedWells.includes(d.well_id))
+
+yField = dataViewSel === "Delta fluorescence" ? "delta_value" : "value"
+yLabel = dataViewSel === "Delta fluorescence"
+  ? "Delta fluorescence (current - previous timepoint)"
+  : "Fluorescence"
+
+plotted = filtered.filter(d => Number.isFinite(d[yField]))
 
 Plot.plot({
   height: 420,
   grid: true,
   x: {label: "Time (hours)"},
-  y: {label: "Fluorescence"},
+  y: {label: yLabel},
   color: {legend: true, label: "Well"},
   marks: [
-    Plot.line(filtered, {
+    Plot.line(plotted, {
       x: "time_hr",
-      y: "value",
+      y: yField,
       stroke: "well_id",
       z: d => `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
     }),
-    Plot.dot(filtered, {
+    Plot.dot(plotted, {
       x: "time_hr",
-      y: "value",
+      y: yField,
       fill: "well_id",
       r: 2.5,
       tip: true
