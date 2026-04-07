@@ -6,6 +6,18 @@ resources:
   - output/clam/dashboard-data.csv
 ---
 
+```{=html}
+<style>
+/* Ensure source code blocks remain hidden in rendered dashboard output. */
+.cell-code.hidden,
+.sourceCode.hidden,
+pre.sourceCode.hidden,
+div.cell-code.hidden {
+  display: none !important;
+}
+</style>
+```
+
 ```{r}
 #| echo: false
 #| warning: false
@@ -115,7 +127,6 @@ filtered = selectionRows.filter(d => selectedWells.length === 0 || selectedWells
 allPlateMessage = activePlateSel === "All"
   ? "**Plate = All:** lines include wells from multiple plates. Select a specific plate for one trajectory per well."
   : ""
-md`${allPlateMessage}`
 
 yField = dataViewSel === "Delta fluorescence"
   ? "delta_value"
@@ -157,45 +168,44 @@ tooltipTitle = d => {
 
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
 
-plotOrMessage = normalizedUnavailable
-  ? md`**Normalized fluorescence unavailable for this selection.** Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data.`
+normalizedUnavailable
+  ? "Normalized fluorescence unavailable for this selection. Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
   : Plot.plot({
-      height: 420,
-      style: {
-        color: "#111827",
-        background: "#ffffff"
-      },
-      x: {label: "Time (hours)"},
-      y: {label: yLabel},
-      color: {
-        legend: true,
-        label: "Well",
-        domain: colorDomain,
-        range: colorRange
-      },
-      marks: [
-        Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
-        Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
-        Plot.line(plottedSorted, {
-          x: "time_hr",
-          y: yField,
-          stroke: seriesKey,
-          z: traceKey,
-          strokeWidth: 2.2,
-          strokeOpacity: 1,
-          curve: "linear"
-        }),
-        Plot.dot(plottedSorted, {
-          x: "time_hr",
-          y: yField,
-          fill: seriesKey,
-          r: 2.5,
-          opacity: 0.9,
-          title: tooltipTitle,
-          tip: true
-        })
-      ]
-    })
-
-plotOrMessage
+    height: 420,
+    subtitle: allPlateMessage === "" ? null : "Plate = All: lines include wells from multiple plates. Select a specific plate for one trajectory per well.",
+    style: {
+      color: "#111827",
+      background: "#ffffff"
+    },
+    x: {label: "Time (hours)"},
+    y: {label: yLabel},
+    color: {
+      legend: true,
+      label: "Well",
+      domain: colorDomain,
+      range: colorRange
+    },
+    marks: [
+      Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
+      Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
+      Plot.line(plottedSorted, {
+        x: "time_hr",
+        y: yField,
+        stroke: seriesKey,
+        z: traceKey,
+        strokeWidth: 2.2,
+        strokeOpacity: 1,
+        curve: "linear"
+      }),
+      Plot.dot(plottedSorted, {
+        x: "time_hr",
+        y: yField,
+        fill: seriesKey,
+        r: 2.5,
+        opacity: 0.9,
+        title: tooltipTitle,
+        tip: true
+      })
+    ]
+  })
 ```
