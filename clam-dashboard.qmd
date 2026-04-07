@@ -120,13 +120,23 @@ yLabel = dataViewSel === "Delta fluorescence"
 
 plotted = filtered.filter(d => Number.isFinite(d[yField]))
 
+tooltipTitle = d => {
+  const yVal = Number.isFinite(d[yField]) ? d[yField].toFixed(2) : "NA"
+  return `${d.experiment_dir} | Plate ${d.plate_id} | Well ${d.well_id} | Time ${d.time_hr} h | ${yLabel}: ${yVal}`
+}
+
 Plot.plot({
   height: 420,
-  grid: true,
+  style: {
+    color: "#111827",
+    background: "#ffffff"
+  },
   x: {label: "Time (hours)"},
   y: {label: yLabel},
   color: {legend: true, label: "Well"},
   marks: [
+    Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
+    Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
     Plot.line(plotted, {
       x: "time_hr",
       y: yField,
@@ -138,6 +148,8 @@ Plot.plot({
       y: yField,
       fill: "well_id",
       r: 2.5,
+      opacity: 0.9,
+      title: tooltipTitle,
       tip: true
     })
   ]
