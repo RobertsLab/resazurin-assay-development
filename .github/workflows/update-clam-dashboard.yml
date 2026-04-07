@@ -2,7 +2,7 @@ name: Update clam dashboard
 
 on:
   push:
-    branches: [main]
+    branches: [main, clam-dashboard-dev]
     paths:
       - "data/clam/**/*.txt"
       - "scripts/clam/**/*.R"
@@ -42,17 +42,20 @@ jobs:
 
       - name: Render site
         run: |
-          quarto render
+          quarto render clam-dashboard.qmd
 
       - name: Setup Pages
+        if: github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
