@@ -82,6 +82,11 @@ if (nrow(layout_data) == 0) {
     mutate(
       sample_label = NA_character_,
       treatment = NA_character_,
+      shell_color = NA_character_,
+      treatment_group = NA_character_,
+      size_mm = NA_real_,
+      weight_mg = NA_real_,
+      is_blank = NA,
       layout_status = "missing",
       layout_file = NA_character_,
       layout_raw = NA_character_
@@ -89,11 +94,40 @@ if (nrow(layout_data) == 0) {
 } else {
   parsed_layout <- layout_data %>% filter(!is.na(well_id))
 
+  # If plate_id is absent in layout rows, expand those mappings across all
+  # plate IDs seen in that experiment directory.
+  plate_ids_by_exp <- plate_data %>%
+    distinct(experiment_dir, plate_id)
+
+  parsed_layout_with_plate <- parsed_layout %>%
+    filter(!is.na(plate_id))
+
+  parsed_layout_no_plate <- parsed_layout %>%
+    filter(is.na(plate_id)) %>%
+    select(-plate_id) %>%
+    left_join(plate_ids_by_exp, by = "experiment_dir")
+
+  parsed_layout_join <- bind_rows(parsed_layout_with_plate, parsed_layout_no_plate)
+
   plate_data <- plate_data %>%
     left_join(
-      parsed_layout %>%
-        select(experiment_dir, well_id, sample_label, treatment, layout_status, layout_file, layout_raw),
-      by = c("experiment_dir", "well_id")
+      parsed_layout_join %>%
+        select(
+          experiment_dir,
+          plate_id,
+          well_id,
+          sample_label,
+          treatment,
+          shell_color,
+          treatment_group,
+          size_mm,
+          weight_mg,
+          is_blank,
+          layout_status,
+          layout_file,
+          layout_raw
+        ),
+      by = c("experiment_dir", "plate_id", "well_id")
     ) %>%
     mutate(layout_status = coalesce(layout_status, "missing_or_unparsed"))
 
@@ -117,6 +151,14 @@ if (nrow(layout_data) == 0) {
   }
 }
 
+plate_data <- plate_data %>%
+  mutate(
+    is_blank = case_when(
+      is.na(is_blank) ~ FALSE,
+      TRUE ~ as.logical(is_blank)
+    )
+  )
+
 # Add simple duplicate-timepoint flag by experiment + plate + well.
 dup_flags <- plate_data %>%
   count(experiment_dir, plate_id, well_id, time_hr, name = "n_at_time") %>%
@@ -126,6 +168,22 @@ plate_data <- plate_data %>%
   left_join(
     dup_flags %>% select(experiment_dir, plate_id, well_id, time_hr, duplicate_timepoint),
     by = c("experiment_dir", "plate_id", "well_id", "time_hr")
+  )
+
+# Compute mean blank fluorescence by plate and timepoint.
+blank_ref <- plate_data %>%
+  filter(is_blank) %>%
+  group_by(experiment_dir, plate_id, time_hr) %>%
+  summarise(mean_blank_value = mean(value, na.rm = TRUE), .groups = "drop")
+
+plate_data <- plate_data %>%
+  left_join(blank_ref, by = c("experiment_dir", "plate_id", "time_hr")) %>%
+  mutate(
+    normalized_value = if_else(
+      !is.na(mean_blank_value) & mean_blank_value != 0,
+      value / mean_blank_value,
+      NA_real_
+    )
   )
 
 # Compute point-to-point delta fluorescence for each well trajectory.
@@ -173,10 +231,17 @@ plate_data_out <- plate_data %>%
     well_id,
     sample_label,
     treatment,
+    shell_color,
+    treatment_group,
+    size_mm,
+    weight_mg,
+    is_blank,
     layout_status,
     duplicate_timepoint,
     value,
-    delta_value
+    delta_value,
+    mean_blank_value,
+    normalized_value
   )
 
 write_csv(plate_data_out, file.path(out_dir, "dashboard-data.csv"))

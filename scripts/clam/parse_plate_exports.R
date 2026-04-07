@@ -18,7 +18,7 @@ parse_time_hr <- function(path) {
 # Parse plate id from filenames like plate-A-T2.5.txt.
 parse_plate_id <- function(path) {
   file_name <- basename(path)
-  hit <- str_match(file_name, "(?i)^plate-([A-Za-z0-9]+)-T[0-9]+(?:\\.[0-9]+)?\\.txt$")
+  hit <- str_match(file_name, "(?i)^plate-([A-Za-z0-9-]+)-T[0-9]+(?:\\.[0-9]+)?\\.txt$")
   id <- hit[, 2]
   ifelse(is.na(id), "unknown", id)
 }
@@ -150,7 +150,7 @@ parse_plate_export <- function(path) {
       experiment_dir = basename(dirname(path)),
       source_file = path,
       source_name = basename(path),
-      plate_id = parse_plate_id(path),
+      plate_id = str_to_lower(parse_plate_id(path)),
       time_hr = parse_time_hr(path),
       excitation_emission = if_else(is.na(filter_label), NA_character_, filter_label),
       read_datetime = read_datetime,
@@ -173,14 +173,69 @@ parse_plate_export <- function(path) {
 }
 
 parse_layout_txt <- function(layout_path) {
+  # Preferred mode: tabular layout with explicit columns.
+  tabular <- tryCatch(
+    read_tsv(layout_path, show_col_types = FALSE, col_types = cols(.default = "c")),
+    error = function(e) NULL
+  )
+
+  if (!is.null(tabular) && nrow(tabular) > 0) {
+    names(tabular) <- names(tabular) %>%
+      str_to_lower() %>%
+      str_replace_all("[^a-z0-9]+", "_") %>%
+      str_replace_all("_+", "_") %>%
+      str_replace("_$", "")
+
+    if (all(c("plate_well") %in% names(tabular))) {
+      plate_col <- if ("plate_id" %in% names(tabular)) "plate_id" else NA_character_
+      sample_col <- if ("sample_id" %in% names(tabular)) "sample_id" else NA_character_
+      treatment_col <- if ("treatment_group" %in% names(tabular)) "treatment_group" else NA_character_
+      shell_col <- if ("shell_color" %in% names(tabular)) "shell_color" else NA_character_
+      size_col <- if ("size_mm" %in% names(tabular)) "size_mm" else NA_character_
+      weight_col <- if ("weight_mg" %in% names(tabular)) "weight_mg" else NA_character_
+      blank_col <- if ("is_blank" %in% names(tabular)) "is_blank" else NA_character_
+
+      out <- tibble(
+        plate_id = if (!is.na(plate_col)) tabular[[plate_col]] else NA_character_,
+        well_id = toupper(tabular[["plate_well"]]),
+        sample_label = if (!is.na(sample_col)) tabular[[sample_col]] else NA_character_,
+        treatment = if (!is.na(treatment_col)) tabular[[treatment_col]] else NA_character_,
+        shell_color = if (!is.na(shell_col)) tabular[[shell_col]] else NA_character_,
+        treatment_group = if (!is.na(treatment_col)) tabular[[treatment_col]] else NA_character_,
+        size_mm = suppressWarnings(as.numeric(if (!is.na(size_col)) tabular[[size_col]] else NA_character_)),
+        weight_mg = suppressWarnings(as.numeric(if (!is.na(weight_col)) tabular[[weight_col]] else NA_character_)),
+        is_blank = if (!is.na(blank_col)) {
+          toupper(tabular[[blank_col]]) %in% c("TRUE", "T", "1", "YES", "Y")
+        } else {
+          NA
+        },
+        layout_status = "parsed_table",
+        layout_raw = NA_character_
+      ) %>%
+        mutate(
+          plate_id = str_remove(str_to_lower(plate_id), "^plate-"),
+          plate_id = if_else(is.na(plate_id) | plate_id == "", NA_character_, plate_id),
+          well_id = if_else(str_detect(well_id, "^[A-Z]+[0-9]+$"), well_id, NA_character_)
+        )
+
+      return(out)
+    }
+  }
+
   raw <- read_lines(layout_path, lazy = FALSE, progress = FALSE)
   lines <- raw[trimws(raw) != ""]
 
   if (length(lines) == 0) {
     return(tibble(
+      plate_id = character(),
       well_id = character(),
       sample_label = character(),
       treatment = character(),
+      shell_color = character(),
+      treatment_group = character(),
+      size_mm = numeric(),
+      weight_mg = numeric(),
+      is_blank = logical(),
       layout_status = character(),
       layout_raw = character()
     ))
@@ -193,9 +248,15 @@ parse_layout_txt <- function(layout_path) {
     p <- trimws(parts)
     if (length(p) >= 2 && str_detect(p[1], "^[A-Za-z]+[0-9]+$")) {
       tibble(
+        plate_id = NA_character_,
         well_id = toupper(p[1]),
         sample_label = p[2],
         treatment = ifelse(length(p) >= 3, p[3], NA_character_),
+        shell_color = NA_character_,
+        treatment_group = ifelse(length(p) >= 3, p[3], NA_character_),
+        size_mm = NA_real_,
+        weight_mg = NA_real_,
+        is_blank = NA,
         layout_status = "parsed_explicit",
         layout_raw = paste(parts, collapse = "\t")
       )
@@ -224,9 +285,15 @@ parse_layout_txt <- function(layout_path) {
       cells <- p[-1]
       n <- min(length(cells), length(numeric_header))
       tibble(
+        plate_id = NA_character_,
         well_id = paste0(row_letter, numeric_header[seq_len(n)]),
         sample_label = cells[seq_len(n)],
         treatment = NA_character_,
+        shell_color = NA_character_,
+        treatment_group = NA_character_,
+        size_mm = NA_real_,
+        weight_mg = NA_real_,
+        is_blank = NA,
         layout_status = "parsed_matrix",
         layout_raw = paste(parts, collapse = "\t")
       )
@@ -238,9 +305,15 @@ parse_layout_txt <- function(layout_path) {
   }
 
   tibble(
+    plate_id = NA_character_,
     well_id = NA_character_,
     sample_label = NA_character_,
     treatment = NA_character_,
+    shell_color = NA_character_,
+    treatment_group = NA_character_,
+    size_mm = NA_real_,
+    weight_mg = NA_real_,
+    is_blank = NA,
     layout_status = "unparsed",
     layout_raw = paste(lines, collapse = " || ")
   )
@@ -250,9 +323,15 @@ parse_layout_for_experiment <- function(experiment_dir_path) {
   layout_path <- file.path(experiment_dir_path, "layout.txt")
   if (!file.exists(layout_path)) {
     return(tibble(
+      plate_id = character(),
       well_id = character(),
       sample_label = character(),
       treatment = character(),
+      shell_color = character(),
+      treatment_group = character(),
+      size_mm = numeric(),
+      weight_mg = numeric(),
+      is_blank = logical(),
       layout_status = character(),
       layout_raw = character(),
       layout_file = character()

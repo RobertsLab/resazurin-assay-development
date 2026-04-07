@@ -35,7 +35,7 @@ if (nrow(dat) == 0) {
 ## What This Shows
 
 - Interactive exploration of trajectories across experiments, plates, and wells.
-- Two data views: raw fluorescence and delta fluorescence between consecutive timepoints.
+- Three data views: raw fluorescence, delta fluorescence, and blank-normalized fluorescence.
 
 ## Interactive Explorer
 
@@ -82,9 +82,10 @@ activeExperimentSel = experiments.includes(experimentSel) ? experimentSel : (mos
 plateCandidates = cleanDashboard
   .filter(d => activeExperimentSel === "All" || d.experiment_dir === activeExperimentSel)
 plates = ["All", ...new Set(plateCandidates.map(d => d.plate_id))]
+defaultPlateSel = plates.length > 1 ? plates[1] : "All"
 viewof plateSel = Inputs.select(plates, {
   label: "Plate",
-  value: "All"
+  value: defaultPlateSel
 })
 
 activePlateSel = plates.includes(plateSel) ? plateSel : "All"
@@ -93,8 +94,7 @@ selectionRows = cleanDashboard
   .filter(d => (activeExperimentSel === "All" || d.experiment_dir === activeExperimentSel) &&
                (activePlateSel === "All" || d.plate_id === activePlateSel))
 
-wellCandidates = selectionRows
-wells = [...new Set(wellCandidates.map(d => d.well_id))].sort()
+wells = [...new Set(selectionRows.map(d => d.well_id))].sort()
 defaultWells = wells.slice(0, Math.min(6, wells.length))
 
 viewof wellSel = Inputs.select(wells, {
@@ -103,55 +103,99 @@ viewof wellSel = Inputs.select(wells, {
   value: defaultWells
 })
 
-viewModes = ["Raw fluorescence", "Delta fluorescence"]
+viewModes = ["Raw fluorescence", "Delta fluorescence", "Normalized fluorescence"]
 viewof dataViewSel = Inputs.select(viewModes, {
   label: "Data view",
   value: "Raw fluorescence"
 })
 
 selectedWells = (wellSel || []).filter(w => wells.includes(w))
-
 filtered = selectionRows.filter(d => selectedWells.length === 0 || selectedWells.includes(d.well_id))
 
-yField = dataViewSel === "Delta fluorescence" ? "delta_value" : "value"
+allPlateMessage = activePlateSel === "All"
+  ? "**Plate = All:** lines include wells from multiple plates. Select a specific plate for one trajectory per well."
+  : ""
+md`${allPlateMessage}`
+
+yField = dataViewSel === "Delta fluorescence"
+  ? "delta_value"
+  : (dataViewSel === "Normalized fluorescence" ? "normalized_value" : "value")
+
 yLabel = dataViewSel === "Delta fluorescence"
   ? "Delta fluorescence (current - previous timepoint)"
-  : "Fluorescence"
+  : (dataViewSel === "Normalized fluorescence"
+      ? "Normalized fluorescence (value / mean blank at same plate and time)"
+      : "Fluorescence")
+
+isBlank = d => d.is_blank === true || d.is_blank === "TRUE" || d.is_blank === 1 || d.is_blank === "1"
+seriesKey = d => isBlank(d) ? "Blank" : d.well_id
+traceKey = d => `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
 
 plotted = filtered.filter(d => Number.isFinite(d[yField]))
+plottedSorted = plotted
+  .slice()
+  .sort((a, b) =>
+    traceKey(a).localeCompare(traceKey(b)) ||
+    (a.time_hr - b.time_hr)
+  )
+
+presentSeries = [...new Set(plottedSorted.map(seriesKey))]
+nonBlankKeys = presentSeries.filter(k => k !== "Blank").sort()
+hasBlankSeries = presentSeries.includes("Blank")
+colorDomain = hasBlankSeries ? ["Blank", ...nonBlankKeys] : nonBlankKeys
+
+tableau = d3.schemeTableau10
+nonBlankColors = nonBlankKeys.map((_, i) => tableau[i % tableau.length])
+colorRange = hasBlankSeries
+  ? ["#000000", ...nonBlankColors.slice(0, nonBlankKeys.length)]
+  : nonBlankColors.slice(0, nonBlankKeys.length)
 
 tooltipTitle = d => {
   const yVal = Number.isFinite(d[yField]) ? d[yField].toFixed(2) : "NA"
   return `${d.experiment_dir} | Plate ${d.plate_id} | Well ${d.well_id} | Time ${d.time_hr} h | ${yLabel}: ${yVal}`
 }
 
-Plot.plot({
-  height: 420,
-  style: {
-    color: "#111827",
-    background: "#ffffff"
-  },
-  x: {label: "Time (hours)"},
-  y: {label: yLabel},
-  color: {legend: true, label: "Well"},
-  marks: [
-    Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
-    Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
-    Plot.line(plotted, {
-      x: "time_hr",
-      y: yField,
-      stroke: "well_id",
-      z: d => `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
-    }),
-    Plot.dot(plotted, {
-      x: "time_hr",
-      y: yField,
-      fill: "well_id",
-      r: 2.5,
-      opacity: 0.9,
-      title: tooltipTitle,
-      tip: true
+normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
+
+plotOrMessage = normalizedUnavailable
+  ? md`**Normalized fluorescence unavailable for this selection.** Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data.`
+  : Plot.plot({
+      height: 420,
+      style: {
+        color: "#111827",
+        background: "#ffffff"
+      },
+      x: {label: "Time (hours)"},
+      y: {label: yLabel},
+      color: {
+        legend: true,
+        label: "Well",
+        domain: colorDomain,
+        range: colorRange
+      },
+      marks: [
+        Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
+        Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
+        Plot.line(plottedSorted, {
+          x: "time_hr",
+          y: yField,
+          stroke: seriesKey,
+          z: traceKey,
+          strokeWidth: 2.2,
+          strokeOpacity: 1,
+          curve: "linear"
+        }),
+        Plot.dot(plottedSorted, {
+          x: "time_hr",
+          y: yField,
+          fill: seriesKey,
+          r: 2.5,
+          opacity: 0.9,
+          title: tooltipTitle,
+          tip: true
+        })
+      ]
     })
-  ]
-})
+
+plotOrMessage
 ```
