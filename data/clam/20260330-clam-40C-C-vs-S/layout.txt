@@ -1,97 +1,97 @@
-plate_ID	plate_well	sample_ID	shell_color	treatment_group	size_mm	weight_mg	is_blank
-plate-C-blue	A1		blue	control			FALSE
-plate-C-blue	A2		blue	control			FALSE
-plate-C-blue	A3		blue	control			FALSE
-plate-C-blue	A4		blue	control			FALSE
-plate-C-blue	A5		blue	control			FALSE
-plate-C-blue	A6						TRUE
-plate-C-blue	B1		blue	control			FALSE
-plate-C-blue	B2		blue	control			FALSE
-plate-C-blue	B3		blue	control			FALSE
-plate-C-blue	B4		blue	control			FALSE
-plate-C-blue	B5		blue	control			FALSE
-plate-C-blue	B6						TRUE
-plate-C-blue	C1		blue	control			FALSE
-plate-C-blue	C2		blue	control			FALSE
-plate-C-blue	C3		blue	control			FALSE
-plate-C-blue	C4		blue	control			FALSE
-plate-C-blue	C5		blue	control			FALSE
-plate-C-blue	C6						TRUE
-plate-C-blue	D1		blue	control			FALSE
-plate-C-blue	D2		blue	control			FALSE
-plate-C-blue	D3		blue	control			FALSE
-plate-C-blue	D4		blue	control			FALSE
-plate-C-blue	D5		blue	control			FALSE
-plate-C-blue	D6						TRUE
-plate-C-red	A1		tweed	control			FALSE
-plate-C-red	A2		tweed	control			FALSE
-plate-C-red	A3		tweed	control			FALSE
-plate-C-red	A4		tweed	control			FALSE
-plate-C-red	A5		tweed	control			FALSE
-plate-C-red	A6						TRUE
-plate-C-red	B1		tweed	control			FALSE
-plate-C-red	B2		tweed	control			FALSE
-plate-C-red	B3		tweed	control			FALSE
-plate-C-red	B4		tweed	control			FALSE
-plate-C-red	B5		tweed	control			FALSE
-plate-C-red	B6						TRUE
-plate-C-red	C1		tweed	control			FALSE
-plate-C-red	C2		tweed	control			FALSE
-plate-C-red	C3		tweed	control			FALSE
-plate-C-red	C4		tweed	control			FALSE
-plate-C-red	C5		tweed	control			FALSE
-plate-C-red	C6						TRUE
-plate-C-red	D1		tweed	control			FALSE
-plate-C-red	D2		tweed	control			FALSE
-plate-C-red	D3		tweed	control			FALSE
-plate-C-red	D4		tweed	control			FALSE
-plate-C-red	D5		tweed	control			FALSE
-plate-C-red	D6						TRUE
-plate-S-blue	A1		blue	selected			FALSE
-plate-S-blue	A2		blue	selected			FALSE
-plate-S-blue	A3		blue	selected			FALSE
-plate-S-blue	A4		blue	selected			FALSE
-plate-S-blue	A5		blue	selected			FALSE
-plate-S-blue	A6						TRUE
-plate-S-blue	B1		blue	selected			FALSE
-plate-S-blue	B2		blue	selected			FALSE
-plate-S-blue	B3		blue	selected			FALSE
-plate-S-blue	B4		blue	selected			FALSE
-plate-S-blue	B5		blue	selected			FALSE
-plate-S-blue	B6						TRUE
-plate-S-blue	C1		blue	selected			FALSE
-plate-S-blue	C2		blue	selected			FALSE
-plate-S-blue	C3		blue	selected			FALSE
-plate-S-blue	C4		blue	selected			FALSE
-plate-S-blue	C5		blue	selected			FALSE
-plate-S-blue	C6						TRUE
-plate-S-blue	D1		blue	selected			FALSE
-plate-S-blue	D2		blue	selected			FALSE
-plate-S-blue	D3		blue	selected			FALSE
-plate-S-blue	D4		blue	selected			FALSE
-plate-S-blue	D5		blue	selected			FALSE
-plate-S-blue	D6						TRUE
-plate-S-red	A1		tweed	selected			FALSE
-plate-S-red	A2		tweed	selected			FALSE
-plate-S-red	A3		tweed	selected			FALSE
-plate-S-red	A4		tweed	selected			FALSE
-plate-S-red	A5		tweed	selected			FALSE
-plate-S-red	A6						TRUE
-plate-S-red	B1		tweed	selected			FALSE
-plate-S-red	B2		tweed	selected			FALSE
-plate-S-red	B3		tweed	selected			FALSE
-plate-S-red	B4		tweed	selected			FALSE
-plate-S-red	B5		tweed	selected			FALSE
-plate-S-red	B6						TRUE
-plate-S-red	C1		tweed	selected			FALSE
-plate-S-red	C2		tweed	selected			FALSE
-plate-S-red	C3		tweed	selected			FALSE
-plate-S-red	C4		tweed	selected			FALSE
-plate-S-red	C5		tweed	selected			FALSE
-plate-S-red	C6						TRUE
-plate-S-red	D1		tweed	selected			FALSE
-plate-S-red	D2		tweed	selected			FALSE
-plate-S-red	D3		tweed	selected			FALSE
-plate-S-red	D4		tweed	selected			FALSE
-plate-S-red	D5		tweed	selected			FALSE
-plate-S-red	D6						TRUE
+plate_ID	plate_well	sample_ID	is_blank	shell_color	treatment_group	area_mm2	width_mm	length_mm	weight_mg	family_ID	imageJ_ID
+plate-C-blue	A1		FALSE	blue	control						
+plate-C-blue	A2		FALSE	blue	control						
+plate-C-blue	A3		FALSE	blue	control						
+plate-C-blue	A4		FALSE	blue	control						
+plate-C-blue	A5		FALSE	blue	control						
+plate-C-blue	A6		TRUE								
+plate-C-blue	B1		FALSE	blue	control						
+plate-C-blue	B2		FALSE	blue	control						
+plate-C-blue	B3		FALSE	blue	control						
+plate-C-blue	B4		FALSE	blue	control						
+plate-C-blue	B5		FALSE	blue	control						
+plate-C-blue	B6		TRUE								
+plate-C-blue	C1		FALSE	blue	control						
+plate-C-blue	C2		FALSE	blue	control						
+plate-C-blue	C3		FALSE	blue	control						
+plate-C-blue	C4		FALSE	blue	control						
+plate-C-blue	C5		FALSE	blue	control						
+plate-C-blue	C6		TRUE								
+plate-C-blue	D1		FALSE	blue	control						
+plate-C-blue	D2		FALSE	blue	control						
+plate-C-blue	D3		FALSE	blue	control						
+plate-C-blue	D4		FALSE	blue	control						
+plate-C-blue	D5		FALSE	blue	control						
+plate-C-blue	D6		TRUE								
+plate-C-red	A1		FALSE	tweed	control						
+plate-C-red	A2		FALSE	tweed	control						
+plate-C-red	A3		FALSE	tweed	control						
+plate-C-red	A4		FALSE	tweed	control						
+plate-C-red	A5		FALSE	tweed	control						
+plate-C-red	A6		TRUE								
+plate-C-red	B1		FALSE	tweed	control						
+plate-C-red	B2		FALSE	tweed	control						
+plate-C-red	B3		FALSE	tweed	control						
+plate-C-red	B4		FALSE	tweed	control						
+plate-C-red	B5		FALSE	tweed	control						
+plate-C-red	B6		TRUE								
+plate-C-red	C1		FALSE	tweed	control						
+plate-C-red	C2		FALSE	tweed	control						
+plate-C-red	C3		FALSE	tweed	control						
+plate-C-red	C4		FALSE	tweed	control						
+plate-C-red	C5		FALSE	tweed	control						
+plate-C-red	C6		TRUE								
+plate-C-red	D1		FALSE	tweed	control						
+plate-C-red	D2		FALSE	tweed	control						
+plate-C-red	D3		FALSE	tweed	control						
+plate-C-red	D4		FALSE	tweed	control						
+plate-C-red	D5		FALSE	tweed	control						
+plate-C-red	D6		TRUE								
+plate-S-blue	A1		FALSE	blue	selected						
+plate-S-blue	A2		FALSE	blue	selected						
+plate-S-blue	A3		FALSE	blue	selected						
+plate-S-blue	A4		FALSE	blue	selected						
+plate-S-blue	A5		FALSE	blue	selected						
+plate-S-blue	A6		TRUE								
+plate-S-blue	B1		FALSE	blue	selected						
+plate-S-blue	B2		FALSE	blue	selected						
+plate-S-blue	B3		FALSE	blue	selected						
+plate-S-blue	B4		FALSE	blue	selected						
+plate-S-blue	B5		FALSE	blue	selected						
+plate-S-blue	B6		TRUE								
+plate-S-blue	C1		FALSE	blue	selected						
+plate-S-blue	C2		FALSE	blue	selected						
+plate-S-blue	C3		FALSE	blue	selected						
+plate-S-blue	C4		FALSE	blue	selected						
+plate-S-blue	C5		FALSE	blue	selected						
+plate-S-blue	C6		TRUE								
+plate-S-blue	D1		FALSE	blue	selected						
+plate-S-blue	D2		FALSE	blue	selected						
+plate-S-blue	D3		FALSE	blue	selected						
+plate-S-blue	D4		FALSE	blue	selected						
+plate-S-blue	D5		FALSE	blue	selected						
+plate-S-blue	D6		TRUE								
+plate-S-red	A1		FALSE	tweed	selected						
+plate-S-red	A2		FALSE	tweed	selected						
+plate-S-red	A3		FALSE	tweed	selected						
+plate-S-red	A4		FALSE	tweed	selected						
+plate-S-red	A5		FALSE	tweed	selected						
+plate-S-red	A6		TRUE								
+plate-S-red	B1		FALSE	tweed	selected						
+plate-S-red	B2		FALSE	tweed	selected						
+plate-S-red	B3		FALSE	tweed	selected						
+plate-S-red	B4		FALSE	tweed	selected						
+plate-S-red	B5		FALSE	tweed	selected						
+plate-S-red	B6		TRUE								
+plate-S-red	C1		FALSE	tweed	selected						
+plate-S-red	C2		FALSE	tweed	selected						
+plate-S-red	C3		FALSE	tweed	selected						
+plate-S-red	C4		FALSE	tweed	selected						
+plate-S-red	C5		FALSE	tweed	selected						
+plate-S-red	C6		TRUE								
+plate-S-red	D1		FALSE	tweed	selected						
+plate-S-red	D2		FALSE	tweed	selected						
+plate-S-red	D3		FALSE	tweed	selected						
+plate-S-red	D4		FALSE	tweed	selected						
+plate-S-red	D5		FALSE	tweed	selected						
+plate-S-red	D6		TRUE								
