@@ -784,14 +784,6 @@ viewof groupValSel = Inputs.select(
   }
 )
 
-viewof aggregationSel = Inputs.radio(["Mean", "Individual replicates"], {
-  label: "Group display",
-  value: "Mean",
-  disabled: activeGroupCol === null
-})
-
-activeGroupVal = groupValues.includes(groupValSel) ? groupValSel : "All"
-
 measurementColumns = selectionRows.length > 0
   ? Object.keys(selectionRows[0]).filter(
       k => /_measur(?:e)?ment$/.test(k) && selectionRows.some(d => Number.isFinite(d[k]))
@@ -824,10 +816,41 @@ viewof plotStyleSel = Inputs.select(["Line plot", "Box plot"], {
   value: "Line plot"
 })
 
+boxPlotMode = plotStyleSel === "Box plot"
+
+viewof aggregationSel = boxPlotMode
+  ? Inputs.select(["All", ...groupValues], {
+      label: "Group display",
+      multiple: true,
+      value: ["All"],
+      disabled: activeGroupCol === null
+    })
+  : Inputs.radio(["Mean", "Individual replicates"], {
+      label: "Group display",
+      value: "Mean",
+      disabled: activeGroupCol === null
+    })
+
+activeGroupVal = groupValues.includes(groupValSel) ? groupValSel : "All"
+
+rawGroupDisplaySel = Array.isArray(aggregationSel) ? aggregationSel : [aggregationSel]
+validGroupDisplaySel = rawGroupDisplaySel.filter(v => v === "All" || groupValues.includes(v))
+allGroupsDisplayed = validGroupDisplaySel.length === 0 || validGroupDisplaySel.includes("All")
+selectedDisplayGroups = allGroupsDisplayed
+  ? groupValues
+  : validGroupDisplaySel.filter(v => v !== "All")
+
+activeAggregationMode = boxPlotMode
+  ? "Mean"
+  : (aggregationSel === "Individual replicates" ? "Individual replicates" : "Mean")
+
 filtered = selectionRows.filter(d =>
   (allWellsSelected || selectedWells.includes(d.well_id)) &&
   (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
-  (activeGroupCol === null || activeGroupVal === "All" || `${d[activeGroupCol]}` === `${activeGroupVal}`)
+  (activeGroupCol === null ||
+    (boxPlotMode
+      ? allGroupsDisplayed || selectedDisplayGroups.includes(`${d[activeGroupCol]}`.trim())
+      : activeGroupVal === "All" || `${d[activeGroupCol]}` === `${activeGroupVal}`))
 )
 
 groupingMessage = activeGroupCol === null
@@ -873,7 +896,7 @@ seriesKey = d => {
   const groupVal = nonEmptyString(rawGroupVal) ? `${rawGroupVal}`.trim() : "NA"
   if (groupVal.toUpperCase() === "BLANK") return "Blank"
 
-  if (aggregationSel === "Individual replicates" && activeGroupCol !== null) {
+  if (activeAggregationMode === "Individual replicates" && activeGroupCol !== null) {
     return `${groupVal}: ${sampleTraceKey(d)}`
   }
   return groupVal
@@ -888,7 +911,7 @@ measurementReady = dataViewSel !== "Measurement-normalized fluorescence" || acti
 plottedBase = dataViewSel === "Measurement-normalized fluorescence"
   ? filtered.map(d => {
       const denom = activeMeasurementCol === null ? NaN : d[activeMeasurementCol]
-      const valid = Number.isFinite(d.value) && Number.isFinite(denom) && denom !== 0
+      const valid = Number.isFinite(d.value) && d.value > 0 && Number.isFinite(denom) && denom > 0
       return {
         ...d,
         measurement_normalized_value: valid ? d.value / denom : NaN
@@ -904,7 +927,7 @@ traceKeyEffective = d => activePlateSel === "All"
 
 plottedEffective = (() => {
   const groups = new Map()
-  const showIndiv = aggregationSel === "Individual replicates" && activeGroupCol !== null
+  const showIndiv = activeAggregationMode === "Individual replicates" && activeGroupCol !== null
 
   for (const d of plotted) {
     const sampleKey = sampleTraceKey(d)
@@ -1078,13 +1101,23 @@ colorRange = hasBlankSeries
   ? ["#000000", ...nonBlankColors.slice(0, nonBlankKeys.length)]
   : nonBlankColors.slice(0, nonBlankKeys.length)
 
+formatMetricValue = v => {
+  if (!Number.isFinite(v)) return "NA"
+  if (dataViewSel === "Measurement-normalized fluorescence" || dataViewSel === "Normalized fluorescence") {
+    if (v !== 0 && Math.abs(v) < 0.01) return v.toExponential(2)
+    return v.toFixed(4)
+  }
+  return v.toFixed(2)
+}
+
 tooltipTitle = d => {
   const parts = [
     `Experiment: ${d.experiment_dir}`,
+    `Plate: ${d.plate_id}`,
     `Sample: ${d.sample_id_group}`,
     `Wells: ${d.well_id}`,
     `Time: ${d.time_hr}h`,
-    `${metricField}: ${d[metricField]?.toFixed(2)}`
+    `${metricField}: ${formatMetricValue(d[metricField])}`
   ]
 
   if (activeGroupCol) {
@@ -1217,8 +1250,8 @@ groupUnavailable
               y: plotYField,
               stroke: "series_id",
               z: "trace_id",
-              strokeWidth: aggregationSel === "Individual replicates" ? 1.2 : 2.2,
-              strokeOpacity: aggregationSel === "Individual replicates" ? 0.6 : 1.0,
+              strokeWidth: activeAggregationMode === "Individual replicates" ? 1.2 : 2.2,
+              strokeOpacity: activeAggregationMode === "Individual replicates" ? 0.6 : 1.0,
               curve: "linear"
             }),
             Plot.dot(plottedSorted, {
