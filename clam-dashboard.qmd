@@ -853,7 +853,11 @@ sampleTraceKey = d => nonEmptyString(d.sample_id_group)
   : `${d.well_id}`.trim()
 
 seriesKey = d => {
-  const rawGroupVal = activeGroupCol === null ? "All" : d[activeGroupCol]
+  if (activeGroupCol === null) {
+    return isBlank(d) ? "Blank" : `${d.well_id}`.trim()
+  }
+
+  const rawGroupVal = d[activeGroupCol]
   const groupVal = nonEmptyString(rawGroupVal) ? `${rawGroupVal}`.trim() : "NA"
   if (groupVal.toUpperCase() === "BLANK") return "Blank"
 
