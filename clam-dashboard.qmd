@@ -103,6 +103,21 @@ parse_filter_label <- function(lines) {
   NA_character_
 }
 
+read_layout_tabular <- function(layout_path) {
+  for (delim in c(",", "\t", ";")) {
+    tabular <- tryCatch(
+      read_delim(layout_path, delim = delim, show_col_types = FALSE, col_types = cols(.default = "c")),
+      error = function(e) NULL
+    )
+
+    if (!is.null(tabular) && nrow(tabular) > 0 && ncol(tabular) > 1) {
+      return(tabular)
+    }
+  }
+
+  NULL
+}
+
 extract_results_block <- function(lines) {
   results_idx <- which(trimws(lines) == "Results")
   if (length(results_idx) == 0) {
@@ -199,10 +214,7 @@ parse_plate_export <- function(path) {
 }
 
 parse_layout_txt <- function(layout_path) {
-  tabular <- tryCatch(
-    read_tsv(layout_path, show_col_types = FALSE, col_types = cols(.default = "c")),
-    error = function(e) NULL
-  )
+  tabular <- read_layout_tabular(layout_path)
 
   if (!is.null(tabular) && nrow(tabular) > 0) {
     names(tabular) <- names(tabular) %>%
@@ -739,8 +751,8 @@ validGroupValue = v => {
   return !invalidGroupTokens.has(norm)
 }
 
-groupColumns = cleanDashboard.length > 0
-  ? Object.keys(cleanDashboard[0]).filter(k => /_group$/.test(k) && cleanDashboard.some(d => validGroupValue(d[k])))
+groupColumns = selectionRows.length > 0
+  ? Object.keys(selectionRows[0]).filter(k => /_group$/.test(k) && selectionRows.some(d => validGroupValue(d[k])))
   : []
 
 noneGroupOption = "None (plot by well)"
@@ -780,9 +792,9 @@ viewof aggregationSel = Inputs.radio(["Mean", "Individual replicates"], {
 
 activeGroupVal = groupValues.includes(groupValSel) ? groupValSel : "All"
 
-measurementColumns = cleanDashboard.length > 0
-  ? Object.keys(cleanDashboard[0]).filter(
-      k => /_measur(?:e)?ment$/.test(k) && cleanDashboard.some(d => Number.isFinite(d[k]))
+measurementColumns = selectionRows.length > 0
+  ? Object.keys(selectionRows[0]).filter(
+      k => /_measur(?:e)?ment$/.test(k) && selectionRows.some(d => Number.isFinite(d[k]))
     )
   : []
 
