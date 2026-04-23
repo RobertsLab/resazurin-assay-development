@@ -6,6 +6,8 @@ resources:
   - output/clam/dashboard-data.csv
 ---
 
+<!-- deploy trigger -->
+
 ```{=html}
 <style>
 /* Ensure source code blocks remain hidden in rendered dashboard output. */
@@ -24,18 +26,624 @@ div.cell-code.hidden {
 #| message: false
 
 library(dplyr)
+library(purrr)
 library(readr)
+library(stringr)
+library(tidyr)
+library(tibble)
+library(lubridate)
 library(knitr)
 
 data_path <- file.path("output", "clam", "dashboard-data.csv")
+qc_path <- file.path("output", "clam", "dashboard-qc.csv")
 
-if (!file.exists(data_path)) {
+normalize_well_id <- function(x) {
+  x <- toupper(trimws(x))
+  valid <- str_detect(x, "^[A-Z]+[0-9]+$")
+
+  out <- rep(NA_character_, length(x))
+  if (!any(valid)) {
+    return(out)
+  }
+
+  m <- str_match(x[valid], "^([A-Z]+)([0-9]+)$")
+  out[valid] <- paste0(m[, 2], as.integer(m[, 3]))
+  out
+}
+
+parse_time_hr <- function(path) {
+  hit <- str_match(basename(path), "(?i)-T([0-9]+(?:\\.[0-9]+)?)\\.txt$")
+  as.numeric(hit[, 2])
+}
+
+parse_plate_id <- function(path) {
+  hit <- str_match(basename(path), "(?i)^plate-([A-Za-z0-9-]+)-T[0-9]+(?:\\.[0-9]+)?\\.txt$")
+  id <- hit[, 2]
+  ifelse(is.na(id), "unknown", id)
+}
+
+parse_read_datetime <- function(lines) {
+  date_line <- lines[str_detect(lines, "^Date\\t")][1]
+  time_line <- lines[str_detect(lines, "^Time\\t")][1]
+
+  if (is.na(date_line) || is.na(time_line)) {
+    return(as.POSIXct(NA))
+  }
+
+  date_val <- trimws(str_split_fixed(date_line, "\\t", 2)[, 2])
+  time_val <- trimws(str_split_fixed(time_line, "\\t", 2)[, 2])
+
+  parsed <- suppressWarnings(mdy_hms(paste(date_val, time_val), tz = "UTC"))
+  if (is.na(parsed)) {
+    parsed <- suppressWarnings(mdy_hm(paste(date_val, time_val), tz = "UTC"))
+  }
+  parsed
+}
+
+parse_actual_temperature <- function(lines) {
+  temp_line <- lines[str_detect(lines, "^Actual Temperature:")][1]
+  if (is.na(temp_line)) {
+    return(NA_real_)
+  }
+  as.numeric(str_extract(temp_line, "-?[0-9]+(?:\\.[0-9]+)?"))
+}
+
+parse_filter_label <- function(lines) {
+  ex_line <- lines[str_detect(lines, "Excitation:")][1]
+  em_line <- lines[str_detect(lines, "Emission:")][1]
+
+  if (!is.na(ex_line) && !is.na(em_line)) {
+    ex <- str_extract(ex_line, "[0-9]+/[0-9]+")
+    em <- str_extract(em_line, "[0-9]+/[0-9]+")
+    if (!is.na(ex) && !is.na(em)) {
+      return(paste0(ex, ",", em))
+    }
+  }
+
+  NA_character_
+}
+
+extract_results_block <- function(lines) {
+  results_idx <- which(trimws(lines) == "Results")
+  if (length(results_idx) == 0) {
+    stop("No Results section found")
+  }
+
+  idx <- results_idx[1]
+  if (idx + 1 > length(lines)) {
+    stop("Results section missing header")
+  }
+
+  header_tokens <- str_split(lines[idx + 1], "\\t", simplify = FALSE)[[1]] |> trimws()
+  col_ids <- header_tokens[header_tokens != "" & str_detect(header_tokens, "^[0-9]+$")]
+
+  if (length(col_ids) == 0) {
+    stop("Could not identify numeric well columns in Results header")
+  }
+
+  j <- idx + 2
+  data_lines <- character()
+  while (j <= length(lines)) {
+    line <- lines[j]
+    trimmed <- trimws(line)
+    if (trimmed == "") break
+    if (!str_detect(line, "^[A-Za-z]\\t")) break
+    data_lines <- c(data_lines, line)
+    j <- j + 1
+  }
+
+  if (length(data_lines) == 0) {
+    stop("No row data found under Results section")
+  }
+
+  list(col_ids = col_ids, data_lines = data_lines)
+}
+
+parse_results_rows <- function(col_ids, data_lines) {
+  map_dfr(data_lines, function(line) {
+    tokens <- str_split(line, "\\t", simplify = FALSE)[[1]] |> trimws()
+    tokens <- tokens[tokens != ""]
+
+    row_letter <- tokens[1]
+    row_rest <- tokens[-1]
+
+    nums <- suppressWarnings(as.numeric(row_rest))
+    valid_num_idx <- which(!is.na(nums))
+    if (length(valid_num_idx) == 0) {
+      return(tibble())
+    }
+
+    vals <- nums[valid_num_idx]
+    n <- min(length(vals), length(col_ids))
+
+    tibble(
+      row_id = toupper(row_letter),
+      col_id = as.integer(col_ids[seq_len(n)]),
+      well_id = normalize_well_id(paste0(toupper(row_letter), col_ids[seq_len(n)])),
+      value = vals[seq_len(n)]
+    )
+  })
+}
+
+parse_plate_export <- function(path) {
+  lines <- read_lines(path, lazy = FALSE, progress = FALSE)
+
+  results <- extract_results_block(lines)
+  wells <- parse_results_rows(results$col_ids, results$data_lines)
+
+  wells %>%
+    mutate(
+      experiment_dir = basename(dirname(path)),
+      source_file = path,
+      source_name = basename(path),
+      plate_id = str_to_lower(parse_plate_id(path)),
+      time_hr = parse_time_hr(path),
+      read_datetime = parse_read_datetime(lines),
+      actual_temperature = parse_actual_temperature(lines),
+      excitation_emission = parse_filter_label(lines)
+    ) %>%
+    select(any_of(c(
+      "experiment_dir",
+      "source_file",
+      "source_name",
+      "plate_id",
+      "time_hr",
+      "read_datetime",
+      "actual_temperature",
+      "excitation_emission",
+      "row_id",
+      "col_id",
+      "well_id",
+      "value"
+    )))
+}
+
+parse_layout_txt <- function(layout_path) {
+  tabular <- tryCatch(
+    read_tsv(layout_path, show_col_types = FALSE, col_types = cols(.default = "c")),
+    error = function(e) NULL
+  )
+
+  if (!is.null(tabular) && nrow(tabular) > 0) {
+    names(tabular) <- names(tabular) %>%
+      str_to_lower() %>%
+      str_replace_all("[^a-z0-9]+", "_") %>%
+      str_replace_all("_+", "_") %>%
+      str_replace("_$", "")
+
+    if ("family_id" %in% names(tabular) && !("family_group" %in% names(tabular))) {
+      tabular$family_group <- tabular$family_id
+    }
+    if ("treatment" %in% names(tabular) && !("treatment_group" %in% names(tabular))) {
+      tabular$treatment_group <- tabular$treatment
+    }
+
+    measurement_cols <- names(tabular)[str_detect(names(tabular), "_measur(?:e)?ment$")]
+    group_cols <- names(tabular)[str_detect(names(tabular), "_group$")]
+
+    if ("plate_well" %in% names(tabular)) {
+      plate_col <- if ("plate_id" %in% names(tabular)) "plate_id" else NA_character_
+      sample_col <- if ("sample_id" %in% names(tabular)) "sample_id" else NA_character_
+      treatment_col <- if ("treatment_group" %in% names(tabular)) "treatment_group" else NA_character_
+      shell_col <- if ("shell_color" %in% names(tabular)) "shell_color" else NA_character_
+      size_col <- if ("size_mm" %in% names(tabular)) "size_mm" else NA_character_
+      weight_col <- if ("weight_mg" %in% names(tabular)) "weight_mg" else NA_character_
+      blank_col <- if ("is_blank" %in% names(tabular)) "is_blank" else NA_character_
+
+      out <- tibble(
+        plate_id = if (!is.na(plate_col)) tabular[[plate_col]] else NA_character_,
+        well_id = normalize_well_id(tabular[["plate_well"]]),
+        sample_label = if (!is.na(sample_col)) tabular[[sample_col]] else NA_character_,
+        treatment = if (!is.na(treatment_col)) tabular[[treatment_col]] else NA_character_,
+        shell_color = if (!is.na(shell_col)) tabular[[shell_col]] else NA_character_,
+        treatment_group = if (!is.na(treatment_col)) tabular[[treatment_col]] else NA_character_,
+        size_mm = suppressWarnings(as.numeric(if (!is.na(size_col)) tabular[[size_col]] else NA_character_)),
+        weight_mg = suppressWarnings(as.numeric(if (!is.na(weight_col)) tabular[[weight_col]] else NA_character_)),
+        is_blank = if (!is.na(blank_col)) {
+          toupper(tabular[[blank_col]]) %in% c("TRUE", "T", "1", "YES", "Y")
+        } else {
+          NA
+        },
+        layout_status = "parsed_table",
+        layout_raw = NA_character_
+      ) %>%
+        mutate(
+          plate_id = str_remove(str_to_lower(plate_id), "^plate-"),
+          plate_id = if_else(is.na(plate_id) | plate_id == "", NA_character_, plate_id)
+        )
+
+      if (length(measurement_cols) > 0) {
+        out <- bind_cols(
+          out,
+          tabular %>%
+            select(all_of(measurement_cols)) %>%
+            mutate(across(everything(), ~ suppressWarnings(as.numeric(.x))))
+        )
+      }
+
+      dynamic_group_cols <- setdiff(group_cols, "treatment_group")
+      if (length(dynamic_group_cols) > 0) {
+        out <- bind_cols(
+          out,
+          tabular %>%
+            select(all_of(dynamic_group_cols)) %>%
+            mutate(across(everything(), ~ na_if(trimws(as.character(.x)), "")))
+        )
+      }
+
+      return(out)
+    }
+  }
+
+  raw <- read_lines(layout_path, lazy = FALSE, progress = FALSE)
+  lines <- raw[trimws(raw) != ""]
+
+  if (length(lines) == 0) {
+    return(tibble(
+      plate_id = character(),
+      well_id = character(),
+      sample_label = character(),
+      treatment = character(),
+      shell_color = character(),
+      treatment_group = character(),
+      size_mm = numeric(),
+      weight_mg = numeric(),
+      is_blank = logical(),
+      layout_status = character(),
+      layout_raw = character()
+    ))
+  }
+
+  split_candidates <- strsplit(lines, "[\\t,;]+")
+
+  explicit <- map_dfr(split_candidates, function(parts) {
+    p <- trimws(parts)
+    if (length(p) >= 2 && str_detect(p[1], "^[A-Za-z]+[0-9]+$")) {
+      tibble(
+        plate_id = NA_character_,
+        well_id = normalize_well_id(p[1]),
+        sample_label = p[2],
+        treatment = ifelse(length(p) >= 3, p[3], NA_character_),
+        shell_color = NA_character_,
+        treatment_group = ifelse(length(p) >= 3, p[3], NA_character_),
+        size_mm = NA_real_,
+        weight_mg = NA_real_,
+        is_blank = NA,
+        layout_status = "parsed_explicit",
+        layout_raw = paste(parts, collapse = "\t")
+      )
+    } else {
+      tibble()
+    }
+  })
+
+  if (nrow(explicit) > 0) {
+    return(explicit)
+  }
+
+  first_parts <- trimws(split_candidates[[1]])
+  numeric_header <- first_parts[first_parts != "" & str_detect(first_parts, "^[0-9]+$")]
+
+  if (length(numeric_header) > 0) {
+    matrix_rows <- map_dfr(split_candidates[-1], function(parts) {
+      p <- trimws(parts)
+      p <- p[p != ""]
+      if (length(p) < 2 || !str_detect(p[1], "^[A-Za-z]+$")) {
+        return(tibble())
+      }
+
+      row_letter <- toupper(p[1])
+      cells <- p[-1]
+      n <- min(length(cells), length(numeric_header))
+
+      tibble(
+        plate_id = NA_character_,
+        well_id = normalize_well_id(paste0(row_letter, numeric_header[seq_len(n)])),
+        sample_label = cells[seq_len(n)],
+        treatment = NA_character_,
+        shell_color = NA_character_,
+        treatment_group = NA_character_,
+        size_mm = NA_real_,
+        weight_mg = NA_real_,
+        is_blank = NA,
+        layout_status = "parsed_matrix",
+        layout_raw = paste(parts, collapse = "\t")
+      )
+    })
+
+    if (nrow(matrix_rows) > 0) {
+      return(matrix_rows)
+    }
+  }
+
+  tibble(
+    plate_id = NA_character_,
+    well_id = NA_character_,
+    sample_label = NA_character_,
+    treatment = NA_character_,
+    shell_color = NA_character_,
+    treatment_group = NA_character_,
+    size_mm = NA_real_,
+    weight_mg = NA_real_,
+    is_blank = NA,
+    layout_status = "unparsed",
+    layout_raw = paste(lines, collapse = " || ")
+  )
+}
+
+parse_layout_for_experiment <- function(experiment_dir_path) {
+  layout_path <- file.path(experiment_dir_path, "layout.txt")
+  if (!file.exists(layout_path)) {
+    return(tibble(
+      plate_id = character(),
+      well_id = character(),
+      sample_label = character(),
+      treatment = character(),
+      shell_color = character(),
+      treatment_group = character(),
+      size_mm = numeric(),
+      weight_mg = numeric(),
+      is_blank = logical(),
+      layout_status = character(),
+      layout_raw = character(),
+      layout_file = character()
+    ))
+  }
+
+  parse_layout_txt(layout_path) %>% mutate(layout_file = layout_path)
+}
+
+repo_root <- getwd()
+if (!dir.exists(file.path(repo_root, "data", "clam"))) {
+  repo_root <- normalizePath(file.path(repo_root, ".."), mustWork = TRUE)
+}
+if (!dir.exists(file.path(repo_root, "data", "clam"))) {
+  stop("Could not find data/clam. Render from the repository root or a child directory.")
+}
+
+clam_root <- file.path(repo_root, "data", "clam")
+out_dir <- file.path(repo_root, "output", "clam")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+plate_files <- list.files(
+  path = clam_root,
+  pattern = "(?i)^plate-.*-T[0-9]+(?:\\.[0-9]+)?\\.txt$",
+  recursive = TRUE,
+  full.names = TRUE
+)
+
+if (length(plate_files) == 0) {
+  write_csv(tibble(), data_path)
+  write_csv(tibble(), qc_path)
   cat("## No dashboard data yet\n\n")
-  cat("Run scripts/clam/build_clam_dashboard_data.R to generate data.\n")
+  cat("No matching plate files were discovered under data/clam.\n")
   knitr::knit_exit()
 }
 
-dat <- readr::read_csv(data_path, show_col_types = FALSE)
+parsed_results <- map(plate_files, function(path) {
+  tryCatch(
+    {
+      dat <- parse_plate_export(path)
+      list(ok = TRUE, data = dat, error = NA_character_, file = path)
+    },
+    error = function(e) {
+      list(ok = FALSE, data = tibble(), error = conditionMessage(e), file = path)
+    }
+  )
+})
+
+plate_data <- parsed_results %>%
+  keep(~ .x$ok) %>%
+  map("data") %>%
+  bind_rows()
+
+parse_failures <- parsed_results %>%
+  keep(~ !.x$ok) %>%
+  map_dfr(~ tibble(
+    experiment_dir = basename(dirname(.x$file)),
+    source_file = .x$file,
+    parse_ok = FALSE,
+    parse_error = .x$error,
+    n_wells = 0L
+  ))
+
+if (nrow(plate_data) == 0) {
+  write_csv(tibble(), data_path)
+  write_csv(parse_failures, qc_path)
+  cat("## Dashboard dataset is empty\n\n")
+  cat("All parse attempts failed while reading plate exports under data/clam.\n")
+  knitr::knit_exit()
+}
+
+experiment_dirs <- unique(dirname(plate_data$source_file))
+layout_data <- map_dfr(experiment_dirs, function(exp_dir) {
+  parse_layout_for_experiment(exp_dir) %>%
+    mutate(experiment_dir = basename(exp_dir))
+})
+
+if (nrow(layout_data) == 0) {
+  measurement_cols <- character()
+  group_cols <- character()
+  dynamic_group_cols <- character()
+
+  plate_data <- plate_data %>%
+    mutate(
+      sample_label = NA_character_,
+      treatment = NA_character_,
+      shell_color = NA_character_,
+      treatment_group = NA_character_,
+      size_mm = NA_real_,
+      weight_mg = NA_real_,
+      is_blank = NA,
+      layout_status = "missing",
+      layout_file = NA_character_,
+      layout_raw = NA_character_
+    )
+} else {
+  parsed_layout <- layout_data %>% filter(!is.na(well_id))
+  measurement_cols <- names(parsed_layout)[str_detect(names(parsed_layout), "_measur(?:e)?ment$")]
+  group_cols <- names(parsed_layout)[str_detect(names(parsed_layout), "_group$")]
+  dynamic_group_cols <- setdiff(group_cols, "treatment_group")
+
+  plate_ids_by_exp <- plate_data %>% distinct(experiment_dir, plate_id)
+
+  parsed_layout_join <- bind_rows(
+    parsed_layout %>% filter(!is.na(plate_id)),
+    parsed_layout %>%
+      filter(is.na(plate_id)) %>%
+      select(-plate_id) %>%
+      left_join(plate_ids_by_exp, by = "experiment_dir")
+  )
+
+  plate_data <- plate_data %>%
+    left_join(
+      parsed_layout_join %>%
+        select(
+          experiment_dir,
+          plate_id,
+          well_id,
+          sample_label,
+          treatment,
+          shell_color,
+          treatment_group,
+          size_mm,
+          weight_mg,
+          any_of(dynamic_group_cols),
+          any_of(measurement_cols),
+          is_blank,
+          layout_status,
+          layout_file,
+          layout_raw
+        ),
+      by = c("experiment_dir", "plate_id", "well_id")
+    ) %>%
+    mutate(layout_status = coalesce(layout_status, "missing_or_unparsed"))
+
+  unparsed_layout <- layout_data %>%
+    filter(is.na(well_id)) %>%
+    select(experiment_dir, layout_status, layout_file, layout_raw)
+
+  if (nrow(unparsed_layout) > 0) {
+    plate_data <- plate_data %>%
+      left_join(unparsed_layout, by = "experiment_dir", suffix = c("", "_fallback")) %>%
+      mutate(
+        layout_status = if_else(
+          layout_status == "missing_or_unparsed" & !is.na(layout_status_fallback),
+          layout_status_fallback,
+          layout_status
+        ),
+        layout_file = coalesce(layout_file, layout_file_fallback),
+        layout_raw = coalesce(layout_raw, layout_raw_fallback)
+      ) %>%
+      select(-layout_status_fallback, -layout_file_fallback, -layout_raw_fallback)
+  }
+
+  if (!exists("measurement_cols")) {
+    measurement_cols <- names(plate_data)[str_detect(names(plate_data), "_measur(?:e)?ment$")]
+  }
+  if (!exists("group_cols")) {
+    group_cols <- names(plate_data)[str_detect(names(plate_data), "_group$")]
+  }
+}
+
+dynamic_group_cols <- setdiff(group_cols, "treatment_group")
+
+plate_data <- plate_data %>%
+  mutate(
+    is_blank = case_when(
+      is.na(is_blank) ~ FALSE,
+      TRUE ~ as.logical(is_blank)
+    )
+  )
+
+dup_flags <- plate_data %>%
+  count(experiment_dir, plate_id, well_id, time_hr, name = "n_at_time") %>%
+  mutate(duplicate_timepoint = n_at_time > 1)
+
+plate_data <- plate_data %>%
+  left_join(
+    dup_flags %>% select(experiment_dir, plate_id, well_id, time_hr, duplicate_timepoint),
+    by = c("experiment_dir", "plate_id", "well_id", "time_hr")
+  )
+
+blank_ref <- plate_data %>%
+  filter(is_blank) %>%
+  group_by(experiment_dir, plate_id, time_hr) %>%
+  summarise(mean_blank_value = mean(value, na.rm = TRUE), .groups = "drop")
+
+plate_data <- plate_data %>%
+  left_join(blank_ref, by = c("experiment_dir", "plate_id", "time_hr")) %>%
+  mutate(
+    normalized_value = if_else(
+      !is.na(mean_blank_value) & mean_blank_value != 0,
+      value / mean_blank_value,
+      NA_real_
+    )
+  )
+
+plate_data <- plate_data %>%
+  group_by(experiment_dir, plate_id, well_id) %>%
+  arrange(time_hr, read_datetime, source_name, .by_group = TRUE) %>%
+  mutate(
+    delta_value = if_else(
+      time_hr == min(time_hr, na.rm = TRUE),
+      0,
+      value - lag(value)
+    )
+  ) %>%
+  ungroup()
+
+qc_success <- plate_data %>%
+  group_by(experiment_dir, source_file) %>%
+  summarise(
+    parse_ok = TRUE,
+    parse_error = NA_character_,
+    n_wells = n(),
+    min_time_hr = min(time_hr, na.rm = TRUE),
+    max_time_hr = max(time_hr, na.rm = TRUE),
+    layout_status = paste(sort(unique(layout_status)), collapse = ";"),
+    duplicate_timepoints = any(duplicate_timepoint, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+qc <- bind_rows(qc_success, parse_failures) %>%
+  arrange(experiment_dir, source_file)
+
+plate_data_out <- plate_data %>%
+  arrange(experiment_dir, plate_id, well_id, time_hr) %>%
+  select(
+    experiment_dir,
+    source_file,
+    source_name,
+    plate_id,
+    time_hr,
+    read_datetime,
+    actual_temperature,
+    excitation_emission,
+    row_id,
+    col_id,
+    well_id,
+    sample_label,
+    treatment,
+    shell_color,
+    treatment_group,
+    size_mm,
+    weight_mg,
+    any_of(dynamic_group_cols),
+    any_of(measurement_cols),
+    is_blank,
+    layout_status,
+    duplicate_timepoint,
+    value,
+    delta_value,
+    mean_blank_value,
+    normalized_value
+  )
+
+write_csv(plate_data_out, data_path)
+write_csv(qc, qc_path)
+
+dat <- plate_data_out
 
 if (nrow(dat) == 0) {
   cat("## Dashboard dataset is empty\n\n")
@@ -47,7 +655,8 @@ if (nrow(dat) == 0) {
 ## What This Shows
 
 - Interactive exploration of trajectories across experiments, plates, and wells.
-- Three data views: raw fluorescence, delta fluorescence, and blank-normalized fluorescence.
+- Optional filtering by any non-empty `*.group` metadata column.
+- Four data views: raw fluorescence, delta fluorescence, blank-normalized fluorescence, and measurement-normalized fluorescence.
 
 ## Interactive Explorer
 
@@ -94,7 +703,7 @@ activeExperimentSel = experiments.includes(experimentSel) ? experimentSel : (mos
 plateCandidates = cleanDashboard
   .filter(d => activeExperimentSel === "All" || d.experiment_dir === activeExperimentSel)
 plates = ["All", ...new Set(plateCandidates.map(d => d.plate_id))]
-defaultPlateSel = plates.length > 1 ? plates[1] : "All"
+defaultPlateSel = "All"
 viewof plateSel = Inputs.select(plates, {
   label: "Plate",
   value: defaultPlateSel
@@ -107,53 +716,345 @@ selectionRows = cleanDashboard
                (activePlateSel === "All" || d.plate_id === activePlateSel))
 
 wells = [...new Set(selectionRows.map(d => d.well_id))].sort()
-defaultWells = wells.slice(0, Math.min(6, wells.length))
+wellsWithAll = ["All", ...wells]
 
-viewof wellSel = Inputs.select(wells, {
+viewof wellSel = Inputs.select(wellsWithAll, {
   label: "Well(s)",
   multiple: true,
-  value: defaultWells
+  value: ["All"]
 })
 
-viewModes = ["Raw fluorescence", "Delta fluorescence", "Normalized fluorescence"]
+rawWellSel = Array.isArray(wellSel) ? wellSel : [wellSel]
+validWellSel = rawWellSel.filter(w => wellsWithAll.includes(w))
+allWellsSelected = validWellSel.length === 0 || validWellSel.includes("All")
+selectedWells = allWellsSelected
+  ? wells
+  : validWellSel.filter(w => w !== "All")
+
+nonEmptyString = v => v != null && `${v}`.trim() !== ""
+invalidGroupTokens = new Set(["NA", "N/A", "NULL", "NAN", "<NA>"])
+validGroupValue = v => {
+  if (!nonEmptyString(v)) return false
+  const norm = `${v}`.trim().toUpperCase()
+  return !invalidGroupTokens.has(norm)
+}
+
+groupColumns = cleanDashboard.length > 0
+  ? Object.keys(cleanDashboard[0]).filter(k => /_group$/.test(k) && cleanDashboard.some(d => validGroupValue(d[k])))
+  : []
+
+noneGroupOption = "None (plot by well)"
+
+viewof groupColSel = Inputs.select(
+  [noneGroupOption, ...groupColumns],
+  {
+    label: "Group column",
+    value: noneGroupOption
+  }
+)
+
+activeGroupCol = groupColumns.includes(groupColSel) ? groupColSel : null
+
+naturalCompare = (a, b) => `${a}`.localeCompare(`${b}`, undefined, {
+  numeric: true,
+  sensitivity: "base"
+})
+
+groupValues = activeGroupCol === null
+  ? []
+  : [...new Set(selectionRows.map(d => `${d[activeGroupCol]}`.trim()).filter(validGroupValue))].sort(naturalCompare)
+
+viewof groupValSel = Inputs.select(
+  ["All", ...groupValues],
+  {
+    label: "Group value",
+    value: "All"
+  }
+)
+
+viewof aggregationSel = Inputs.radio(["Mean", "Individual replicates"], {
+  label: "Group display",
+  value: "Mean",
+  disabled: activeGroupCol === null
+})
+
+activeGroupVal = groupValues.includes(groupValSel) ? groupValSel : "All"
+
+measurementColumns = cleanDashboard.length > 0
+  ? Object.keys(cleanDashboard[0]).filter(
+      k => /_measur(?:e)?ment$/.test(k) && cleanDashboard.some(d => Number.isFinite(d[k]))
+    )
+  : []
+
+viewof measurementColSel = Inputs.select(
+  measurementColumns.length > 0 ? measurementColumns : ["(none available)"],
+  {
+    label: "Measurement column",
+    value: measurementColumns.length > 0 ? measurementColumns[0] : "(none available)"
+  }
+)
+
+activeMeasurementCol = measurementColumns.includes(measurementColSel) ? measurementColSel : null
+
+viewModes = ["Raw fluorescence", "Delta fluorescence", "Normalized fluorescence", "Measurement-normalized fluorescence"]
 viewof dataViewSel = Inputs.select(viewModes, {
   label: "Data view",
   value: "Raw fluorescence"
 })
 
-selectedWells = (wellSel || []).filter(w => wells.includes(w))
-filtered = selectionRows.filter(d => selectedWells.length === 0 || selectedWells.includes(d.well_id))
+viewof errorBarSel = Inputs.select(["Hide error bars", "Show error bars"], {
+  label: "Error bars",
+  value: "Hide error bars"
+})
+
+viewof plotStyleSel = Inputs.select(["Line plot", "Box plot"], {
+  label: "Plot style",
+  value: "Line plot"
+})
+
+filtered = selectionRows.filter(d =>
+  (allWellsSelected || selectedWells.includes(d.well_id)) &&
+  (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
+  (activeGroupCol === null || activeGroupVal === "All" || `${d[activeGroupCol]}` === `${activeGroupVal}`)
+)
+
+groupingMessage = activeGroupCol === null
+  ? "Grouping: Well (no group column selected)"
+  : `Grouping: ${activeGroupCol}`
 
 allPlateMessage = activePlateSel === "All"
-  ? "**Plate = All:** lines include wells from multiple plates. Select a specific plate for one trajectory per well."
-  : ""
+  ? "Plate = All: data include wells from multiple plates. Select a specific plate for one trajectory per well."
+  : null
 
-yField = dataViewSel === "Delta fluorescence"
-  ? "delta_value"
-  : (dataViewSel === "Normalized fluorescence" ? "normalized_value" : "value")
+plotSubtitle = allPlateMessage === null
+  ? groupingMessage
+  : `${groupingMessage}\n${allPlateMessage}`
+
+yField = dataViewSel === "Normalized fluorescence"
+      ? "normalized_value"
+  : (dataViewSel === "Measurement-normalized fluorescence" ? "measurement_normalized_value" : "value")
+metricField = dataViewSel === "Delta fluorescence" ? "value" : yField
+plotYField = "plot_y"
 
 yLabel = dataViewSel === "Delta fluorescence"
   ? "Delta fluorescence (current - previous timepoint)"
   : (dataViewSel === "Normalized fluorescence"
       ? "Normalized fluorescence (value / mean blank at same plate and time)"
-      : "Fluorescence")
+      : (dataViewSel === "Measurement-normalized fluorescence"
+          ? `Fluorescence normalized by ${activeMeasurementCol || "selected measurement"}`
+          : "Fluorescence"))
 
 isBlank = d => d.is_blank === true || d.is_blank === "TRUE" || d.is_blank === 1 || d.is_blank === "1"
-seriesKey = d => isBlank(d) ? "Blank" : d.well_id
-traceKey = d => `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+groupMode = activeGroupCol !== null
+groupValue = d => `${d[activeGroupCol]}`.trim()
+seriesLabel = groupMode ? `Group (${activeGroupCol})` : "Well"
+sampleTraceKey = d => nonEmptyString(d.sample_id_group)
+  ? `${d.sample_id_group}`.trim()
+  : `${d.well_id}`.trim()
 
-plotted = filtered.filter(d => Number.isFinite(d[yField]))
-plottedSorted = plotted
+seriesKey = d => {
+  const rawGroupVal = activeGroupCol === null ? "All" : d[activeGroupCol]
+  const groupVal = nonEmptyString(rawGroupVal) ? `${rawGroupVal}`.trim() : "NA"
+  if (groupVal.toUpperCase() === "BLANK") return "Blank"
+
+  if (aggregationSel === "Individual replicates" && activeGroupCol !== null) {
+    return `${groupVal}: ${sampleTraceKey(d)}`
+  }
+  return groupVal
+}
+
+traceKey = d => groupMode
+  ? `${d.experiment_dir}|${d.plate_id}|${seriesKey(d)}`
+  : `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+
+measurementReady = dataViewSel !== "Measurement-normalized fluorescence" || activeMeasurementCol !== null
+
+plottedBase = dataViewSel === "Measurement-normalized fluorescence"
+  ? filtered.map(d => {
+      const denom = activeMeasurementCol === null ? NaN : d[activeMeasurementCol]
+      const valid = Number.isFinite(d.value) && Number.isFinite(denom) && denom !== 0
+      return {
+        ...d,
+        measurement_normalized_value: valid ? d.value / denom : NaN
+      }
+    })
+  : filtered
+
+plotted = plottedBase.filter(d => Number.isFinite(d[metricField]))
+
+traceKeyEffective = d => activePlateSel === "All"
+  ? `${d.experiment_dir}|${seriesKey(d)}`
+  : traceKey(d)
+
+plottedEffective = (() => {
+  const groups = new Map()
+  const showIndiv = aggregationSel === "Individual replicates" && activeGroupCol !== null
+
+  for (const d of plotted) {
+    const sampleKey = sampleTraceKey(d)
+    const traceId = showIndiv
+      ? (activePlateSel === "All"
+        ? `${d.experiment_dir}|${sampleKey}`
+        : `${d.experiment_dir}|${d.plate_id}|${sampleKey}`)
+      : traceKeyEffective(d)
+
+    const key = `${traceId}|${d.time_hr}`
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        ...d,
+        trace_id: traceId,
+        well_ids: [d.well_id],
+        values: [d[metricField]]
+      })
+    } else {
+      const g = groups.get(key)
+      g.values.push(d[metricField])
+      if (!g.well_ids.includes(d.well_id)) g.well_ids.push(d.well_id)
+    }
+  }
+
+  return [...groups.values()].map(g => {
+    const sId = seriesKey(g)
+    return {
+      ...g,
+      series_id: sId,
+      rep_count: g.values.length,
+      [metricField]: d3.mean(g.values),
+      well_id: g.well_ids.join(", "),
+      metric_se: g.values.length > 1 ? d3.deviation(g.values) / Math.sqrt(g.values.length) : NaN
+    }
+  })
+})()
+
+sortedEffective = plottedEffective
   .slice()
   .sort((a, b) =>
-    traceKey(a).localeCompare(traceKey(b)) ||
+    a.trace_id.localeCompare(b.trace_id) ||
     (a.time_hr - b.time_hr)
   )
 
-presentSeries = [...new Set(plottedSorted.map(seriesKey))]
-nonBlankKeys = presentSeries.filter(k => k !== "Blank").sort()
+plottedSorted = dataViewSel === "Delta fluorescence"
+  ? (() => {
+      const prevByTrace = new Map()
+      return sortedEffective.map(d => {
+        const tkey = d.trace_id
+        const prev = prevByTrace.get(tkey)
+        const cur = d[metricField]
+        const delta = prev && Number.isFinite(prev.mean) ? (cur - prev.mean) : 0
+        const curSe = d.metric_se
+        const deltaSe = prev && Number.isFinite(curSe) && Number.isFinite(prev.se)
+          ? Math.sqrt((curSe * curSe) + (prev.se * prev.se))
+          : NaN
+        prevByTrace.set(tkey, {mean: cur, se: curSe})
+        return {
+          ...d,
+          [plotYField]: delta,
+          plot_se: deltaSe
+        }
+      })
+    })()
+  : sortedEffective.map(d => ({
+      ...d,
+      [plotYField]: d[metricField],
+      plot_se: d.metric_se
+    }))
+
+errorBarData = plottedSorted.filter(d =>
+  d.rep_count > 1 &&
+  Number.isFinite(d[plotYField]) &&
+  Number.isFinite(d.plot_se) &&
+  d.plot_se > 0
+)
+
+showErrorBars = errorBarSel === "Show error bars" && errorBarData.length > 0
+boxPlotMode = plotStyleSel === "Box plot"
+
+hashString = s => {
+  let hash = 0
+  for (const ch of `${s}`) {
+    hash = Math.imul(31, hash) + ch.charCodeAt(0) | 0
+  }
+  return hash >>> 0
+}
+
+numericTimes = [...new Set(plottedSorted.map(d => d.time_hr))]
+  .filter(Number.isFinite)
+  .sort((a, b) => a - b)
+
+timeValues = numericTimes.map(String)
+
+timeSpacing = numericTimes.length > 1
+  ? Math.min(...numericTimes.slice(1).map((t, i) => t - numericTimes[i]).filter(d => d > 0))
+  : 1
+
+boxValueField = dataViewSel === "Delta fluorescence" ? "box_delta_value" : metricField
+
+boxPlotData = dataViewSel === "Delta fluorescence"
+  ? (() => {
+      const prevByWell = new Map()
+      const sortedRaw = plottedBase
+        .filter(d => Number.isFinite(d.value))
+        .slice()
+        .sort((a, b) =>
+          a.experiment_dir.localeCompare(b.experiment_dir) ||
+          a.plate_id.localeCompare(b.plate_id) ||
+          a.well_id.localeCompare(b.well_id) ||
+          a.time_hr - b.time_hr
+        )
+
+      return sortedRaw.map(d => {
+        const key = `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+        const prev = prevByWell.get(key)
+        const deltaValue = prev && Number.isFinite(prev.value) ? (d.value - prev.value) : NaN
+
+        prevByWell.set(key, {value: d.value})
+
+        const result = {
+          ...d,
+          series_id: seriesKey(d)
+        }
+        result[boxValueField] = deltaValue
+
+        return result
+      }).filter(d => Number.isFinite(d[boxValueField]))
+    })()
+  : plottedBase
+      .filter(d => Number.isFinite(d[metricField]))
+      .map(d => ({
+        ...d,
+        series_id: seriesKey(d),
+        [boxValueField]: d[metricField]
+      }))
+
+presentSeries = [...new Set(plottedSorted.map(d => String(d.series_id)))]
+nonBlankKeys = presentSeries.filter(k => k !== "Blank").sort(naturalCompare)
 hasBlankSeries = presentSeries.includes("Blank")
 colorDomain = hasBlankSeries ? ["Blank", ...nonBlankKeys] : nonBlankKeys
+
+boxPresentSeries = [...new Set(boxPlotData.map(d => d.series_id))]
+boxNonBlankKeys = boxPresentSeries.filter(k => k !== "Blank").sort(naturalCompare)
+boxHasBlankSeries = boxPresentSeries.includes("Blank")
+boxSeriesOrder = boxHasBlankSeries ?
+["Blank", ...boxNonBlankKeys] : boxNonBlankKeys
+
+groupedSpan = Math.max(0.14, Math.min(0.9, (Number.isFinite(timeSpacing) ? timeSpacing : 1) * 0.85))
+groupStep = boxSeriesOrder.length > 1 ? groupedSpan / (boxSeriesOrder.length - 1) : 0
+seriesOffset = new Map(
+  boxSeriesOrder.map((key, idx) => [key, (idx - (boxSeriesOrder.length - 1) / 2) * groupStep])
+)
+
+groupOffset = d => seriesOffset.get(d.series_id ?? seriesKey(d)) ?? 0
+
+jitterRadius = boxSeriesOrder.length > 1
+  ? Math.max(0.01, groupStep * 0.32)
+  : Math.max(0.03, (Number.isFinite(timeSpacing) ? timeSpacing : 1) * 0.06)
+
+jitterOffset = d => {
+  const seed = `${d.trace_id}|${d.series_id}|${d.time_hr}|${d.well_id}`
+  const value = hashString(seed) / 4294967295
+  return (value - 0.5) * jitterRadius * 2
+}
 
 tableau = d3.schemeTableau10
 nonBlankColors = nonBlankKeys.map((_, i) => tableau[i % tableau.length])
@@ -162,50 +1063,159 @@ colorRange = hasBlankSeries
   : nonBlankColors.slice(0, nonBlankKeys.length)
 
 tooltipTitle = d => {
-  const yVal = Number.isFinite(d[yField]) ? d[yField].toFixed(2) : "NA"
-  return `${d.experiment_dir} | Plate ${d.plate_id} | Well ${d.well_id} | Time ${d.time_hr} h | ${yLabel}: ${yVal}`
+  const parts = [
+    `Experiment: ${d.experiment_dir}`,
+    `Sample: ${d.sample_id_group}`,
+    `Wells: ${d.well_id}`,
+    `Time: ${d.time_hr}h`,
+    `${metricField}: ${d[metricField]?.toFixed(2)}`
+  ]
+
+  if (activeGroupCol) {
+    parts.unshift(`${activeGroupCol}: ${d[activeGroupCol]}`)
+  }
+
+  if (d.rep_count > 1) {
+    parts.push(`Wells averaged: ${d.rep_count}`)
+  }
+
+  return parts.join("\n")
 }
 
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
+measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && (!measurementReady || plottedSorted.length === 0)
+groupUnavailable = activeGroupCol !== null && filtered.length === 0
 
-normalizedUnavailable
+groupUnavailable
+  ? `No data available for ${activeGroupCol} under the current selection. Choose a different Group column/value or adjust Experiment, Plate, and Well filters.`
+  : normalizedUnavailable
   ? "Normalized fluorescence unavailable for this selection. Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
-  : Plot.plot({
-    height: 420,
-    subtitle: allPlateMessage === "" ? null : "Plate = All: lines include wells from multiple plates. Select a specific plate for one trajectory per well.",
-    style: {
-      color: "#111827",
-      background: "#ffffff"
-    },
-    x: {label: "Time (hours)"},
-    y: {label: yLabel},
-    color: {
-      legend: true,
-      label: "Well",
-      domain: colorDomain,
-      range: colorRange
-    },
-    marks: [
-      Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
-      Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
-      Plot.line(plottedSorted, {
-        x: "time_hr",
-        y: yField,
-        stroke: seriesKey,
-        z: traceKey,
-        strokeWidth: 2.2,
-        strokeOpacity: 1,
-        curve: "linear"
-      }),
-      Plot.dot(plottedSorted, {
-        x: "time_hr",
-        y: yField,
-        fill: seriesKey,
-        r: 2.5,
-        opacity: 0.9,
-        title: tooltipTitle,
-        tip: true
-      })
-    ]
-  })
+  : measurementUnavailable
+    ? "Measurement-normalized fluorescence unavailable for this selection. Ensure a non-zero numeric value exists in the selected *.measurement (or *.measurment) column for these wells."
+  : (() => {
+      const plotWrap = document.createElement("div")
+      const subtitleWrap = document.createElement("div")
+      subtitleWrap.style.marginBottom = "0.35rem"
+      subtitleWrap.style.color = "#374151"
+      subtitleWrap.style.fontSize = "0.95rem"
+      subtitleWrap.style.lineHeight = "1.35"
+      subtitleWrap.style.fontWeight = "600"
+
+      const groupingLine = document.createElement("div")
+      groupingLine.textContent = groupingMessage
+      subtitleWrap.appendChild(groupingLine)
+
+      if (allPlateMessage !== null) {
+        const plateLine = document.createElement("div")
+        plateLine.textContent = allPlateMessage
+        plateLine.style.fontWeight = "400"
+        subtitleWrap.appendChild(plateLine)
+      }
+
+      plotWrap.appendChild(subtitleWrap)
+      plotWrap.innerHTML = ""
+      plotWrap.appendChild(subtitleWrap)
+      if (boxPlotMode) {
+        plotWrap.appendChild(Plot.plot({
+          height: 420,
+          style: {
+            color: "#111827",
+            background: "#ffffff"
+          },
+          fx: {
+            label: "Time (hours)",
+            domain: timeValues,
+            padding: 0.1
+          },
+          x: {
+            type: "band",
+            domain: boxSeriesOrder,
+            axis: null
+          },
+          y: {
+            label: yLabel,
+            grid: true,
+            zero: true,
+            nice: true
+          },
+          color: {
+            legend: true,
+            label: seriesLabel,
+            domain: colorDomain,
+            range: colorRange
+          },
+          marks: [
+            Plot.boxY(boxPlotData, {
+              fx: d => `${d.time_hr}`,
+              x: "series_id",
+              y: boxValueField,
+              fill: "series_id",
+              fillOpacity: 0.4,
+              stroke: "series_id",
+              strokeWidth: 1.5
+            }),
+            Plot.dot(boxPlotData, {
+              fx: d => `${d.time_hr}`,
+              x: "series_id",
+              y: boxValueField,
+              fill: "series_id",
+              r: 3,
+              opacity: 0.7,
+              stroke: "#ffffff",
+              strokeWidth: 0.5,
+              title: tooltipTitle,
+              tip: true
+            })
+          ]
+        }))
+      } else {
+        plotWrap.appendChild(Plot.plot({
+          height: 420,
+          style: {
+            color: "#111827",
+            background: "#ffffff"
+          },
+          x: {label: "Time (hours)", tickValues: timeValues},
+          y: {label: yLabel},
+          color: {
+            legend: true,
+            label: seriesLabel,
+            domain: colorDomain,
+            range: colorRange
+          },
+          marks: [
+            Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
+            Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
+            ...(showErrorBars
+              ? [Plot.ruleX(errorBarData, {
+                  x: "time_hr",
+                  y1: d => d[plotYField] - d.plot_se,
+                  y2: d => d[plotYField] + d.plot_se,
+                  stroke: seriesKey,
+                  strokeOpacity: 0.6,
+                  strokeWidth: 1.2
+                })]
+              : []),
+            Plot.line(plottedSorted, {
+              x: "time_hr",
+              y: plotYField,
+              stroke: "series_id",
+              z: "trace_id",
+              strokeWidth: aggregationSel === "Individual replicates" ? 1.2 : 2.2,
+              strokeOpacity: aggregationSel === "Individual replicates" ? 0.6 : 1.0,
+              curve: "linear"
+            }),
+            Plot.dot(plottedSorted, {
+              x: "time_hr",
+              y: plotYField,
+              fill: "series_id",
+              r: 2.5,
+              title: tooltipTitle,
+              tip: true
+            })
+          ]
+        }))
+      }
+      return plotWrap
+    })()
 ```

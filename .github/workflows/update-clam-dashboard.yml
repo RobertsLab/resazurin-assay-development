@@ -3,12 +3,10 @@ name: Update clam dashboard
 on:
   push:
     branches: [main, clam-dashboard-dev]
-    paths:
-      - "data/clam/**/*.txt"
-      - "scripts/clam/**/*.R"
-      - "clam-dashboard.qmd"
-      - "_quarto.yml"
   workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: read
@@ -22,27 +20,30 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: rocker/tidyverse:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-
-      - name: Install R packages
+      - name: Install Quarto setup dependencies
         run: |
-          Rscript -e 'install.packages(c("dplyr","purrr","readr","stringr","tidyr","tibble","lubridate","ggplot2","knitr"), repos="https://cloud.r-project.org")'
+          apt-get update
+          apt-get install -y --no-install-recommends curl jq
+          rm -rf /var/lib/apt/lists/*
 
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Build clam dashboard data
+      - name: Render dashboard
         run: |
-          Rscript scripts/clam/build_clam_dashboard_data.R
+          quarto render clam-dashboard.qmd --output-dir docs
 
-      - name: Render site
+      - name: Preserve site root and custom domain
         run: |
-          quarto render clam-dashboard.qmd
+          mkdir -p docs
+          if [ -f index.html ]; then cp index.html docs/index.html; fi
+          if [ -f CNAME ]; then cp CNAME docs/CNAME; fi
 
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
