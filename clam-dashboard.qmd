@@ -843,13 +843,14 @@ viewof errorBarSel = Inputs.select(["Hide error bars", "Show error bars"], {
   value: "Hide error bars"
 })
 
-viewof plotStyleSel = Inputs.select(["Line plot", "Box plot", "AUC summary"], {
+viewof plotStyleSel = Inputs.select(["Line plot", "Box plot", "AUC summary", "Cumulative AUC over time"], {
   label: "Plot style",
   value: "Line plot"
 })
 
 boxPlotMode = plotStyleSel === "Box plot"
 aucPlotMode = plotStyleSel === "AUC summary"
+cumAucPlotMode = plotStyleSel === "Cumulative AUC over time"
 
 viewof aggregationSel = (boxPlotMode || aucPlotMode)
   ? Inputs.select(["All", ...effectiveSeriesValues], {
@@ -1135,6 +1136,45 @@ aucData = (() => {
   return out
 })()
 
+cumulativeAucData = (() => {
+  const byTrace = new Map()
+
+  for (const d of plottedSorted) {
+    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[plotYField])) continue
+    if (!byTrace.has(d.trace_id)) byTrace.set(d.trace_id, [])
+    byTrace.get(d.trace_id).push(d)
+  }
+
+  const out = []
+  for (const [traceId, rows] of byTrace.entries()) {
+    const sorted = rows.slice().sort((a, b) => a.time_hr - b.time_hr)
+    if (sorted.length === 0) continue
+
+    let runningAuc = 0
+    out.push({
+      ...sorted[0],
+      trace_id: traceId,
+      cumulative_auc: 0
+    })
+
+    for (let i = 1; i < sorted.length; i += 1) {
+      const prev = sorted[i - 1]
+      const cur = sorted[i]
+      const dt = cur.time_hr - prev.time_hr
+      if (Number.isFinite(dt) && dt > 0) {
+        runningAuc += dt * ((cur[plotYField] + prev[plotYField]) / 2)
+      }
+      out.push({
+        ...cur,
+        trace_id: traceId,
+        cumulative_auc: runningAuc
+      })
+    }
+  }
+
+  return out
+})()
+
 errorBarData = plottedSorted.filter(d =>
   d.rep_count > 1 &&
   Number.isFinite(d[plotYField]) &&
@@ -1203,7 +1243,9 @@ boxPlotData = dataViewSel === "Delta fluorescence"
 
 presentSeries = aucPlotMode
   ? [...new Set(aucData.map(d => String(d.series_id)))]
-  : [...new Set(plottedSorted.map(d => String(d.series_id)))]
+  : (cumAucPlotMode
+      ? [...new Set(cumulativeAucData.map(d => String(d.series_id)))]
+      : [...new Set(plottedSorted.map(d => String(d.series_id)))] )
 nonBlankKeys = presentSeries.filter(k => k !== "Blank").sort(naturalCompare)
 hasBlankSeries = presentSeries.includes("Blank")
 colorDomain = hasBlankSeries ? ["Blank", ...nonBlankKeys] : nonBlankKeys
@@ -1310,10 +1352,32 @@ aucTooltipTitle = d => {
   return parts.join("\n")
 }
 
+cumAucTooltipTitle = d => {
+  const parts = [
+    `Experiment: ${d.experiment_dir}`,
+    `Plate: ${d.plate_id}`,
+    `Sample: ${d.sample_id_group}`,
+    `Wells: ${d.well_id}`,
+    `Time: ${d.time_hr}h`,
+    `Cumulative AUC: ${formatAucValue(d.cumulative_auc)}`
+  ]
+
+  if (activeGroupCol) {
+    parts.unshift(`${activeGroupCol}: ${d[activeGroupCol]}`)
+  }
+
+  if (activeWithinGroupCol) {
+    parts.unshift(`${activeWithinGroupCol}: ${d[activeWithinGroupCol]}`)
+  }
+
+  return parts.join("\n")
+}
+
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
 measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && (!measurementReady || plottedSorted.length === 0)
 paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && (!paperMeasurementReady || plottedSorted.length === 0)
 aucUnavailable = aucPlotMode && aucData.length === 0
+cumAucUnavailable = cumAucPlotMode && cumulativeAucData.length === 0
 groupUnavailable = activeGroupCol !== null && filtered.length === 0
 
 groupUnavailable
@@ -1326,6 +1390,8 @@ groupUnavailable
     ? "Paper metabolism unavailable for this selection. Choose a numeric non-zero Measurement column and ensure selected wells have valid initial values."
   : aucUnavailable
     ? "AUC summary unavailable for this selection. At least two finite timepoints per trajectory are required after filtering."
+  : cumAucUnavailable
+    ? "Cumulative AUC over time unavailable for this selection. Ensure finite values exist for the selected metric."
   : (() => {
       const plotWrap = document.createElement("div")
       const subtitleWrap = document.createElement("div")
@@ -1391,6 +1457,43 @@ groupUnavailable
               stroke: "#ffffff",
               strokeWidth: 0.5,
               title: aucTooltipTitle,
+              tip: true
+            })
+          ]
+        }))
+      } else if (cumAucPlotMode) {
+        plotWrap.appendChild(Plot.plot({
+          height: 420,
+          style: {
+            color: "#111827",
+            background: "#ffffff"
+          },
+          x: {label: "Time (hours)", tickValues: timeValues},
+          y: {label: `Cumulative AUC (${yLabel})`},
+          color: {
+            legend: true,
+            label: seriesLabel,
+            domain: colorDomain,
+            range: colorRange
+          },
+          marks: [
+            Plot.gridX({stroke: "#d1d5db", strokeOpacity: 1}),
+            Plot.gridY({stroke: "#d1d5db", strokeOpacity: 1}),
+            Plot.line(cumulativeAucData, {
+              x: "time_hr",
+              y: "cumulative_auc",
+              stroke: "series_id",
+              z: "trace_id",
+              strokeWidth: activeAggregationMode === "Individual replicates" ? 1.2 : 2.2,
+              strokeOpacity: activeAggregationMode === "Individual replicates" ? 0.6 : 1.0,
+              curve: "linear"
+            }),
+            Plot.dot(cumulativeAucData, {
+              x: "time_hr",
+              y: "cumulative_auc",
+              fill: "series_id",
+              r: 2.5,
+              title: cumAucTooltipTitle,
               tip: true
             })
           ]
