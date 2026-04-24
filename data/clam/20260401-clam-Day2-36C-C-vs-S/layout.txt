@@ -1,0 +1,193 @@
+plate_ID	plate_well	is_blank	family_ID.group	sample_ID.group	treatment.group	width_mm.measurement	length_mm.measurement	weight_mg.measurement	area_mm2.measurement	imageJ_ID
+plate-A	A01	TRUE								
+plate-A	A02	TRUE								
+plate-A	A03	FALSE								
+plate-A	A04	FALSE								
+plate-A	A05	FALSE								
+plate-A	A06	FALSE								
+plate-A	A07	FALSE								
+plate-A	A08	FALSE								
+plate-A	A09	FALSE								
+plate-A	A10	FALSE								
+plate-A	A11	FALSE								
+plate-A	A12	FALSE								
+plate-B	B01	TRUE								
+plate-B	B02	TRUE								
+plate-B	B03	FALSE								
+plate-B	B04	FALSE								
+plate-B	B05	FALSE								
+plate-B	B06	FALSE								
+plate-B	B07	FALSE								
+plate-B	B08	FALSE								
+plate-B	B09	FALSE								
+plate-B	B10	FALSE								
+plate-B	B11	FALSE								
+plate-B	B12	FALSE								
+	C01									
+	C02									
+	C03									
+	C04									
+	C05									
+	C06									
+	C07									
+	C08									
+	C09									
+	C10									
+	C11									
+	C12									
+	D01									
+	D02									
+	D03									
+	D04									
+	D05									
+	D06									
+	D07									
+	D08									
+	D09									
+	D10									
+	D11									
+	D12									
+	E01									
+	E02									
+	E03									
+	E04									
+	E05									
+	E06									
+	E07									
+	E08									
+	E09									
+	E10									
+	E11									
+	E12									
+	F01									
+	F02									
+	F03									
+	F04									
+	F05									
+	F06									
+	F07									
+	F08									
+	F09									
+	F10									
+	F11									
+	F12									
+	G01									
+	G02									
+	G03									
+	G04									
+	G05									
+	G06									
+	G07									
+	G08									
+	G09									
+	G10									
+	G11									
+	G12									
+	H01									
+	H02									
+	H03									
+	H04									
+	H05									
+	H06									
+	H07									
+	H08									
+	H09									
+	H10									
+	H11									
+	H12									
+	A01									
+	A02									
+	A03									
+	A04									
+	A05									
+	A06									
+	A07									
+	A08									
+	A09									
+	A10									
+	A11									
+	A12									
+	B01									
+	B02									
+	B03									
+	B04									
+	B05									
+	B06									
+	B07									
+	B08									
+	B09									
+	B10									
+	B11									
+	B12									
+	C01									
+	C02									
+	C03									
+	C04									
+	C05									
+	C06									
+	C07									
+	C08									
+	C09									
+	C10									
+	C11									
+	C12									
+	D01									
+	D02									
+	D03									
+	D04									
+	D05									
+	D06									
+	D07									
+	D08									
+	D09									
+	D10									
+	D11									
+	D12									
+	E01									
+	E02									
+	E03									
+	E04									
+	E05									
+	E06									
+	E07									
+	E08									
+	E09									
+	E10									
+	E11									
+	E12									
+	F01									
+	F02									
+	F03									
+	F04									
+	F05									
+	F06									
+	F07									
+	F08									
+	F09									
+	F10									
+	F11									
+	F12									
+	G01									
+	G02									
+	G03									
+	G04									
+	G05									
+	G06									
+	G07									
+	G08									
+	G09									
+	G10									
+	G11									
+	G12									
+	H01									
+	H02									
+	H03									
+	H04									
+	H05									
+	H06									
+	H07									
+	H08									
+	H09									
+	H10									
+	H11									
+	H12									
