@@ -103,6 +103,15 @@ parse_filter_label <- function(lines) {
   NA_character_
 }
 
+parse_logical_flag <- function(x) {
+  vals <- toupper(trimws(as.character(x)))
+  case_when(
+    vals %in% c("TRUE", "T", "1", "YES", "Y") ~ TRUE,
+    vals %in% c("FALSE", "F", "0", "NO", "N") ~ FALSE,
+    TRUE ~ NA
+  )
+}
+
 read_layout_tabular <- function(layout_path) {
   for (delim in c(",", "\t", ";")) {
     tabular <- tryCatch(
@@ -233,6 +242,29 @@ parse_layout_txt <- function(layout_path) {
     measurement_cols <- names(tabular)[str_detect(names(tabular), "_measur(?:e)?ment$")]
     group_cols <- names(tabular)[str_detect(names(tabular), "_group$")]
 
+    exclude_col_candidates <- c("exclude_from_analysis", "exclude", "omit", "not_analyzed")
+    include_col_candidates <- c("include_in_analysis", "analyze", "include")
+    reason_col_candidates <- c("exclude_reason", "outlier_reason", "qc_reason", "analysis_note", "notes", "note")
+
+    exclude_col <- intersect(exclude_col_candidates, names(tabular))[1]
+    include_col <- intersect(include_col_candidates, names(tabular))[1]
+    reason_col <- intersect(reason_col_candidates, names(tabular))[1]
+
+    exclude_vals <- if (!is.na(exclude_col)) {
+      parse_logical_flag(tabular[[exclude_col]])
+    } else if (!is.na(include_col)) {
+      include_vals <- parse_logical_flag(tabular[[include_col]])
+      if_else(is.na(include_vals), NA, !include_vals)
+    } else {
+      rep(NA, nrow(tabular))
+    }
+
+    exclude_reason_vals <- if (!is.na(reason_col)) {
+      na_if(trimws(as.character(tabular[[reason_col]])), "")
+    } else {
+      rep(NA_character_, nrow(tabular))
+    }
+
     if ("plate_well" %in% names(tabular)) {
       plate_col <- if ("plate_id" %in% names(tabular)) "plate_id" else NA_character_
       sample_col <- if ("sample_id" %in% names(tabular)) "sample_id" else NA_character_
@@ -256,6 +288,8 @@ parse_layout_txt <- function(layout_path) {
         } else {
           NA
         },
+        exclude_from_analysis = exclude_vals,
+        exclude_reason = exclude_reason_vals,
         layout_status = "parsed_table",
         layout_raw = NA_character_
       ) %>%
@@ -301,6 +335,8 @@ parse_layout_txt <- function(layout_path) {
       size_mm = numeric(),
       weight_mg = numeric(),
       is_blank = logical(),
+      exclude_from_analysis = logical(),
+      exclude_reason = character(),
       layout_status = character(),
       layout_raw = character()
     ))
@@ -321,6 +357,8 @@ parse_layout_txt <- function(layout_path) {
         size_mm = NA_real_,
         weight_mg = NA_real_,
         is_blank = NA,
+        exclude_from_analysis = NA,
+        exclude_reason = NA_character_,
         layout_status = "parsed_explicit",
         layout_raw = paste(parts, collapse = "\t")
       )
@@ -358,6 +396,8 @@ parse_layout_txt <- function(layout_path) {
         size_mm = NA_real_,
         weight_mg = NA_real_,
         is_blank = NA,
+        exclude_from_analysis = NA,
+        exclude_reason = NA_character_,
         layout_status = "parsed_matrix",
         layout_raw = paste(parts, collapse = "\t")
       )
@@ -378,6 +418,8 @@ parse_layout_txt <- function(layout_path) {
     size_mm = NA_real_,
     weight_mg = NA_real_,
     is_blank = NA,
+    exclude_from_analysis = NA,
+    exclude_reason = NA_character_,
     layout_status = "unparsed",
     layout_raw = paste(lines, collapse = " || ")
   )
@@ -396,6 +438,8 @@ parse_layout_for_experiment <- function(experiment_dir_path) {
       size_mm = numeric(),
       weight_mg = numeric(),
       is_blank = logical(),
+      exclude_from_analysis = logical(),
+      exclude_reason = character(),
       layout_status = character(),
       layout_raw = character(),
       layout_file = character()
@@ -487,6 +531,8 @@ if (nrow(layout_data) == 0) {
       size_mm = NA_real_,
       weight_mg = NA_real_,
       is_blank = NA,
+      exclude_from_analysis = FALSE,
+      exclude_reason = NA_character_,
       layout_status = "missing",
       layout_file = NA_character_,
       layout_raw = NA_character_
@@ -523,6 +569,8 @@ if (nrow(layout_data) == 0) {
           any_of(dynamic_group_cols),
           any_of(measurement_cols),
           is_blank,
+          exclude_from_analysis,
+          exclude_reason,
           layout_status,
           layout_file,
           layout_raw
@@ -565,7 +613,12 @@ plate_data <- plate_data %>%
     is_blank = case_when(
       is.na(is_blank) ~ FALSE,
       TRUE ~ as.logical(is_blank)
-    )
+    ),
+    exclude_from_analysis = case_when(
+      is.na(exclude_from_analysis) ~ FALSE,
+      TRUE ~ as.logical(exclude_from_analysis)
+    ),
+    exclude_reason = na_if(trimws(as.character(exclude_reason)), "")
   )
 
 dup_flags <- plate_data %>%
@@ -644,6 +697,8 @@ plate_data_out <- plate_data %>%
     any_of(dynamic_group_cols),
     any_of(measurement_cols),
     is_blank,
+    exclude_from_analysis,
+    exclude_reason,
     layout_status,
     duplicate_timepoint,
     value,
@@ -756,6 +811,13 @@ validGroupValue = v => {
   if (normalized === "") return false
   const norm = normalized.toUpperCase()
   return !invalidGroupTokens.has(norm)
+}
+
+isExcluded = d => {
+  const raw = d.exclude_from_analysis
+  if (raw === true || raw === 1) return true
+  const txt = normalizeTextValue(raw).toUpperCase()
+  return ["TRUE", "T", "1", "YES", "Y"].includes(txt)
 }
 
 groupColumns = selectionRows.length > 0
@@ -894,6 +956,7 @@ activeAggregationMode = boxPlotMode
   : (aggregationSel === "Individual replicates" ? "Individual replicates" : "Mean"))
 
 filtered = selectionRows.filter(d =>
+candidateRows = selectionRows.filter(d =>
   (allWellsSelected || selectedWells.includes(d.well_id)) &&
   (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
   (activeGroupCol === null || activeGroupVal === "All" ||
@@ -904,6 +967,36 @@ filtered = selectionRows.filter(d =>
       ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[effectiveSeriesCol]))
       : true))
 )
+
+excludedCandidateRows = candidateRows.filter(isExcluded)
+filtered = candidateRows.filter(d => !isExcluded(d))
+
+excludedSummaries = (() => {
+  const byWell = new Map()
+  for (const d of excludedCandidateRows) {
+    const key = `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+    if (!byWell.has(key)) {
+      byWell.set(key, {
+        plate_id: d.plate_id,
+        well_id: d.well_id,
+        sample: normalizeTextValue(d.sample_label) || "(no sample label)",
+        reason: normalizeTextValue(d.exclude_reason) || "no reason provided"
+      })
+    }
+  }
+  return [...byWell.values()]
+    .sort((a, b) => (`${a.plate_id}|${a.well_id}`).localeCompare(`${b.plate_id}|${b.well_id}`, undefined, {numeric: true, sensitivity: "base"}))
+})()
+
+excludedCount = excludedSummaries.length
+excludedPreview = excludedSummaries
+  .slice(0, 8)
+  .map(d => `${d.plate_id}:${d.well_id} (${d.sample}; ${d.reason})`)
+  .join(", ")
+excludedOverflow = Math.max(0, excludedCount - 8)
+excludedMessage = excludedCount > 0
+  ? `Not analyzed (${excludedCount} well${excludedCount === 1 ? "" : "s"}): ${excludedPreview}${excludedOverflow > 0 ? `, +${excludedOverflow} more` : ""}`
+  : null
 
 groupingMessage = activeGroupCol === null
   ? "Grouping: Well (no group column selected)"
@@ -1379,9 +1472,12 @@ paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected mea
 aucUnavailable = aucPlotMode && aucData.length === 0
 cumAucUnavailable = cumAucPlotMode && cumulativeAucData.length === 0
 groupUnavailable = activeGroupCol !== null && filtered.length === 0
+excludedOnlyUnavailable = candidateRows.length > 0 && filtered.length === 0
 
 groupUnavailable
   ? `No data available for ${activeGroupCol} under the current selection. Choose a different Group column/value or adjust Experiment, Plate, and Well filters.`
+  : excludedOnlyUnavailable
+  ? "All wells matching this selection are marked exclude_from_analysis in layout metadata."
   : normalizedUnavailable
   ? "Normalized fluorescence unavailable for this selection. Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
   : measurementUnavailable
@@ -1410,6 +1506,14 @@ groupUnavailable
         plateLine.textContent = allPlateMessage
         plateLine.style.fontWeight = "400"
         subtitleWrap.appendChild(plateLine)
+      }
+
+      if (excludedMessage !== null) {
+        const excludedLine = document.createElement("div")
+        excludedLine.textContent = excludedMessage
+        excludedLine.style.fontWeight = "400"
+        excludedLine.style.color = "#7c2d12"
+        subtitleWrap.appendChild(excludedLine)
       }
 
       plotWrap.appendChild(subtitleWrap)
