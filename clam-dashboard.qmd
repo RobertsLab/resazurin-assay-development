@@ -774,6 +774,25 @@ viewof groupColSel = Inputs.select(
 
 activeGroupCol = groupColumns.includes(groupColSel) ? groupColSel : null
 
+noneWithinGroupOption = "None (no within-group split)"
+withinGroupColumns = activeGroupCol === null
+  ? []
+  : groupColumns.filter(
+      k => k !== activeGroupCol && selectionRows.some(d => validGroupValue(d[k]))
+    )
+
+viewof withinGroupColSel = Inputs.select(
+  [noneWithinGroupOption, ...withinGroupColumns],
+  {
+    label: "Within-group split",
+    value: noneWithinGroupOption,
+    disabled: activeGroupCol === null
+  }
+)
+
+activeWithinGroupCol = withinGroupColumns.includes(withinGroupColSel) ? withinGroupColSel : null
+effectiveSeriesCol = activeWithinGroupCol === null ? activeGroupCol : activeWithinGroupCol
+
 naturalCompare = (a, b) => `${a}`.localeCompare(`${b}`, undefined, {
   numeric: true,
   sensitivity: "base"
@@ -826,25 +845,38 @@ viewof plotStyleSel = Inputs.select(["Line plot", "Box plot"], {
 boxPlotMode = plotStyleSel === "Box plot"
 
 viewof aggregationSel = boxPlotMode
-  ? Inputs.select(["All", ...groupValues], {
+  ? Inputs.select(["All", ...effectiveSeriesValues], {
       label: "Group display",
       multiple: true,
       value: ["All"],
-      disabled: activeGroupCol === null
+      disabled: effectiveSeriesCol === null
     })
   : Inputs.radio(["Mean", "Individual replicates"], {
       label: "Group display",
       value: "Mean",
-      disabled: activeGroupCol === null
+      disabled: effectiveSeriesCol === null
     })
 
 activeGroupVal = groupValues.includes(groupValSel) ? groupValSel : "All"
 
+seriesRows = selectionRows.filter(d =>
+  (allWellsSelected || selectedWells.includes(d.well_id)) &&
+  (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
+  (activeGroupCol === null ||
+    activeGroupVal === "All" ||
+    normalizeTextValue(d[activeGroupCol]) === normalizeTextValue(activeGroupVal))
+)
+
+effectiveSeriesValues = effectiveSeriesCol === null
+  ? []
+  : [...new Set(seriesRows.map(d => normalizeTextValue(d[effectiveSeriesCol])).filter(validGroupValue))]
+      .sort(naturalCompare)
+
 rawGroupDisplaySel = Array.isArray(aggregationSel) ? aggregationSel : [aggregationSel]
-validGroupDisplaySel = rawGroupDisplaySel.filter(v => v === "All" || groupValues.includes(v))
+validGroupDisplaySel = rawGroupDisplaySel.filter(v => v === "All" || effectiveSeriesValues.includes(v))
 allGroupsDisplayed = validGroupDisplaySel.length === 0 || validGroupDisplaySel.includes("All")
 selectedDisplayGroups = allGroupsDisplayed
-  ? groupValues
+  ? effectiveSeriesValues
   : validGroupDisplaySel.filter(v => v !== "All")
 
 activeAggregationMode = boxPlotMode
@@ -854,15 +886,20 @@ activeAggregationMode = boxPlotMode
 filtered = selectionRows.filter(d =>
   (allWellsSelected || selectedWells.includes(d.well_id)) &&
   (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
-  (activeGroupCol === null ||
+  (activeGroupCol === null || activeGroupVal === "All" ||
+    normalizeTextValue(d[activeGroupCol]) === normalizeTextValue(activeGroupVal)) &&
+  (effectiveSeriesCol === null || validGroupValue(d[effectiveSeriesCol])) &&
+  (effectiveSeriesCol === null ||
     (boxPlotMode
-      ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[activeGroupCol]))
-      : activeGroupVal === "All" || normalizeTextValue(d[activeGroupCol]) === normalizeTextValue(activeGroupVal)))
+      ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[effectiveSeriesCol]))
+      : true))
 )
 
 groupingMessage = activeGroupCol === null
   ? "Grouping: Well (no group column selected)"
-  : `Grouping: ${activeGroupCol}`
+  : (activeWithinGroupCol === null
+      ? `Grouping: ${activeGroupCol}`
+      : `Grouping: ${activeWithinGroupCol} within ${activeGroupCol} = ${activeGroupVal}`)
 
 allPlateMessage = activePlateSel === "All"
   ? "Plate = All: data include wells from multiple plates. Select a specific plate for one trajectory per well."
@@ -887,23 +924,23 @@ yLabel = dataViewSel === "Delta fluorescence"
           : "Fluorescence"))
 
 isBlank = d => d.is_blank === true || d.is_blank === "TRUE" || d.is_blank === 1 || d.is_blank === "1"
-groupMode = activeGroupCol !== null
-groupValue = d => normalizeTextValue(d[activeGroupCol])
-seriesLabel = groupMode ? `Group (${activeGroupCol})` : "Well"
+groupMode = effectiveSeriesCol !== null
+groupValue = d => normalizeTextValue(d[effectiveSeriesCol])
+seriesLabel = groupMode ? `Group (${effectiveSeriesCol})` : "Well"
 sampleTraceKey = d => validGroupValue(d.sample_id_group)
   ? normalizeTextValue(d.sample_id_group)
   : `${d.well_id}`.trim()
 
 seriesKey = d => {
-  if (activeGroupCol === null) {
+  if (effectiveSeriesCol === null) {
     return isBlank(d) ? "Blank" : `${d.well_id}`.trim()
   }
 
-  const rawGroupVal = d[activeGroupCol]
+  const rawGroupVal = d[effectiveSeriesCol]
   const groupVal = validGroupValue(rawGroupVal) ? normalizeTextValue(rawGroupVal) : "NA"
   if (groupVal.toUpperCase() === "BLANK") return "Blank"
 
-  if (activeAggregationMode === "Individual replicates" && activeGroupCol !== null) {
+  if (activeAggregationMode === "Individual replicates" && effectiveSeriesCol !== null) {
     return `${groupVal}: ${sampleTraceKey(d)}`
   }
   return groupVal
@@ -934,7 +971,7 @@ traceKeyEffective = d => activePlateSel === "All"
 
 plottedEffective = (() => {
   const groups = new Map()
-  const showIndiv = activeAggregationMode === "Individual replicates" && activeGroupCol !== null
+  const showIndiv = activeAggregationMode === "Individual replicates" && effectiveSeriesCol !== null
 
   for (const d of plotted) {
     const indivSeriesKey = seriesKey(d)
@@ -1128,6 +1165,10 @@ tooltipTitle = d => {
 
   if (activeGroupCol) {
     parts.unshift(`${activeGroupCol}: ${d[activeGroupCol]}`)
+  }
+
+  if (activeWithinGroupCol) {
+    parts.unshift(`${activeWithinGroupCol}: ${d[activeWithinGroupCol]}`)
   }
 
   if (d.rep_count > 1) {
