@@ -39,3 +39,4 @@ rsconnect/
 output/oxygen-correlation/RespirationPlots/
 /.quarto/
 .venv-clam
+clam-dashboard_files/
