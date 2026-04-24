@@ -743,11 +743,18 @@ selectedWells = allWellsSelected
   ? wells
   : validWellSel.filter(w => w !== "All")
 
-nonEmptyString = v => v != null && `${v}`.trim() !== ""
+normalizeTextValue = v => {
+  if (v == null) return ""
+  const trimmed = `${v}`.trim()
+  return trimmed.replace(/^['\"](.*)['\"]$/, "$1").trim()
+}
+
+nonEmptyString = v => normalizeTextValue(v) !== ""
 invalidGroupTokens = new Set(["NA", "N/A", "NULL", "NAN", "<NA>"])
 validGroupValue = v => {
-  if (!nonEmptyString(v)) return false
-  const norm = `${v}`.trim().toUpperCase()
+  const normalized = normalizeTextValue(v)
+  if (normalized === "") return false
+  const norm = normalized.toUpperCase()
   return !invalidGroupTokens.has(norm)
 }
 
@@ -774,7 +781,7 @@ naturalCompare = (a, b) => `${a}`.localeCompare(`${b}`, undefined, {
 
 groupValues = activeGroupCol === null
   ? []
-  : [...new Set(selectionRows.map(d => `${d[activeGroupCol]}`.trim()).filter(validGroupValue))].sort(naturalCompare)
+  : [...new Set(selectionRows.map(d => normalizeTextValue(d[activeGroupCol])).filter(validGroupValue))].sort(naturalCompare)
 
 viewof groupValSel = Inputs.select(
   ["All", ...groupValues],
@@ -849,8 +856,8 @@ filtered = selectionRows.filter(d =>
   (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
   (activeGroupCol === null ||
     (boxPlotMode
-      ? allGroupsDisplayed || selectedDisplayGroups.includes(`${d[activeGroupCol]}`.trim())
-      : activeGroupVal === "All" || `${d[activeGroupCol]}` === `${activeGroupVal}`))
+      ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[activeGroupCol]))
+      : activeGroupVal === "All" || normalizeTextValue(d[activeGroupCol]) === normalizeTextValue(activeGroupVal)))
 )
 
 groupingMessage = activeGroupCol === null
@@ -881,10 +888,10 @@ yLabel = dataViewSel === "Delta fluorescence"
 
 isBlank = d => d.is_blank === true || d.is_blank === "TRUE" || d.is_blank === 1 || d.is_blank === "1"
 groupMode = activeGroupCol !== null
-groupValue = d => `${d[activeGroupCol]}`.trim()
+groupValue = d => normalizeTextValue(d[activeGroupCol])
 seriesLabel = groupMode ? `Group (${activeGroupCol})` : "Well"
-sampleTraceKey = d => nonEmptyString(d.sample_id_group)
-  ? `${d.sample_id_group}`.trim()
+sampleTraceKey = d => validGroupValue(d.sample_id_group)
+  ? normalizeTextValue(d.sample_id_group)
   : `${d.well_id}`.trim()
 
 seriesKey = d => {
@@ -893,7 +900,7 @@ seriesKey = d => {
   }
 
   const rawGroupVal = d[activeGroupCol]
-  const groupVal = nonEmptyString(rawGroupVal) ? `${rawGroupVal}`.trim() : "NA"
+  const groupVal = validGroupValue(rawGroupVal) ? normalizeTextValue(rawGroupVal) : "NA"
   if (groupVal.toUpperCase() === "BLANK") return "Blank"
 
   if (activeAggregationMode === "Individual replicates" && activeGroupCol !== null) {
@@ -930,11 +937,11 @@ plottedEffective = (() => {
   const showIndiv = activeAggregationMode === "Individual replicates" && activeGroupCol !== null
 
   for (const d of plotted) {
-    const sampleKey = sampleTraceKey(d)
+    const indivSeriesKey = seriesKey(d)
     const traceId = showIndiv
       ? (activePlateSel === "All"
-        ? `${d.experiment_dir}|${sampleKey}`
-        : `${d.experiment_dir}|${d.plate_id}|${sampleKey}`)
+        ? `${d.experiment_dir}|${indivSeriesKey}`
+        : `${d.experiment_dir}|${d.plate_id}|${indivSeriesKey}`)
       : traceKeyEffective(d)
 
     const key = `${traceId}|${d.time_hr}`
