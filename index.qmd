@@ -32,6 +32,11 @@ Available on bioRxiv at <http://doi.org/10.1101/2025.11.06.686367>.
 
 ------------------------------------------------------------------------
 
+# Clam Dashboard
+
+Explore auto-updated clam plate-reader time-series at the [Clam Dashboard](clam-dashboard.qmd).
+The dashboard rebuilds from files in `data/clam` and supports whole-plate and individual well views over time.
+
 # Summary
 
 This protocol uses a resazurin-based assay to measure individual

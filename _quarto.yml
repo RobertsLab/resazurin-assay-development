@@ -1,6 +1,12 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - index.qmd
+    - public-summary.qmd
+    - clam-dashboard.qmd
+    - reporting-summary.md
+    - figures/resazurin-applications-diagram.md
 
 website:
   # Omitting the title will hide it
@@ -8,6 +14,8 @@ website:
     left:
       - text: "Technical Documentation"
         file: index.qmd
+      - text: "Clam Dashboard"
+        file: clam-dashboard.qmd
       - text: "Public Summary"
         file: public-summary.qmd
     right:

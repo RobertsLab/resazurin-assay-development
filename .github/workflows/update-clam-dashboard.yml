@@ -1,0 +1,68 @@
+name: Update clam dashboard
+
+on:
+  push:
+    branches: [main, clam-dashboard-dev]
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: rocker/tidyverse:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Quarto setup dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends curl jq
+          rm -rf /var/lib/apt/lists/*
+
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render dashboard
+        run: |
+          quarto render clam-dashboard.qmd --output-dir docs
+
+      - name: Preserve site root and custom domain
+        run: |
+          mkdir -p docs
+          if [ -f index.html ]; then cp index.html docs/index.html; fi
+          if [ -f CNAME ]; then cp CNAME docs/CNAME; fi
+
+      - name: Setup Pages
+        if: github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
