@@ -668,7 +668,7 @@ if (nrow(dat) == 0) {
 
 - Interactive exploration of trajectories across experiments, plates, and wells.
 - Optional filtering by any non-empty `*.group` metadata column.
-- Four data views: raw fluorescence, delta fluorescence, blank-normalized fluorescence, and measurement-normalized fluorescence.
+- Five data views: raw fluorescence, delta fluorescence, blank-normalized fluorescence, measurement-normalized fluorescence, and paper-style metabolism.
 
 ## Interactive Explorer
 
@@ -826,7 +826,13 @@ viewof measurementColSel = Inputs.select(
 
 activeMeasurementCol = measurementColumns.includes(measurementColSel) ? measurementColSel : null
 
-viewModes = ["Raw fluorescence", "Delta fluorescence", "Normalized fluorescence", "Measurement-normalized fluorescence"]
+viewModes = [
+  "Raw fluorescence",
+  "Delta fluorescence",
+  "Normalized fluorescence",
+  "Measurement-normalized fluorescence",
+  "Paper metabolism (fold-change / selected measurement)"
+]
 viewof dataViewSel = Inputs.select(viewModes, {
   label: "Data view",
   value: "Raw fluorescence"
@@ -837,14 +843,15 @@ viewof errorBarSel = Inputs.select(["Hide error bars", "Show error bars"], {
   value: "Hide error bars"
 })
 
-viewof plotStyleSel = Inputs.select(["Line plot", "Box plot"], {
+viewof plotStyleSel = Inputs.select(["Line plot", "Box plot", "AUC summary"], {
   label: "Plot style",
   value: "Line plot"
 })
 
 boxPlotMode = plotStyleSel === "Box plot"
+aucPlotMode = plotStyleSel === "AUC summary"
 
-viewof aggregationSel = boxPlotMode
+viewof aggregationSel = (boxPlotMode || aucPlotMode)
   ? Inputs.select(["All", ...effectiveSeriesValues], {
       label: "Group display",
       multiple: true,
@@ -881,7 +888,9 @@ selectedDisplayGroups = allGroupsDisplayed
 
 activeAggregationMode = boxPlotMode
   ? "Mean"
-  : (aggregationSel === "Individual replicates" ? "Individual replicates" : "Mean")
+  : (aucPlotMode
+  ? "Mean"
+  : (aggregationSel === "Individual replicates" ? "Individual replicates" : "Mean"))
 
 filtered = selectionRows.filter(d =>
   (allWellsSelected || selectedWells.includes(d.well_id)) &&
@@ -890,7 +899,7 @@ filtered = selectionRows.filter(d =>
     normalizeTextValue(d[activeGroupCol]) === normalizeTextValue(activeGroupVal)) &&
   (effectiveSeriesCol === null || validGroupValue(d[effectiveSeriesCol])) &&
   (effectiveSeriesCol === null ||
-    (boxPlotMode
+    ((boxPlotMode || aucPlotMode)
       ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[effectiveSeriesCol]))
       : true))
 )
@@ -911,7 +920,11 @@ plotSubtitle = allPlateMessage === null
 
 yField = dataViewSel === "Normalized fluorescence"
       ? "normalized_value"
-  : (dataViewSel === "Measurement-normalized fluorescence" ? "measurement_normalized_value" : "value")
+  : (dataViewSel === "Measurement-normalized fluorescence"
+      ? "measurement_normalized_value"
+      : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+          ? "paper_metabolism_value"
+          : "value"))
 metricField = dataViewSel === "Delta fluorescence" ? "value" : yField
 plotYField = "plot_y"
 
@@ -921,7 +934,9 @@ yLabel = dataViewSel === "Delta fluorescence"
       ? "Normalized fluorescence (value / mean blank at same plate and time)"
       : (dataViewSel === "Measurement-normalized fluorescence"
           ? `Fluorescence normalized by ${activeMeasurementCol || "selected measurement"}`
-          : "Fluorescence"))
+      : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+        ? `Paper metabolism (script-style): fold-change / ${activeMeasurementCol || "selected measurement"}`
+        : "Fluorescence")))
 
 isBlank = d => d.is_blank === true || d.is_blank === "TRUE" || d.is_blank === 1 || d.is_blank === "1"
 groupMode = effectiveSeriesCol !== null
@@ -951,6 +966,38 @@ traceKey = d => groupMode
   : `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
 
 measurementReady = dataViewSel !== "Measurement-normalized fluorescence" || activeMeasurementCol !== null
+paperMeasurementReady = dataViewSel !== "Paper metabolism (fold-change / selected measurement)" || activeMeasurementCol !== null
+
+initialValueByWell = (() => {
+  const out = new Map()
+  const sorted = filtered
+    .filter(d => Number.isFinite(d.time_hr) && Number.isFinite(d.value))
+    .slice()
+    .sort((a, b) =>
+      a.experiment_dir.localeCompare(b.experiment_dir) ||
+      a.plate_id.localeCompare(b.plate_id) ||
+      a.well_id.localeCompare(b.well_id) ||
+      a.time_hr - b.time_hr
+    )
+
+  for (const d of sorted) {
+    const key = `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+    if (!out.has(key)) out.set(key, d.value)
+  }
+  return out
+})()
+
+paperMetabolismValue = d => {
+  const initKey = `${d.experiment_dir}|${d.plate_id}|${d.well_id}`
+  const initVal = initialValueByWell.get(initKey)
+  const measurementVal = activeMeasurementCol === null ? NaN : d[activeMeasurementCol]
+  if (!Number.isFinite(d.value) || !Number.isFinite(initVal) || initVal === 0 || !Number.isFinite(measurementVal) || measurementVal <= 0) {
+    return NaN
+  }
+
+  const foldChange = d.value / initVal
+  return foldChange / measurementVal
+}
 
 plottedBase = dataViewSel === "Measurement-normalized fluorescence"
   ? filtered.map(d => {
@@ -961,7 +1008,12 @@ plottedBase = dataViewSel === "Measurement-normalized fluorescence"
         measurement_normalized_value: valid ? d.value / denom : NaN
       }
     })
-  : filtered
+  : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+      ? filtered.map(d => ({
+          ...d,
+          paper_metabolism_value: paperMetabolismValue(d)
+        }))
+      : filtered)
 
 plotted = plottedBase.filter(d => Number.isFinite(d[metricField]))
 
@@ -1043,6 +1095,46 @@ plottedSorted = dataViewSel === "Delta fluorescence"
       plot_se: d.metric_se
     }))
 
+aucData = (() => {
+  const byTrace = new Map()
+
+  for (const d of plottedSorted) {
+    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[plotYField])) continue
+    if (!byTrace.has(d.trace_id)) byTrace.set(d.trace_id, [])
+    byTrace.get(d.trace_id).push(d)
+  }
+
+  const out = []
+  for (const [traceId, rows] of byTrace.entries()) {
+    const sorted = rows
+      .slice()
+      .sort((a, b) => a.time_hr - b.time_hr)
+
+    if (sorted.length < 2) continue
+
+    let aucValue = 0
+    for (let i = 1; i < sorted.length; i += 1) {
+      const prev = sorted[i - 1]
+      const cur = sorted[i]
+      const dt = cur.time_hr - prev.time_hr
+      if (!Number.isFinite(dt) || dt <= 0) continue
+      aucValue += dt * ((cur[plotYField] + prev[plotYField]) / 2)
+    }
+
+    if (!Number.isFinite(aucValue)) continue
+
+    const first = sorted[0]
+    out.push({
+      ...first,
+      trace_id: traceId,
+      auc_value: aucValue,
+      n_timepoints: sorted.length
+    })
+  }
+
+  return out
+})()
+
 errorBarData = plottedSorted.filter(d =>
   d.rep_count > 1 &&
   Number.isFinite(d[plotYField]) &&
@@ -1109,7 +1201,9 @@ boxPlotData = dataViewSel === "Delta fluorescence"
         [boxValueField]: d[metricField]
       }))
 
-presentSeries = [...new Set(plottedSorted.map(d => String(d.series_id)))]
+presentSeries = aucPlotMode
+  ? [...new Set(aucData.map(d => String(d.series_id)))]
+  : [...new Set(plottedSorted.map(d => String(d.series_id)))]
 nonBlankKeys = presentSeries.filter(k => k !== "Blank").sort(naturalCompare)
 hasBlankSeries = presentSeries.includes("Blank")
 colorDomain = hasBlankSeries ? ["Blank", ...nonBlankKeys] : nonBlankKeys
@@ -1146,7 +1240,24 @@ colorRange = hasBlankSeries
 
 formatMetricValue = v => {
   if (!Number.isFinite(v)) return "NA"
-  if (dataViewSel === "Measurement-normalized fluorescence" || dataViewSel === "Normalized fluorescence") {
+  if (
+    dataViewSel === "Measurement-normalized fluorescence" ||
+    dataViewSel === "Normalized fluorescence" ||
+    dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+  ) {
+    if (v !== 0 && Math.abs(v) < 0.01) return v.toExponential(2)
+    return v.toFixed(4)
+  }
+  return v.toFixed(2)
+}
+
+formatAucValue = v => {
+  if (!Number.isFinite(v)) return "NA"
+  if (
+    dataViewSel === "Measurement-normalized fluorescence" ||
+    dataViewSel === "Normalized fluorescence" ||
+    dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+  ) {
     if (v !== 0 && Math.abs(v) < 0.01) return v.toExponential(2)
     return v.toFixed(4)
   }
@@ -1178,8 +1289,31 @@ tooltipTitle = d => {
   return parts.join("\n")
 }
 
+aucTooltipTitle = d => {
+  const parts = [
+    `Experiment: ${d.experiment_dir}`,
+    `Plate: ${d.plate_id}`,
+    `Sample: ${d.sample_id_group}`,
+    `Wells: ${d.well_id}`,
+    `AUC: ${formatAucValue(d.auc_value)}`,
+    `Timepoints used: ${d.n_timepoints}`
+  ]
+
+  if (activeGroupCol) {
+    parts.unshift(`${activeGroupCol}: ${d[activeGroupCol]}`)
+  }
+
+  if (activeWithinGroupCol) {
+    parts.unshift(`${activeWithinGroupCol}: ${d[activeWithinGroupCol]}`)
+  }
+
+  return parts.join("\n")
+}
+
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
 measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && (!measurementReady || plottedSorted.length === 0)
+paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && (!paperMeasurementReady || plottedSorted.length === 0)
+aucUnavailable = aucPlotMode && aucData.length === 0
 groupUnavailable = activeGroupCol !== null && filtered.length === 0
 
 groupUnavailable
@@ -1188,6 +1322,10 @@ groupUnavailable
   ? "Normalized fluorescence unavailable for this selection. Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
   : measurementUnavailable
     ? "Measurement-normalized fluorescence unavailable for this selection. Ensure a non-zero numeric value exists in the selected *.measurement (or *.measurment) column for these wells."
+  : paperUnavailable
+    ? "Paper metabolism unavailable for this selection. Choose a numeric non-zero Measurement column and ensure selected wells have valid initial values."
+  : aucUnavailable
+    ? "AUC summary unavailable for this selection. At least two finite timepoints per trajectory are required after filtering."
   : (() => {
       const plotWrap = document.createElement("div")
       const subtitleWrap = document.createElement("div")
@@ -1211,7 +1349,53 @@ groupUnavailable
       plotWrap.appendChild(subtitleWrap)
       plotWrap.innerHTML = ""
       plotWrap.appendChild(subtitleWrap)
-      if (boxPlotMode) {
+      if (aucPlotMode) {
+        plotWrap.appendChild(Plot.plot({
+          height: 420,
+          style: {
+            color: "#111827",
+            background: "#ffffff"
+          },
+          x: {
+            type: "band",
+            domain: colorDomain,
+            label: seriesLabel
+          },
+          y: {
+            label: `AUC (${yLabel})`,
+            grid: true,
+            zero: true,
+            nice: true
+          },
+          color: {
+            legend: true,
+            label: seriesLabel,
+            domain: colorDomain,
+            range: colorRange
+          },
+          marks: [
+            Plot.boxY(aucData, {
+              x: "series_id",
+              y: "auc_value",
+              fill: "series_id",
+              fillOpacity: 0.4,
+              stroke: "series_id",
+              strokeWidth: 1.5
+            }),
+            Plot.dot(aucData, {
+              x: "series_id",
+              y: "auc_value",
+              fill: "series_id",
+              r: 3,
+              opacity: 0.75,
+              stroke: "#ffffff",
+              strokeWidth: 0.5,
+              title: aucTooltipTitle,
+              tip: true
+            })
+          ]
+        }))
+      } else if (boxPlotMode) {
         plotWrap.appendChild(Plot.plot({
           height: 420,
           style: {
