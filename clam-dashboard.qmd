@@ -1428,7 +1428,7 @@ groupUnavailable
             label: seriesLabel
           },
           y: {
-            label: `AUC (${yLabel})`,
+            label: "Metabolism (AUC)",
             grid: true,
             zero: true,
             nice: true
@@ -1469,7 +1469,7 @@ groupUnavailable
             background: "#ffffff"
           },
           x: {label: "Time (hours)", tickValues: timeValues},
-          y: {label: `Cumulative AUC (${yLabel})`},
+          y: {label: "Metabolism (Cumulative AUC)"},
           color: {
             legend: true,
             label: seriesLabel,
