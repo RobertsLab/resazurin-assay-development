@@ -955,7 +955,6 @@ activeAggregationMode = boxPlotMode
   ? "Mean"
   : (aggregationSel === "Individual replicates" ? "Individual replicates" : "Mean"))
 
-filtered = selectionRows.filter(d =>
 candidateRows = selectionRows.filter(d =>
   (allWellsSelected || selectedWells.includes(d.well_id)) &&
   (activeGroupCol === null || validGroupValue(d[activeGroupCol])) &&
