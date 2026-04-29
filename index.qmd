@@ -125,8 +125,8 @@ scale desired. This protocol was developed to detect a change in
 resazurin fluorescence within 5 hours in small seed (\<7mm) and larger
 seed (10-30mm). 
 
--   Small seed (\<7mm length): trials conducted in 96 well plates (300uL
-    volume in each well)
+-   Small seed (\<7mm length): trials conducted in 96 well plates (250uL
+  volume in each well)
 
 -   Medium seed (15-40 mm length): trials conducted in small plastic
     cups (20 mL volume) or 12, 24, or 48-well plates
@@ -163,15 +163,16 @@ each ingredient based on your experimental setup.
 // Input controls
 viewof plateType = Inputs.select(
   [
-    "96-well plate (35 mL per plate)",
-    "48-well plate (25 mL per plate)", 
-    "24-well plate (15 mL per plate)",
-    "12-well plate (10 mL per plate)",
+    "96-well plate (0.250 mL/well)",
+    "48-well plate (1 mL/well)",
+    "24-well plate (2 mL/well)",
+    "12-well plate (4 mL/well)",
+    "6-well plate (10 mL/well)",
     "Custom volume"
   ],
   {
     label: "Plate type:",
-    value: "96-well plate (35 mL per plate)"
+    value: "96-well plate (0.250 mL/well)"
   }
 )
 
@@ -195,15 +196,17 @@ viewof extraPercent = Inputs.range([0, 20], {
 })
 
 // Calculations
-plateVolumes = new Map([
-  ["96-well plate (35 mL per plate)", 35],
-  ["48-well plate (25 mL per plate)", 25],
-  ["24-well plate (15 mL per plate)", 15], 
-  ["12-well plate (10 mL per plate)", 10],
-  ["Custom volume", customVolume]
+plateConfigs = new Map([
+  ["96-well plate (0.250 mL/well)", { wells: 96, wellVolume: 0.250 }],
+  ["48-well plate (1 mL/well)", { wells: 48, wellVolume: 1 }],
+  ["24-well plate (2 mL/well)", { wells: 24, wellVolume: 2 }], 
+  ["12-well plate (4 mL/well)", { wells: 12, wellVolume: 4 }],
+  ["6-well plate (10 mL/well)", { wells: 6, wellVolume: 10 }],
+  ["Custom volume", { wells: null, wellVolume: null }]
 ])
 
-baseVolume = plateVolumes.get(plateType) * numPlates
+plateConfig = plateConfigs.get(plateType)
+baseVolume = plateType === "Custom volume" ? customVolume : plateConfig.wells * plateConfig.wellVolume
 totalVolume = baseVolume * (1 + extraPercent / 100)
 
 seawaterVolume = totalVolume * 0.98666
@@ -226,8 +229,9 @@ html`
   <h3 style="color: #2c3e50; margin-top: 0;">📋 Recipe for ${totalVolume.toFixed(1)} mL Working Solution</h3>
   
   <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
-    <p><strong>Experimental setup:</strong> ${numPlates} × ${plateType.split(' (')[0]} 
-    ${plateType !== "Custom volume" ? `(${baseVolume.toFixed(1)} mL base volume)` : ''}</p>
+    <p><strong>Experimental setup:</strong> ${numPlates} × ${plateType} 
+    ${plateType !== "Custom volume" ? `(${plateConfig.wells} wells × ${plateConfig.wellVolume.toFixed(3)} mL/well = ${baseVolume.toFixed(1)} mL per plate)` : ''}</p>
+    <p><strong>Per-well default:</strong> ${plateType === "Custom volume" ? "Custom volume" : `${plateConfig.wellVolume.toFixed(3)} mL per well`}</p>
     <p><strong>Safety margin:</strong> +${extraPercent}% extra volume</p>
   </div>
 
