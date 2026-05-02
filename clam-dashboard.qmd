@@ -1520,90 +1520,130 @@ groupUnavailable
       plotWrap.appendChild(subtitleWrap)
       const attachHoverEmphasis = plotNode => {
         let svg = null
-        if (plotNode && plotNode.tagName && plotNode.tagName.toLowerCase() === "svg") {
+        
+        if (plotNode?.tagName?.toLowerCase() === "svg") {
           svg = plotNode
         } else {
           const svgs = [...(plotNode?.querySelectorAll?.("svg") || [])]
           svg = svgs.sort(
-            (a, b) => b.querySelectorAll("path, line, polyline, rect, circle").length - a.querySelectorAll("path, line, polyline, rect, circle").length
+            (a, b) =>
+              b.querySelectorAll("path, line, polyline, rect, circle").length -
+              a.querySelectorAll("path, line, polyline, rect, circle").length
           )[0] || null
         }
+        
         if (!svg) return
-
-        const normalizeColor = c => {
-          const value = (c || "").replace(/\s+/g, "").toLowerCase()
-          if (value === "" || value === "none" || value === "transparent" || value === "rgba(0,0,0,0)") {
-            return ""
-          }
-          return value
-        }
+        
         const selectableMarks = () => {
-          const preferred = [...svg.querySelectorAll(
-            "g[aria-label='line'] path, g[aria-label='dot'] circle, g[aria-label='box'] path, g[aria-label='rule'] line"
-          )]
+          const preferred = [
+            ...svg.querySelectorAll(
+              "g[aria-label='line'] path, g[aria-label='dot'] circle, g[aria-label='box'] path, g[aria-label='rule'] line"
+            )
+          ]
+        
           if (preferred.length > 0) return preferred
+        
           return [...svg.querySelectorAll("path, line, polyline, rect, circle")]
         }
-
+        
         const bindListeners = (attempt = 0) => {
           const marks = selectableMarks()
+        
           if (marks.length < 2 && attempt < 20) {
             requestAnimationFrame(() => bindListeners(attempt + 1))
             return
           }
+        
           if (marks.length === 0) return
+        
           marks.forEach(node => {
-            node.style.pointerEvents = "all"
+            const tag = node.tagName.toLowerCase()
+        
+            // Make lines easier to hover directly
+            if (tag === "path" || tag === "line" || tag === "polyline") {
+              node.style.pointerEvents = "stroke"
+            } else {
+              node.style.pointerEvents = "all"
+            }
+          })
+        
+          const linePaths = marks.filter(node =>
+            node.tagName.toLowerCase() === "path" &&
+            node.closest("g[aria-label='line']") &&
+            Array.isArray(node.__data__)
+          )
+          const linePathSet = new Set(linePaths)
+          const pointToLinePath = new Map()
+
+          linePaths.forEach(path => {
+            path.__data__.forEach(index => {
+              pointToLinePath.set(index, path)
+            })
           })
 
-          const linePaths = marks.filter(node => node.tagName.toLowerCase() === "path" && Array.isArray(node.__data__))
-
-          const emphasizeSeries = seriesPath => {
-            const seriesIndices = new Set(seriesPath.__data__ || [])
-            marks.forEach(node => {
-              const tag = node.tagName.toLowerCase()
-              const match =
-                (tag === "path" && node === seriesPath) ||
-                (tag === "circle" && seriesIndices.has(node.__data__))
-              node.style.transition = "opacity 120ms, stroke-width 120ms"
-              node.style.opacity = match ? "1" : "0.12"
-              if (tag !== "circle") {
-                node.style.strokeWidth = match ? "3.5px" : ""
-              }
-            })
-          }
-
-          const resolveSeriesPath = node => {
+          const getSeriesIdentity = node => {
             if (!node) return null
-            const tag = node.tagName.toLowerCase()
-            if (tag === "path" && Array.isArray(node.__data__)) {
-              return node
-            }
-            if (tag === "circle" && typeof node.__data__ === "number") {
-              return linePaths.find(path => Array.isArray(path.__data__) && path.__data__.includes(node.__data__)) || null
-            }
-            return null
-          }
 
+            if (linePathSet.has(node)) return node
+
+            if (
+              node.closest("g[aria-label='dot']") &&
+              typeof node.__data__ === "number" &&
+              pointToLinePath.has(node.__data__)
+            ) {
+              return pointToLinePath.get(node.__data__)
+            }
+
+            const d = node.__data__
+            if (d?.trace_id != null) return `trace:${d.trace_id}`
+            if (d?.series_id != null) return `series:${d.series_id}`
+            if (d?.series != null) return `series:${d.series}`
+            if (d?.group != null) return `group:${d.group}`
+            if (d?.id != null) return `id:${d.id}`
+
+            return node
+          }
+        
           const clear = () => {
             marks.forEach(node => {
               node.style.opacity = ""
               node.style.strokeWidth = ""
-              node.style.transform = ""
+              node.style.filter = ""
             })
           }
-
-          const markSet = new Set(marks)
-          let lastKey = ""
-          const hoverPadding = 12
-          const pathHoverDistance = 18
-
+        
+          const emphasizeIdentity = identity => {
+            marks.forEach(node => {
+              const isMatch = getSeriesIdentity(node) === identity
+        
+              node.style.transition =
+                "opacity 120ms ease, stroke-width 120ms ease, filter 120ms ease"
+        
+              if (isMatch) {
+                node.style.opacity = "1"
+        
+                if (node.tagName.toLowerCase() !== "circle") {
+                  node.style.strokeWidth = "3.5px"
+                }
+        
+                node.style.filter = "brightness(1.1)"
+              } else {
+                node.style.opacity = "0.12"
+                node.style.filter = ""
+              }
+            })
+          }
+        
+          let lastIdentity = null
+        
           const distanceToPath = (node, x, y) => {
             const total = node.getTotalLength?.()
             const ctm = node.getScreenCTM?.()
-            if (!total || !ctm) return Infinity
-            const step = Math.max(4, total / 80)
+            if (!Number.isFinite(total) || total <= 0 || !ctm) return Infinity
+
+            const step = Math.max(2, total / 140)
             let best = Infinity
+
             for (let length = 0; length <= total; length += step) {
               const point = node.getPointAtLength(length)
               const screenX = ctm.a * point.x + ctm.c * point.y + ctm.e
@@ -1613,87 +1653,77 @@ groupUnavailable
               const score = dx * dx + dy * dy
               if (score < best) best = score
             }
+
             return best
           }
 
-          const findNearbyMark = (x, y) => {
+          const findHoveredNode = ev => {
+            // Direct hit test first
+            const direct = document
+              .elementsFromPoint(ev.clientX, ev.clientY)
+              .find(el => marks.includes(el))
+        
+            if (direct) return direct
+        
+            // Fallback proximity search for thin line strokes.
             let best = null
             let bestScore = Infinity
+            const hoverDistance = 10
+
             marks.forEach(node => {
               const tag = node.tagName.toLowerCase()
-              const rect = node.getBoundingClientRect()
-              const left = rect.left - hoverPadding
-              const right = rect.right + hoverPadding
-              const top = rect.top - hoverPadding
-              const bottom = rect.bottom + hoverPadding
-              if (x < left || x > right || y < top || y > bottom) return
-              let score = Infinity
-              if (tag === "path") {
-                score = distanceToPath(node, x, y)
-                if (score > pathHoverDistance * pathHoverDistance) return
-              } else {
-                const dx = Math.max(left - x, 0, x - right)
-                const dy = Math.max(top - y, 0, y - bottom)
-                score = dx * dx + dy * dy
+        
+              if (!["path", "line", "polyline"].includes(tag)) return
+        
+              const box = node.getBoundingClientRect()
+              if (
+                ev.clientX < box.left - hoverDistance ||
+                ev.clientX > box.right + hoverDistance ||
+                ev.clientY < box.top - hoverDistance ||
+                ev.clientY > box.bottom + hoverDistance
+              ) {
+                return
               }
-              if (score < bestScore) {
-                best = node
-                bestScore = score
-              }
+
+              const score = distanceToPath(node, ev.clientX, ev.clientY)
+              if (score > hoverDistance * hoverDistance || score >= bestScore) return
+
+              best = node
+              bestScore = score
             })
+        
             return best
           }
-
+        
           const onMove = ev => {
-            // Check current position and nearby positions for better line detection
-            const offsets = [
-              {x: 0, y: 0},
-              {x: 4, y: 0}, {x: -4, y: 0},
-              {x: 0, y: 4}, {x: 0, y: -4},
-              {x: 4, y: 4}, {x: -4, y: -4},
-              {x: 4, y: -4}, {x: -4, y: 4}
-            ]
-            
-            let hovered = null
-            for (const offset of offsets) {
-              const stack = document.elementsFromPoint(
-                ev.clientX + offset.x,
-                ev.clientY + offset.y
-              )
-              hovered = stack.find(el => markSet.has(el))
-              if (hovered) break
-            }
-
+            const hovered = findHoveredNode(ev)
+        
             if (!hovered) {
-              hovered = findNearbyMark(ev.clientX, ev.clientY)
-            }
-            
-            if (!hovered) {
-              if (lastKey !== "") {
-                lastKey = ""
+              if (lastIdentity !== null) {
+                lastIdentity = null
                 clear()
               }
               return
             }
-
-            const seriesPath = resolveSeriesPath(hovered)
-            if (!seriesPath) return
-
-            const nextKey = JSON.stringify(seriesPath.__data__ || [])
-            if (nextKey === lastKey) return
-            lastKey = nextKey
-            emphasizeSeries(seriesPath)
+        
+            const identity = getSeriesIdentity(hovered)
+        
+            if (identity === lastIdentity) return
+        
+            lastIdentity = identity
+            emphasizeIdentity(identity)
           }
-
+        
           svg.addEventListener("mousemove", onMove)
+        
           svg.addEventListener("mouseleave", () => {
-            lastKey = ""
+            lastIdentity = null
             clear()
           })
         }
-
+        
         requestAnimationFrame(() => bindListeners())
-      }
+        }
 
       if (aucPlotMode) {
         const plotNode = Plot.plot({
