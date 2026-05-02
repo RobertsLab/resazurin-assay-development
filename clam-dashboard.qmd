@@ -1518,7 +1518,7 @@ groupUnavailable
       plotWrap.appendChild(subtitleWrap)
       plotWrap.innerHTML = ""
       plotWrap.appendChild(subtitleWrap)
-      const attachHoverEmphasis = plotNode => {
+      const attachHoverEmphasis = (plotNode, markData = {}) => {
         let svg = null
         
         if (plotNode?.tagName?.toLowerCase() === "svg") {
@@ -1533,6 +1533,10 @@ groupUnavailable
         }
         
         if (!svg) return
+
+        const plotTag = plotNode?.tagName?.toLowerCase()
+        const plotRoot = plotTag === "svg" ? (svg.parentElement || svg) : (plotNode || svg.parentElement || svg)
+        const normalizeLegendText = value => `${value ?? ""}`.trim()
         
         const selectableMarks = () => {
           const preferred = [
@@ -1581,6 +1585,42 @@ groupUnavailable
             })
           })
 
+          const dataForNode = node => {
+            const label = node.closest("g[aria-label]")?.getAttribute("aria-label")
+            if (label === "line") return markData.line || markData.data || []
+            if (label === "dot") return markData.dot || markData.data || []
+            if (label === "box") return markData.box || markData.data || []
+            if (label === "rule") return markData.rule || markData.data || []
+            return markData.data || []
+          }
+
+          const firstBoundIndex = value => {
+            if (typeof value === "number") return value
+            if (Array.isArray(value)) return value.find(index => Number.isFinite(index))
+            return null
+          }
+
+          const datumForNode = node => {
+            const bound = node.__data__
+
+            if (bound && typeof bound === "object" && !Array.isArray(bound)) {
+              return bound
+            }
+
+            const index = firstBoundIndex(bound)
+            const data = dataForNode(node)
+            return Number.isFinite(index) ? data[index] : null
+          }
+
+          const getNodeSeriesId = node => {
+            const d = datumForNode(node)
+            if (d?.series_id != null) return String(d.series_id)
+            if (d?.series != null) return String(d.series)
+            if (d?.group != null) return String(d.group)
+            if (d?.id != null) return String(d.id)
+            return null
+          }
+
           const getSeriesIdentity = node => {
             if (!node) return null
 
@@ -1594,7 +1634,7 @@ groupUnavailable
               return pointToLinePath.get(node.__data__)
             }
 
-            const d = node.__data__
+            const d = datumForNode(node)
             if (d?.trace_id != null) return `trace:${d.trace_id}`
             if (d?.series_id != null) return `series:${d.series_id}`
             if (d?.series != null) return `series:${d.series}`
@@ -1610,11 +1650,15 @@ groupUnavailable
               node.style.strokeWidth = ""
               node.style.filter = ""
             })
+            legendItems().forEach(item => {
+              item.style.opacity = ""
+              item.style.filter = ""
+            })
           }
         
-          const emphasizeIdentity = identity => {
+          const emphasizeIdentities = identities => {
             marks.forEach(node => {
-              const isMatch = getSeriesIdentity(node) === identity
+              const isMatch = identities.has(getSeriesIdentity(node))
         
               node.style.transition =
                 "opacity 120ms ease, stroke-width 120ms ease, filter 120ms ease"
@@ -1633,8 +1677,40 @@ groupUnavailable
               }
             })
           }
+
+          const identitiesForSeries = seriesId => {
+            const identities = new Set()
+
+            marks.forEach(node => {
+              if (getNodeSeriesId(node) === seriesId) {
+                identities.add(getSeriesIdentity(node))
+              }
+            })
+
+            return identities
+          }
+
+          const legendItems = () => [
+            ...plotRoot.querySelectorAll(
+              "span[class*='-swatch'], label[class*='-swatch'], [style*='--color']"
+            )
+          ].filter(item => normalizeLegendText(item.textContent) !== "")
+
+          const closestLegendItem = target => {
+            const items = legendItems()
+            return items.find(item => item === target || item.contains(target)) || null
+          }
+
+          const emphasizeLegendItem = activeItem => {
+            legendItems().forEach(item => {
+              item.style.transition = "opacity 120ms ease, filter 120ms ease"
+              item.style.opacity = item === activeItem ? "1" : "0.35"
+              item.style.filter = item === activeItem ? "brightness(1.05)" : ""
+            })
+          }
         
           let lastIdentity = null
+          let lastLegendSeries = null
         
           const distanceToPath = (node, x, y) => {
             const total = node.getTotalLength?.()
@@ -1711,7 +1787,8 @@ groupUnavailable
             if (identity === lastIdentity) return
         
             lastIdentity = identity
-            emphasizeIdentity(identity)
+            lastLegendSeries = null
+            emphasizeIdentities(new Set([identity]))
           }
         
           svg.addEventListener("mousemove", onMove)
@@ -1719,6 +1796,39 @@ groupUnavailable
           svg.addEventListener("mouseleave", () => {
             lastIdentity = null
             clear()
+          })
+
+          legendItems().forEach(item => {
+            item.style.cursor = "pointer"
+          })
+
+          plotRoot.addEventListener("mousemove", ev => {
+            const item = closestLegendItem(ev.target)
+            if (!item) {
+              if (lastLegendSeries !== null) {
+                lastLegendSeries = null
+                clear()
+              }
+              return
+            }
+
+            const seriesId = normalizeLegendText(item.textContent)
+            const identities = identitiesForSeries(seriesId)
+
+            if (identities.size === 0) return
+            if (seriesId === lastLegendSeries) return
+
+            lastIdentity = null
+            lastLegendSeries = seriesId
+            emphasizeIdentities(identities)
+            emphasizeLegendItem(item)
+          })
+
+          plotRoot.addEventListener("mouseleave", () => {
+            if (lastLegendSeries !== null) {
+              lastLegendSeries = null
+              clear()
+            }
           })
         }
         
@@ -1772,7 +1882,7 @@ groupUnavailable
           ]
         })
         plotWrap.appendChild(plotNode)
-        attachHoverEmphasis(plotNode)
+        attachHoverEmphasis(plotNode, {data: aucData, box: aucData, dot: aucData})
       } else if (cumAucPlotMode) {
         const plotNode = Plot.plot({
           height: 420,
@@ -1811,7 +1921,7 @@ groupUnavailable
           ]
         })
         plotWrap.appendChild(plotNode)
-        attachHoverEmphasis(plotNode)
+        attachHoverEmphasis(plotNode, {data: cumulativeAucData, line: cumulativeAucData, dot: cumulativeAucData})
       } else if (boxPlotMode) {
         const plotNode = Plot.plot({
           height: 420,
@@ -1866,7 +1976,7 @@ groupUnavailable
           ]
         })
         plotWrap.appendChild(plotNode)
-        attachHoverEmphasis(plotNode)
+        attachHoverEmphasis(plotNode, {data: boxPlotData, box: boxPlotData, dot: boxPlotData})
       } else {
         const plotNode = Plot.plot({
           height: 420,
@@ -1915,7 +2025,7 @@ groupUnavailable
           ]
         })
         plotWrap.appendChild(plotNode)
-        attachHoverEmphasis(plotNode)
+        attachHoverEmphasis(plotNode, {data: plottedSorted, line: plottedSorted, dot: plottedSorted, rule: errorBarData})
       }
       return plotWrap
     })()
