@@ -1287,6 +1287,152 @@ aucData = (() => {
   return out
 })()
 
+aucStatsContext = (() => {
+  if (!aucPlotMode || !activeGroupCol || activeWithinGroupCol !== null || activeAggregationMode === "Individual replicates") {
+    return {
+      relevantStats: [],
+      pairwiseStats: [],
+      significantPairs: [],
+      kwBest: null,
+      analysisUnitType: "unknown",
+      aucSignificanceLabels: [],
+      aucSignificanceNote: null,
+      formatP: v => Number.isFinite(Number(v)) ? (Number(v) < 0.001 ? Number(v).toExponential(2) : Number(v).toFixed(3)) : "NA"
+    }
+  }
+
+  const groupMap = new Map()
+  for (const row of aucData) {
+    const groupId = normalizeTextValue(row.series_id)
+    if (groupId === "" || groupId.toUpperCase() === "BLANK") continue
+    if (!groupMap.has(groupId)) groupMap.set(groupId, [])
+    groupMap.get(groupId).push(Number(row.auc_value))
+  }
+
+  const groupIds = [...groupMap.keys()].sort(naturalCompare)
+  const groupValues = groupIds.map(groupId => groupMap.get(groupId) || [])
+  const omnibus = kruskalWallisTest(groupValues)
+
+  const pairwiseStats = []
+  for (let i = 0; i < groupIds.length; i += 1) {
+    for (let j = i + 1; j < groupIds.length; j += 1) {
+      const group1 = groupIds[i]
+      const group2 = groupIds[j]
+      const test = wilcoxonRankSumTest(groupMap.get(group1) || [], groupMap.get(group2) || [])
+      pairwiseStats.push({
+        comparison: "Wilcoxon",
+        group1,
+        group2,
+        statistic: test.statistic,
+        p_value: test.p_value,
+        p_adj: test.p_value,
+        n1: (groupMap.get(group1) || []).length,
+        n2: (groupMap.get(group2) || []).length,
+        median1: d3.median(groupMap.get(group1) || []),
+        median2: d3.median(groupMap.get(group2) || []),
+        n_wells1: (groupMap.get(group1) || []).length,
+        n_wells2: (groupMap.get(group2) || []).length,
+        n_timepoints1: (groupMap.get(group1) || []).length,
+        n_timepoints2: (groupMap.get(group2) || []).length
+      })
+    }
+  }
+
+  const orderedPairs = pairwiseStats
+    .map((row, index) => ({row, index}))
+    .sort((a, b) => a.row.p_value - b.row.p_value)
+  orderedPairs.forEach((item, rank) => {
+    item.row.p_adj = Math.min(1, item.row.p_value * pairwiseStats.length / (rank + 1))
+  })
+
+  const significantPairs = pairwiseStats.filter(r => Number.isFinite(Number(r.p_adj)) && Number(r.p_adj) <= 0.05)
+  const significantPairSet = new Set(significantPairs.map(r => [r.group1, r.group2].sort(naturalCompare).join("||")))
+  const significantDegree = new Map(groupIds.map(groupId => [groupId, 0]))
+  significantPairs.forEach(row => {
+    significantDegree.set(row.group1, (significantDegree.get(row.group1) || 0) + 1)
+    significantDegree.set(row.group2, (significantDegree.get(row.group2) || 0) + 1)
+  })
+
+  const orderedSeries = groupIds.slice().sort((a, b) => {
+    const degreeA = significantDegree.get(a) || 0
+    const degreeB = significantDegree.get(b) || 0
+    if (degreeA !== degreeB) return degreeB - degreeA
+    const medianA = d3.median(groupMap.get(a) || []) ?? Number.POSITIVE_INFINITY
+    const medianB = d3.median(groupMap.get(b) || []) ?? Number.POSITIVE_INFINITY
+    if (medianA !== medianB) return medianA - medianB
+    return naturalCompare(a, b)
+  })
+
+  const letterGroups = []
+  const lettersBySeries = new Map(groupIds.map(groupId => [groupId, []]))
+  for (const seriesId of orderedSeries) {
+    const compatibleLetters = letterGroups.filter(letterGroup =>
+      [...letterGroup.members].every(member => !significantPairSet.has([seriesId, member].sort(naturalCompare).join("||")))
+    )
+
+    if (compatibleLetters.length === 0) {
+      const label = significanceLabelForIndex(letterGroups.length)
+      letterGroups.push({label, members: new Set([seriesId])})
+      lettersBySeries.get(seriesId)?.push(label)
+    } else {
+      compatibleLetters.forEach(letterGroup => {
+        letterGroup.members.add(seriesId)
+        lettersBySeries.get(seriesId)?.push(letterGroup.label)
+      })
+    }
+  }
+
+  const aucMax = d3.max(aucData, d => Number(d.auc_value))
+  const aucMin = d3.min(aucData, d => Number(d.auc_value))
+  const aucSpan = Number.isFinite(aucMax) && Number.isFinite(aucMin) ? Math.max(aucMax - aucMin, Math.abs(aucMax) || 1) : 1
+  const labelY = Number.isFinite(aucMax) ? aucMax + aucSpan * 0.08 : 1
+  const labelStep = aucSpan * 0.018
+
+  return {
+    relevantStats: [
+      {
+        comparison: "Kruskal-Wallis",
+        group1: null,
+        group2: null,
+        statistic: omnibus.statistic,
+        p_value: omnibus.p_value,
+        p_adj: omnibus.p_value,
+        n1: null,
+        n2: null,
+        median1: null,
+        median2: null,
+        n_wells1: null,
+        n_wells2: null,
+        n_timepoints1: null,
+        n_timepoints2: null
+      },
+      ...pairwiseStats
+    ],
+    pairwiseStats,
+    significantPairs,
+    kwBest: {
+      comparison: "Kruskal-Wallis",
+      statistic: omnibus.statistic,
+      p_value: omnibus.p_value,
+      p_adj: omnibus.p_value
+    },
+    analysisUnitType: "sample_id / well",
+    aucSignificanceLabels: orderedSeries.map((seriesId, index) => ({
+      series_id: seriesId,
+      sig_label: (lettersBySeries.get(seriesId) || []).join(""),
+      label_y: labelY + index * labelStep
+    })),
+    aucSignificanceNote: `Significance notation: groups sharing a letter are not significantly different after BH-adjusted pairwise Wilcoxon tests (p_adj > 0.05). Different letters indicate at least one significant pairwise difference (p_adj <= 0.05).`,
+    formatP: v => {
+      if (v == null || v === "" || Number.isNaN(Number(v))) return "NA"
+      const n = Number(v)
+      if (!Number.isFinite(n)) return "NA"
+      if (n < 0.001) return n.toExponential(2)
+      return n.toFixed(3)
+    }
+  }
+})()
+
 cumulativeAucData = (() => {
   const byTrace = new Map()
 
@@ -1458,6 +1604,105 @@ formatAucValue = v => {
   return v.toFixed(2)
 }
 
+significanceLabelForIndex = index => {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz"
+  let n = index
+  let label = ""
+
+  do {
+    label = alphabet[n % 26] + label
+    n = Math.floor(n / 26) - 1
+  } while (n >= 0)
+
+  return label
+}
+
+erfApprox = x => {
+  const sign = x < 0 ? -1 : 1
+  const absX = Math.abs(x)
+  const a1 = 0.254829592
+  const a2 = -0.284496736
+  const a3 = 1.421413741
+  const a4 = -1.453152027
+  const a5 = 1.061405429
+  const p = 0.3275911
+  const t = 1 / (1 + p * absX)
+  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX)
+  return sign * y
+}
+
+normalCdf = x => 0.5 * (1 + erfApprox(x / Math.SQRT2))
+
+rankValues = values => {
+  const indexed = values.map((value, index) => ({value, index})).sort((a, b) => a.value - b.value)
+  const ranks = Array(values.length).fill(NaN)
+
+  let i = 0
+  while (i < indexed.length) {
+    let j = i + 1
+    while (j < indexed.length && indexed[j].value === indexed[i].value) j += 1
+    const avgRank = (i + j + 1) / 2
+    for (let k = i; k < j; k += 1) {
+      ranks[indexed[k].index] = avgRank
+    }
+    i = j
+  }
+
+  return ranks
+}
+
+kruskalWallisTest = groups => {
+  const allValues = []
+  const groupSizes = []
+  for (const group of groups) {
+    const clean = group.filter(v => Number.isFinite(v))
+    if (clean.length === 0) continue
+    allValues.push(...clean)
+    groupSizes.push(clean.length)
+  }
+
+  if (groupSizes.length < 2 || allValues.length < 2) {
+    return {statistic: NaN, p_value: NaN}
+  }
+
+  const ranks = rankValues(allValues)
+  let offset = 0
+  let hSum = 0
+  for (const size of groupSizes) {
+    const slice = ranks.slice(offset, offset + size)
+    const rankSum = d3.sum(slice)
+    hSum += (rankSum * rankSum) / size
+    offset += size
+  }
+
+  const n = allValues.length
+  const k = groupSizes.length
+  const h = (12 / (n * (n + 1))) * hSum - 3 * (n + 1)
+  const df = k - 1
+  const p = df > 0 ? Math.min(1, Math.exp(-0.5 * Math.max(h, 0))) : NaN
+  return {statistic: h, p_value: p}
+}
+
+wilcoxonRankSumTest = (values1, values2) => {
+  const group1 = values1.filter(v => Number.isFinite(v))
+  const group2 = values2.filter(v => Number.isFinite(v))
+  if (group1.length === 0 || group2.length === 0) {
+    return {statistic: NaN, p_value: NaN}
+  }
+
+  const combined = [...group1, ...group2]
+  const ranks = rankValues(combined)
+  const n1 = group1.length
+  const n2 = group2.length
+  const rankSum1 = d3.sum(ranks.slice(0, n1))
+  const u1 = rankSum1 - (n1 * (n1 + 1)) / 2
+  const meanU = (n1 * n2) / 2
+  const sdU = Math.sqrt((n1 * n2 * (n1 + n2 + 1)) / 12)
+  const z = sdU > 0 ? (u1 - meanU) / sdU : 0
+  const p = Math.min(1, 2 * (1 - normalCdf(Math.abs(z))))
+  return {statistic: u1, p_value: p}
+}
+
 aucMetricDescription = aucFallbackActive
   ? "normalized fluorescence (fallback; no measurement column selected)"
   : (dataViewSel === "Delta fluorescence"
@@ -1596,6 +1841,14 @@ groupUnavailable
         aucLine.style.fontWeight = "400"
         aucLine.style.color = "#1f2937"
         subtitleWrap.appendChild(aucLine)
+
+        if (aucStatsContext.aucSignificanceNote !== null) {
+          const sigLine = document.createElement("div")
+          sigLine.textContent = aucStatsContext.aucSignificanceNote
+          sigLine.style.fontWeight = "400"
+          sigLine.style.color = "#1f2937"
+          subtitleWrap.appendChild(sigLine)
+        }
 
         if (aucFallbackActive) {
           const fallbackLine = document.createElement("div")
@@ -1985,11 +2238,107 @@ groupUnavailable
               strokeWidth: 0.5,
               title: aucTooltipTitle,
               tip: true
-            })
+            }),
+            ...(aucStatsContext.aucSignificanceLabels.length > 0
+              ? [Plot.text(aucStatsContext.aucSignificanceLabels, {
+                  x: "series_id",
+                  y: "label_y",
+                  text: "sig_label",
+                  fill: "#111827",
+                  fontWeight: 700,
+                  textAnchor: "middle",
+                  dy: -6
+                })]
+              : [])
           ]
         })
         plotWrap.appendChild(plotNode)
         attachHoverEmphasis(plotNode, {data: aucData, box: aucData, dot: aucData})
+
+        const statsWrap = document.createElement("div")
+        statsWrap.style.marginTop = "0.6rem"
+
+        const statsHeader = document.createElement("div")
+        statsHeader.style.fontWeight = "600"
+        statsHeader.style.marginBottom = "0.35rem"
+        statsHeader.style.marginTop = "1rem"
+        statsHeader.style.fontSize = "1rem"
+        statsHeader.textContent = "Statistical Comparisons (AUC by Group)"
+        statsWrap.appendChild(statsHeader)
+
+        const statDesc = document.createElement("div")
+        statDesc.style.marginBottom = "0.6rem"
+        statDesc.style.color = "#374151"
+        statDesc.style.fontSize = "0.92rem"
+        statDesc.style.lineHeight = "1.4"
+        statDesc.innerHTML = `<strong>Tests computed:</strong> Kruskal-Wallis (omnibus test across all groups), and pairwise Wilcoxon rank-sum tests with Benjamini–Hochberg p-value adjustment (blanks excluded). The replicate unit is <code>sample_id</code> when available; otherwise the analysis falls back to wells. The summary below answers whether the groups differ overall, and which group pairs differ after adjustment.`
+        statsWrap.appendChild(statDesc)
+
+        if (aucStatsContext.relevantStats.length === 0) {
+          const none = document.createElement("div")
+          none.textContent = "No statistical results available for the current selection."
+          none.style.color = "#6b7280"
+          statsWrap.appendChild(none)
+        } else {
+          const summary = document.createElement("div")
+          summary.style.marginBottom = "0.55rem"
+          summary.style.padding = "0.6rem 0.75rem"
+          summary.style.border = "1px solid #e5e7eb"
+          summary.style.borderRadius = "8px"
+          summary.style.background = "#f9fafb"
+          summary.style.color = "#111827"
+          summary.style.fontSize = "0.92rem"
+          summary.style.lineHeight = "1.45"
+
+          const kwText = aucStatsContext.kwBest
+            ? `Omnibus result: ${Number(aucStatsContext.kwBest.p_adj) < 0.05 ? "groups differ" : "no evidence that groups differ"} (Kruskal-Wallis p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_value)}, BH-adjusted p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_adj)}).`
+            : "Omnibus result: unavailable for this selection."
+
+          const sigPairText = aucStatsContext.significantPairs.length > 0
+            ? `Pairwise differences after BH correction: ${aucStatsContext.significantPairs.map(r => `${r.group1} vs ${r.group2} (p_adj = ${aucStatsContext.formatP(r.p_adj)})`).join(", ")}.`
+            : "Pairwise differences after BH correction: none detected at the 0.05 threshold."
+
+          summary.innerHTML = `<strong>${kwText}</strong><br>${sigPairText}<br><span style="color:#6b7280">Analysis unit: ${aucStatsContext.analysisUnitType}.</span>`
+          statsWrap.appendChild(summary)
+
+          const tbl = document.createElement("table")
+          tbl.style.borderCollapse = "collapse"
+          tbl.style.width = "100%"
+          tbl.style.marginTop = "0.25rem"
+
+          const hdr = document.createElement("tr")
+          ;["Test", "Group 1", "Group 2", "p (raw)", "p (adj)", "n1", "n2", "median1", "median2"].forEach(h => {
+            const th = document.createElement("th")
+            th.textContent = h
+            th.style.textAlign = "left"
+            th.style.padding = "6px 8px"
+            th.style.borderBottom = "1px solid #e5e7eb"
+            th.style.fontWeight = "600"
+            hdr.appendChild(th)
+          })
+          tbl.appendChild(hdr)
+
+          aucStatsContext.relevantStats.forEach(r => {
+            const tr = document.createElement("tr")
+            if (Number.isFinite(Number(r.p_adj)) && Number(r.p_adj) <= 0.05) {
+              tr.style.fontWeight = "700"
+            }
+            const values = [r.comparison, r.group1 || "-", r.group2 || "-", aucStatsContext.formatP(r.p_value), aucStatsContext.formatP(r.p_adj), r.n1 || "-", r.n2 || "-", (r.median1 != null ? Number(r.median1).toFixed(4) : "-"), (r.median2 != null ? Number(r.median2).toFixed(4) : "-")]
+            values.forEach(v => {
+              const td = document.createElement("td")
+              td.textContent = v
+              td.style.padding = "6px 8px"
+              td.style.borderBottom = "1px solid #f3f4f6"
+              td.style.fontSize = "0.9rem"
+              tr.appendChild(td)
+            })
+            tbl.appendChild(tr)
+          })
+
+          statsWrap.appendChild(tbl)
+        }
+
+        plotWrap.appendChild(statsWrap)
       } else if (cumAucPlotMode) {
         const plotNode = Plot.plot({
           height: 420,
