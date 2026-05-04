@@ -862,7 +862,12 @@ naturalCompare = (a, b) => `${a}`.localeCompare(`${b}`, undefined, {
 
 groupValues = activeGroupCol === null
   ? []
-  : [...new Set(selectionRows.map(d => normalizeTextValue(d[activeGroupCol])).filter(validGroupValue))].sort(naturalCompare)
+  : [...new Set(
+      selectionRows
+        .filter(d => !isBlank(d))
+        .map(d => normalizeTextValue(d[activeGroupCol]))
+        .filter(validGroupValue)
+    )].sort(naturalCompare)
 
 viewof groupValSel = Inputs.select(
   ["All", ...groupValues],
@@ -939,7 +944,12 @@ seriesRows = selectionRows.filter(d =>
 
 effectiveSeriesValues = effectiveSeriesCol === null
   ? []
-  : [...new Set(seriesRows.map(d => normalizeTextValue(d[effectiveSeriesCol])).filter(validGroupValue))]
+  : [...new Set(
+      seriesRows
+        .filter(d => !isBlank(d))
+        .map(d => normalizeTextValue(d[effectiveSeriesCol]))
+        .filter(validGroupValue)
+    )]
       .sort(naturalCompare)
 
 rawGroupDisplaySel = Array.isArray(aggregationSel) ? aggregationSel : [aggregationSel]
@@ -963,7 +973,9 @@ candidateRows = selectionRows.filter(d =>
   (effectiveSeriesCol === null || validGroupValue(d[effectiveSeriesCol])) &&
   (effectiveSeriesCol === null ||
     ((boxPlotMode || aucPlotMode)
-      ? allGroupsDisplayed || selectedDisplayGroups.includes(normalizeTextValue(d[effectiveSeriesCol]))
+      ? (allGroupsDisplayed
+          ? effectiveSeriesValues.includes(normalizeTextValue(d[effectiveSeriesCol]))
+          : selectedDisplayGroups.includes(normalizeTextValue(d[effectiveSeriesCol])))
       : true))
 )
 
@@ -1194,23 +1206,19 @@ aucFallbackActive = (aucPlotMode || cumAucPlotMode) && (
 )
 
 aucCalcRows = (() => {
-  if (!aucFallbackActive) return plottedSorted
-
-  // Fallback for AUC views: integrate blank-normalized fluorescence when
-  // measurement-dependent views are selected but no measurement column exists.
+  const sourceRows = aucFallbackActive ? filtered : plotted
+  const sourceField = aucFallbackActive ? "normalized_value" : metricField
   const groups = new Map()
-  const showIndiv = activeAggregationMode === "Individual replicates" && effectiveSeriesCol !== null
 
-  for (const d of filtered) {
-    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d.normalized_value)) continue
+  for (const d of sourceRows) {
+    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[sourceField])) continue
 
-    const indivSeriesKey = seriesKey(d)
-    const traceId = showIndiv
-      ? (activePlateSel === "All"
-        ? `${d.experiment_dir}|${indivSeriesKey}`
-        : `${d.experiment_dir}|${d.plate_id}|${indivSeriesKey}`)
-      : traceKeyEffective(d)
-
+    const sampleKey = validGroupValue(d.sample_id_group)
+      ? normalizeTextValue(d.sample_id_group)
+      : `${d.well_id}`.trim()
+    const traceId = activePlateSel === "All"
+      ? `${d.experiment_dir}|${sampleKey}`
+      : `${d.experiment_dir}|${d.plate_id}|${sampleKey}`
     const key = `${traceId}|${d.time_hr}`
 
     if (!groups.has(key)) {
@@ -1218,11 +1226,11 @@ aucCalcRows = (() => {
         ...d,
         trace_id: traceId,
         well_ids: [d.well_id],
-        values: [d.normalized_value]
+        values: [d[sourceField]]
       })
     } else {
       const g = groups.get(key)
-      g.values.push(d.normalized_value)
+      g.values.push(d[sourceField])
       if (!g.well_ids.includes(d.well_id)) g.well_ids.push(d.well_id)
     }
   }
