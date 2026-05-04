@@ -905,14 +905,14 @@ viewof errorBarSel = Inputs.select(["Hide error bars", "Show error bars"], {
   value: "Hide error bars"
 })
 
-viewof plotStyleSel = Inputs.select(["Line plot", "Box plot", "AUC summary", "Cumulative AUC over time"], {
+viewof plotStyleSel = Inputs.select(["Line plot", "Box plot", "AUC summary (total area per trajectory)", "Cumulative AUC over time (running area)"], {
   label: "Plot style",
   value: "Line plot"
 })
 
 boxPlotMode = plotStyleSel === "Box plot"
-aucPlotMode = plotStyleSel === "AUC summary"
-cumAucPlotMode = plotStyleSel === "Cumulative AUC over time"
+aucPlotMode = plotStyleSel === "AUC summary (total area per trajectory)"
+cumAucPlotMode = plotStyleSel === "Cumulative AUC over time (running area)"
 
 viewof aggregationSel = (boxPlotMode || aucPlotMode)
   ? Inputs.select(["All", ...effectiveSeriesValues], {
@@ -1188,10 +1188,61 @@ plottedSorted = dataViewSel === "Delta fluorescence"
       plot_se: d.metric_se
     }))
 
+aucFallbackActive = (aucPlotMode || cumAucPlotMode) && (
+  (dataViewSel === "Measurement-normalized fluorescence" && !measurementReady) ||
+  (dataViewSel === "Paper metabolism (fold-change / selected measurement)" && !paperMeasurementReady)
+)
+
+aucCalcRows = (() => {
+  if (!aucFallbackActive) return plottedSorted
+
+  // Fallback for AUC views: integrate blank-normalized fluorescence when
+  // measurement-dependent views are selected but no measurement column exists.
+  const groups = new Map()
+  const showIndiv = activeAggregationMode === "Individual replicates" && effectiveSeriesCol !== null
+
+  for (const d of filtered) {
+    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d.normalized_value)) continue
+
+    const indivSeriesKey = seriesKey(d)
+    const traceId = showIndiv
+      ? (activePlateSel === "All"
+        ? `${d.experiment_dir}|${indivSeriesKey}`
+        : `${d.experiment_dir}|${d.plate_id}|${indivSeriesKey}`)
+      : traceKeyEffective(d)
+
+    const key = `${traceId}|${d.time_hr}`
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        ...d,
+        trace_id: traceId,
+        well_ids: [d.well_id],
+        values: [d.normalized_value]
+      })
+    } else {
+      const g = groups.get(key)
+      g.values.push(d.normalized_value)
+      if (!g.well_ids.includes(d.well_id)) g.well_ids.push(d.well_id)
+    }
+  }
+
+  return [...groups.values()]
+    .map(g => ({
+      ...g,
+      series_id: seriesKey(g),
+      rep_count: g.values.length,
+      well_id: g.well_ids.join(", "),
+      [plotYField]: d3.mean(g.values),
+      plot_se: g.values.length > 1 ? d3.deviation(g.values) / Math.sqrt(g.values.length) : NaN
+    }))
+    .sort((a, b) => a.trace_id.localeCompare(b.trace_id) || (a.time_hr - b.time_hr))
+})()
+
 aucData = (() => {
   const byTrace = new Map()
 
-  for (const d of plottedSorted) {
+  for (const d of aucCalcRows) {
     if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[plotYField])) continue
     if (!byTrace.has(d.trace_id)) byTrace.set(d.trace_id, [])
     byTrace.get(d.trace_id).push(d)
@@ -1231,7 +1282,7 @@ aucData = (() => {
 cumulativeAucData = (() => {
   const byTrace = new Map()
 
-  for (const d of plottedSorted) {
+  for (const d of aucCalcRows) {
     if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[plotYField])) continue
     if (!byTrace.has(d.trace_id)) byTrace.set(d.trace_id, [])
     byTrace.get(d.trace_id).push(d)
@@ -1284,7 +1335,8 @@ hashString = s => {
   return hash >>> 0
 }
 
-numericTimes = [...new Set(plottedSorted.map(d => d.time_hr))]
+timeSourceRows = cumAucPlotMode ? aucCalcRows : plottedSorted
+numericTimes = [...new Set(timeSourceRows.map(d => d.time_hr))]
   .filter(Number.isFinite)
   .sort((a, b) => a - b)
 
@@ -1398,6 +1450,18 @@ formatAucValue = v => {
   return v.toFixed(2)
 }
 
+aucMetricDescription = aucFallbackActive
+  ? "normalized fluorescence (fallback; no measurement column selected)"
+  : (dataViewSel === "Delta fluorescence"
+  ? "delta fluorescence"
+  : (dataViewSel === "Measurement-normalized fluorescence"
+      ? "measurement-normalized fluorescence"
+      : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+          ? "paper metabolism"
+          : (dataViewSel === "Normalized fluorescence"
+              ? "normalized fluorescence"
+              : "fluorescence"))))
+
 tooltipTitle = d => {
   const parts = [
     `Experiment: ${d.experiment_dir}`,
@@ -1429,7 +1493,9 @@ aucTooltipTitle = d => {
     `Plate: ${d.plate_id}`,
     `Sample: ${d.sample_id_group}`,
     `Wells: ${d.well_id}`,
-    `AUC: ${formatAucValue(d.auc_value)}`,
+    `Total AUC: ${formatAucValue(d.auc_value)}`,
+    `Integrated metric: ${aucMetricDescription}`,
+    `Integration window: first to last available timepoint`,
     `Timepoints used: ${d.n_timepoints}`
   ]
 
@@ -1451,7 +1517,8 @@ cumAucTooltipTitle = d => {
     `Sample: ${d.sample_id_group}`,
     `Wells: ${d.well_id}`,
     `Time: ${d.time_hr}h`,
-    `Cumulative AUC: ${formatAucValue(d.cumulative_auc)}`
+    `Running cumulative AUC: ${formatAucValue(d.cumulative_auc)}`,
+    `Integrated metric: ${aucMetricDescription}`
   ]
 
   if (activeGroupCol) {
@@ -1466,8 +1533,8 @@ cumAucTooltipTitle = d => {
 }
 
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
-measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && (!measurementReady || plottedSorted.length === 0)
-paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && (!paperMeasurementReady || plottedSorted.length === 0)
+measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && !aucFallbackActive && (!measurementReady || plottedSorted.length === 0)
+paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && !aucFallbackActive && (!paperMeasurementReady || plottedSorted.length === 0)
 aucUnavailable = aucPlotMode && aucData.length === 0
 cumAucUnavailable = cumAucPlotMode && cumulativeAucData.length === 0
 groupUnavailable = activeGroupCol !== null && filtered.length === 0
@@ -1484,9 +1551,9 @@ groupUnavailable
   : paperUnavailable
     ? "Paper metabolism unavailable for this selection. Choose a numeric non-zero Measurement column and ensure selected wells have valid initial values."
   : aucUnavailable
-    ? "AUC summary unavailable for this selection. At least two finite timepoints per trajectory are required after filtering."
+    ? "AUC summary unavailable. This view plots total area under each trajectory from first to last available timepoint; at least two finite timepoints per trajectory are required."
   : cumAucUnavailable
-    ? "Cumulative AUC over time unavailable for this selection. Ensure finite values exist for the selected metric."
+    ? "Cumulative AUC unavailable. This view plots running area under each trajectory across time; ensure finite values exist for the integrated metric."
   : (() => {
       const plotWrap = document.createElement("div")
       const subtitleWrap = document.createElement("div")
@@ -1513,6 +1580,38 @@ groupUnavailable
         excludedLine.style.fontWeight = "400"
         excludedLine.style.color = "#7c2d12"
         subtitleWrap.appendChild(excludedLine)
+      }
+
+      if (aucPlotMode) {
+        const aucLine = document.createElement("div")
+        aucLine.textContent = `AUC summary: each dot is one trajectory's total area (trapezoidal integration) of ${aucMetricDescription} from first to last available timepoint.`
+        aucLine.style.fontWeight = "400"
+        aucLine.style.color = "#1f2937"
+        subtitleWrap.appendChild(aucLine)
+
+        if (aucFallbackActive) {
+          const fallbackLine = document.createElement("div")
+          fallbackLine.textContent = "No measurement column selected for this view; using normalized fluorescence for AUC integration."
+          fallbackLine.style.fontWeight = "400"
+          fallbackLine.style.color = "#7c2d12"
+          subtitleWrap.appendChild(fallbackLine)
+        }
+      }
+
+      if (cumAucPlotMode) {
+        const cumAucLine = document.createElement("div")
+        cumAucLine.textContent = `Cumulative AUC: each line shows running integrated area (trapezoidal) of ${aucMetricDescription} over time for each trajectory.`
+        cumAucLine.style.fontWeight = "400"
+        cumAucLine.style.color = "#1f2937"
+        subtitleWrap.appendChild(cumAucLine)
+
+        if (aucFallbackActive) {
+          const fallbackLine = document.createElement("div")
+          fallbackLine.textContent = "No measurement column selected for this view; using normalized fluorescence for cumulative AUC integration."
+          fallbackLine.style.fontWeight = "400"
+          fallbackLine.style.color = "#7c2d12"
+          subtitleWrap.appendChild(fallbackLine)
+        }
       }
 
       plotWrap.appendChild(subtitleWrap)
@@ -1848,7 +1947,7 @@ groupUnavailable
             label: seriesLabel
           },
           y: {
-            label: "Metabolism (AUC)",
+            label: `Total AUC (${aucMetricDescription})`,
             grid: true,
             zero: true,
             nice: true
@@ -1891,7 +1990,7 @@ groupUnavailable
             background: "#ffffff"
           },
           x: {label: "Time (hours)", tickValues: timeValues},
-          y: {label: "Metabolism (Cumulative AUC)"},
+          y: {label: `Running cumulative AUC (${aucMetricDescription})`},
           color: {
             legend: true,
             label: seriesLabel,
