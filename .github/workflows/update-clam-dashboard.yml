@@ -35,9 +35,9 @@ jobs:
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Render dashboard
+      - name: Render website
         run: |
-          quarto render clam-dashboard.qmd --output-dir docs
+          quarto render
 
       - name: Preserve site root and custom domain
         run: |
