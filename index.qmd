@@ -206,8 +206,9 @@ plateConfigs = new Map([
 ])
 
 plateConfig = plateConfigs.get(plateType)
-baseVolume = plateType === "Custom volume" ? customVolume : plateConfig.wells * plateConfig.wellVolume
-totalVolume = baseVolume * (1 + extraPercent / 100)
+plateVolume = plateType === "Custom volume" ? customVolume : plateConfig.wells * plateConfig.wellVolume
+totalBaseVolume = plateVolume * numPlates
+totalVolume = totalBaseVolume * (1 + extraPercent / 100)
 
 seawaterVolume = totalVolume * 0.98666
 resazurinVolume = totalVolume * 0.00222
@@ -230,7 +231,7 @@ html`
   
   <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
     <p><strong>Experimental setup:</strong> ${numPlates} × ${plateType} 
-    ${plateType !== "Custom volume" ? `(${plateConfig.wells} wells × ${plateConfig.wellVolume.toFixed(3)} mL/well = ${baseVolume.toFixed(1)} mL per plate)` : ''}</p>
+    ${plateType !== "Custom volume" ? `(${plateConfig.wells} wells × ${plateConfig.wellVolume.toFixed(3)} mL/well = ${plateVolume.toFixed(1)} mL per plate; ${numPlates} plates = ${totalBaseVolume.toFixed(1)} mL before safety)` : ''}</p>
     <p><strong>Per-well default:</strong> ${plateType === "Custom volume" ? "Custom volume" : `${plateConfig.wellVolume.toFixed(3)} mL per well`}</p>
     <p><strong>Safety margin:</strong> +${extraPercent}% extra volume</p>
   </div>
