@@ -182,7 +182,7 @@ viewof numPlates = Inputs.range([1, 80], {
   step: 1
 })
 
-viewof customVolume = Inputs.range([1, 2000], {
+viewof customVolume = Inputs.range([1, 20000], {
   label: "Custom total volume (mL):",
   value: 35,
   step: 1,
