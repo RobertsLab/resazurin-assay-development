@@ -426,7 +426,7 @@ parse_layout_txt <- function(layout_path) {
 }
 
 parse_layout_for_experiment <- function(experiment_dir_path) {
-  layout_path <- file.path(experiment_dir_path, "layout.txt")
+  layout_path <- file.path(experiment_dir_path, "layout.csv")
   if (!file.exists(layout_path)) {
     return(tibble(
       plate_id = character(),
@@ -1814,7 +1814,7 @@ groupUnavailable
   : excludedOnlyUnavailable
   ? "All wells matching this selection are marked exclude_from_analysis in layout metadata."
   : normalizedUnavailable
-  ? "Normalized fluorescence unavailable for this selection. Add a layout.txt with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
+  ? "Normalized fluorescence unavailable for this selection. Add a layout.csv with blank wells marked (is_blank = TRUE), then rebuild dashboard data."
   : measurementUnavailable
     ? "Measurement-normalized fluorescence unavailable for this selection. Ensure a non-zero numeric value exists in the selected *.measurement (or *.measurment) column for these wells."
   : paperUnavailable

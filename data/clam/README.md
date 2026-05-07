@@ -19,7 +19,7 @@ Supported plate geometries are discovered from the `Results` rows and columns an
 
 ## Optional layout file
 
-Each experiment directory can include `layout.txt`.
+Each experiment directory can include `layout.csv`.
 
 Accepted flexible patterns:
 
@@ -36,7 +36,7 @@ B	ctrl	ctrl	treat	treat
 C	blank	blank	blank	blank
 ```
 
-If `layout.txt` cannot be parsed, the dashboard still updates and uses well IDs only.
+If `layout.csv` cannot be parsed, the dashboard still updates and uses well IDs only.
 
 ## Auto-update behavior
 
