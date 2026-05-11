@@ -4,6 +4,7 @@ subtitle: "Auto-updated from plate exports in data/clam"
 format: html
 resources:
   - output/clam/dashboard-data.csv
+  - output/clam/dashboard-stats.csv
 ---
 
 <!-- deploy trigger -->
@@ -36,6 +37,12 @@ library(knitr)
 
 data_path <- file.path("output", "clam", "dashboard-data.csv")
 qc_path <- file.path("output", "clam", "dashboard-qc.csv")
+stats_path <- file.path("output", "clam", "dashboard-stats.csv")
+
+has_lmer_stats <- requireNamespace("lmerTest", quietly = TRUE) &&
+  requireNamespace("lme4", quietly = TRUE) &&
+  requireNamespace("emmeans", quietly = TRUE)
+has_emmeans <- requireNamespace("emmeans", quietly = TRUE)
 
 normalize_well_id <- function(x) {
   x <- toupper(trimws(x))
@@ -1216,18 +1223,11 @@ plottedSorted = dataViewSel === "Delta fluorescence"
       plot_se: d.metric_se
     }))
 
-aucFallbackActive = (aucPlotMode || cumAucPlotMode) && (
-  (dataViewSel === "Measurement-normalized fluorescence" && !measurementReady) ||
-  (dataViewSel === "Paper metabolism (fold-change / selected measurement)" && !paperMeasurementReady)
-)
-
 aucCalcRows = (() => {
-  const sourceRows = aucFallbackActive ? filtered : plotted
-  const sourceField = aucFallbackActive ? "normalized_value" : metricField
   const groups = new Map()
 
-  for (const d of sourceRows) {
-    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[sourceField])) continue
+  for (const d of plotted) {
+    if (!Number.isFinite(d.time_hr) || !Number.isFinite(d[metricField])) continue
 
     const sampleKey = validGroupValue(d.sample_id_group)
       ? normalizeTextValue(d.sample_id_group)
@@ -1242,11 +1242,11 @@ aucCalcRows = (() => {
         ...d,
         trace_id: traceId,
         well_ids: [d.well_id],
-        values: [d[sourceField]]
+        values: [d[metricField]]
       })
     } else {
       const g = groups.get(key)
-      g.values.push(d[sourceField])
+      g.values.push(d[metricField])
       if (!g.well_ids.includes(d.well_id)) g.well_ids.push(d.well_id)
     }
   }
@@ -1505,7 +1505,7 @@ hashString = s => {
   return hash >>> 0
 }
 
-timeSourceRows = cumAucPlotMode ? aucCalcRows : plottedSorted
+timeSourceRows = plottedSorted
 numericTimes = [...new Set(timeSourceRows.map(d => d.time_hr))]
   .filter(Number.isFinite)
   .sort((a, b) => a - b)
@@ -1719,17 +1719,15 @@ wilcoxonRankSumTest = (values1, values2) => {
   return {statistic: u1, p_value: p}
 }
 
-aucMetricDescription = aucFallbackActive
-  ? "normalized fluorescence (fallback; no measurement column selected)"
-  : (dataViewSel === "Delta fluorescence"
+aucMetricDescription = dataViewSel === "Delta fluorescence"
   ? "delta fluorescence"
   : (dataViewSel === "Measurement-normalized fluorescence"
-      ? "measurement-normalized fluorescence"
-      : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
-          ? "paper metabolism"
-          : (dataViewSel === "Normalized fluorescence"
-              ? "normalized fluorescence"
-              : "fluorescence"))))
+    ? "measurement-normalized fluorescence"
+    : (dataViewSel === "Paper metabolism (fold-change / selected measurement)"
+      ? "paper metabolism"
+      : (dataViewSel === "Normalized fluorescence"
+        ? "normalized fluorescence"
+        : "fluorescence")))
 
 tooltipTitle = d => {
   const parts = [
@@ -1802,8 +1800,8 @@ cumAucTooltipTitle = d => {
 }
 
 normalizedUnavailable = dataViewSel === "Normalized fluorescence" && plottedSorted.length === 0
-measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && !aucFallbackActive && (!measurementReady || plottedSorted.length === 0)
-paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && !aucFallbackActive && (!paperMeasurementReady || plottedSorted.length === 0)
+measurementUnavailable = dataViewSel === "Measurement-normalized fluorescence" && (!measurementReady || plottedSorted.length === 0)
+paperUnavailable = dataViewSel === "Paper metabolism (fold-change / selected measurement)" && (!paperMeasurementReady || plottedSorted.length === 0)
 aucUnavailable = aucPlotMode && aucData.length === 0
 cumAucUnavailable = cumAucPlotMode && cumulativeAucData.length === 0
 groupUnavailable = activeGroupCol !== null && filtered.length === 0
@@ -1865,14 +1863,6 @@ groupUnavailable
           sigLine.style.color = "#1f2937"
           subtitleWrap.appendChild(sigLine)
         }
-
-        if (aucFallbackActive) {
-          const fallbackLine = document.createElement("div")
-          fallbackLine.textContent = "No measurement column selected for this view; using normalized fluorescence for AUC integration."
-          fallbackLine.style.fontWeight = "400"
-          fallbackLine.style.color = "#7c2d12"
-          subtitleWrap.appendChild(fallbackLine)
-        }
       }
 
       if (cumAucPlotMode) {
@@ -1881,14 +1871,6 @@ groupUnavailable
         cumAucLine.style.fontWeight = "400"
         cumAucLine.style.color = "#1f2937"
         subtitleWrap.appendChild(cumAucLine)
-
-        if (aucFallbackActive) {
-          const fallbackLine = document.createElement("div")
-          fallbackLine.textContent = "No measurement column selected for this view; using normalized fluorescence for cumulative AUC integration."
-          fallbackLine.style.fontWeight = "400"
-          fallbackLine.style.color = "#7c2d12"
-          subtitleWrap.appendChild(fallbackLine)
-        }
       }
 
       plotWrap.appendChild(subtitleWrap)
