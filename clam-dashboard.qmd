@@ -119,6 +119,185 @@ parse_logical_flag <- function(x) {
   )
 }
 
+normalize_group_value <- function(x) {
+  x <- trimws(as.character(x))
+  ifelse(is.na(x) | x == "", NA_character_, x)
+}
+
+is_valid_group_value <- function(x) {
+  value <- toupper(trimws(as.character(x)))
+  !is.na(value) & value != "" & !value %in% c("NA", "N/A", "NULL", "NAN", "<NA>")
+}
+
+first_non_empty <- function(x) {
+  x <- normalize_group_value(x)
+  x <- x[!is.na(x)]
+  if (length(x) == 0) {
+    return(NA_character_)
+  }
+  x[[1]]
+}
+
+trapezoid_auc <- function(time_hr, value) {
+  ok <- is.finite(time_hr) & is.finite(value)
+  time_hr <- time_hr[ok]
+  value <- value[ok]
+
+  if (length(time_hr) < 2) {
+    return(NA_real_)
+  }
+
+  ord <- order(time_hr, value)
+  time_hr <- time_hr[ord]
+  value <- value[ord]
+
+  auc <- 0
+  for (i in 2:length(time_hr)) {
+    dt <- time_hr[i] - time_hr[i - 1]
+    if (is.finite(dt) && dt > 0) {
+      auc <- auc + dt * ((value[i] + value[i - 1]) / 2)
+    }
+  }
+
+  auc
+}
+
+fit_auc_emmeans_stats <- function(data, group_col, scope_cols = c("experiment_dir", "plate_id")) {
+  if (!has_emmeans || !group_col %in% names(data)) {
+    return(tibble())
+  }
+
+  trace_data <- data %>%
+    filter(
+      is.finite(time_hr),
+      is.finite(value),
+      !is_blank,
+      !exclude_from_analysis
+    ) %>%
+    mutate(
+      trace_id = if_else(
+        !is.na(sample_id_group) & normalize_group_value(sample_id_group) != "",
+        paste(experiment_dir, plate_id, normalize_group_value(sample_id_group), sep = "|"),
+        paste(experiment_dir, plate_id, well_id, sep = "|")
+      )
+    ) %>%
+    group_by(experiment_dir, plate_id, trace_id) %>%
+    arrange(time_hr, read_datetime, source_name, .by_group = TRUE) %>%
+    summarise(
+      auc_value = trapezoid_auc(time_hr, value),
+      group_value = first_non_empty(.data[[group_col]]),
+      n_timepoints = sum(is.finite(time_hr) & is.finite(value)),
+      .groups = "drop"
+    ) %>%
+    filter(
+      is.finite(auc_value),
+      is_valid_group_value(group_value)
+    )
+
+  if (nrow(trace_data) == 0) {
+    return(tibble())
+  }
+
+  scope_cols <- intersect(scope_cols, names(trace_data))
+  if (length(scope_cols) == 0) {
+    scope_groups <- list(trace_data)
+  } else {
+    scope_groups <- trace_data %>%
+      group_by(across(all_of(scope_cols))) %>%
+      group_split(.keep = TRUE)
+  }
+
+  map_dfr(scope_groups, function(scope_df) {
+    scope_df <- scope_df %>%
+      mutate(
+        group_value = normalize_group_value(group_value)
+      ) %>%
+      filter(is_valid_group_value(group_value))
+
+    group_levels <- sort(unique(scope_df$group_value))
+    if (nrow(scope_df) == 0 || length(group_levels) < 2) {
+      return(tibble())
+    }
+
+    scope_df <- scope_df %>%
+      mutate(group_factor = factor(group_value, levels = group_levels))
+
+    model <- stats::lm(auc_value ~ group_factor, data = scope_df)
+    emm <- emmeans::emmeans(model, ~ group_factor)
+    pairwise <- as.data.frame(summary(pairs(emm, adjust = "tukey")))
+    omnibus <- as.data.frame(summary(emmeans::joint_tests(model)))
+
+    scope_meta <- scope_df %>%
+      summarise(
+        experiment_dir = first_non_empty(experiment_dir),
+        plate_id = first_non_empty(plate_id),
+        n_traces = dplyr::n(),
+        .groups = "drop"
+      )
+
+    omnibus_row <- omnibus %>%
+      filter(`model term` == "group_factor") %>%
+      slice(1) %>%
+      transmute(
+        comparison_type = "omnibus",
+        comparison = "emmeans::joint_tests",
+        group_col = group_col,
+        contrast = NA_character_,
+        group1 = NA_character_,
+        group2 = NA_character_,
+        statistic = F.ratio,
+        p_value = p.value,
+        p_adj = p.value,
+        n1 = NA_integer_,
+        n2 = NA_integer_,
+        median1 = NA_real_,
+        median2 = NA_real_,
+        analysis_unit_type = "trajectory / AUC",
+        model_class = "emmeans / lm",
+        p_adjust_method = "Tukey",
+        experiment_dir = scope_meta$experiment_dir,
+        plate_id = scope_meta$plate_id,
+        n_traces = scope_meta$n_traces,
+        n_timepoints = NA_integer_
+      )
+
+    pairwise_rows <- pairwise %>%
+      mutate(
+        contrast = as.character(contrast),
+        group1 = str_trim(str_split_fixed(contrast, " - ", 2)[, 1]),
+        group2 = str_trim(str_split_fixed(contrast, " - ", 2)[, 2]),
+        n1 = map_int(group1, ~ sum(scope_df$group_value == .x, na.rm = TRUE)),
+        n2 = map_int(group2, ~ sum(scope_df$group_value == .x, na.rm = TRUE)),
+        median1 = map_dbl(group1, ~ as.numeric(stats::median(scope_df$auc_value[scope_df$group_value == .x], na.rm = TRUE))),
+        median2 = map_dbl(group2, ~ as.numeric(stats::median(scope_df$auc_value[scope_df$group_value == .x], na.rm = TRUE)))
+      ) %>%
+      transmute(
+        comparison_type = "pairwise",
+        comparison = "emmeans::pairs",
+        group_col = group_col,
+        contrast,
+        group1,
+        group2,
+        statistic = t.ratio,
+        p_value = p.value,
+        p_adj = p.value,
+        n1,
+        n2,
+        median1,
+        median2,
+        analysis_unit_type = "trajectory / AUC",
+        model_class = "emmeans / lm",
+        p_adjust_method = "Tukey",
+        experiment_dir = scope_meta$experiment_dir,
+        plate_id = scope_meta$plate_id,
+        n_traces = scope_meta$n_traces,
+        n_timepoints = NA_integer_
+      )
+
+    bind_rows(omnibus_row, pairwise_rows)
+  })
+}
+
 read_layout_tabular <- function(layout_path) {
   for (delim in c(",", "\t", ";")) {
     tabular <- tryCatch(
@@ -714,7 +893,42 @@ plate_data_out <- plate_data %>%
     normalized_value
   )
 
+stats_out <- if (has_emmeans) {
+  group_candidates <- names(plate_data_out)[str_detect(names(plate_data_out), "_group$")]
+
+  map_dfr(group_candidates, function(group_col) {
+    fit_auc_emmeans_stats(plate_data_out, group_col)
+  }) %>%
+    mutate(metric = "auc") %>%
+    select(
+      metric,
+      experiment_dir,
+      plate_id,
+      group_col,
+      comparison_type,
+      comparison,
+      contrast,
+      group1,
+      group2,
+      statistic,
+      p_value,
+      p_adj,
+      n1,
+      n2,
+      median1,
+      median2,
+      analysis_unit_type,
+      model_class,
+      p_adjust_method,
+      n_traces,
+      n_timepoints
+    )
+} else {
+  tibble()
+}
+
 write_csv(plate_data_out, data_path)
+write_csv(stats_out, stats_path)
 write_csv(qc, qc_path)
 
 dat <- plate_data_out
@@ -739,6 +953,7 @@ Use these selectors to focus on one experiment, one plate, or specific wells.
 ```{ojs}
 //| echo: false
 dashboard = await FileAttachment("output/clam/dashboard-data.csv").csv({typed: true})
+stats = await FileAttachment("output/clam/dashboard-stats.csv").csv({typed: true}).catch(() => [])
 
 cleanDashboard = dashboard.filter(d =>
   d.experiment_dir != null &&
@@ -1296,7 +1511,8 @@ aucData = (() => {
       ...first,
       trace_id: traceId,
       auc_value: aucValue,
-      n_timepoints: sorted.length
+      n_timepoints: sorted.length,
+      series_id: String(first.series_id || "Unknown")
     })
   }
 
@@ -1304,7 +1520,137 @@ aucData = (() => {
 })()
 
 aucStatsContext = (() => {
-  if (!aucPlotMode || !activeGroupCol || activeWithinGroupCol !== null || activeAggregationMode === "Individual replicates") {
+  const statsArr = Array.isArray(stats) ? stats : []
+  const currentSeriesValues = effectiveSeriesValues.filter(validGroupValue)
+
+  const csvStatsRows = statsArr.filter(row =>
+    row != null &&
+    String(row.metric || "") === "auc" &&
+    String(row.group_col || "") === String(activeGroupCol || "") &&
+    String(row.experiment_dir || "") === String(activeExperimentSel || "") &&
+    (activePlateSel === "All" || String(row.plate_id || "") === String(activePlateSel || ""))
+  )
+
+  if (
+    aucPlotMode &&
+    activeGroupCol &&
+    activeWithinGroupCol === null &&
+    activeAggregationMode !== "Individual replicates" &&
+    csvStatsRows.length > 0 &&
+    currentSeriesValues.length >= 2
+  ) {
+    const omnibusRow = csvStatsRows.find(r => String(r.comparison_type || "") === "omnibus") || null
+    let pairwiseStats = csvStatsRows.filter(r =>
+      String(r.comparison_type || "") === "pairwise" &&
+      currentSeriesValues.includes(String(r.group1 || "")) &&
+      currentSeriesValues.includes(String(r.group2 || ""))
+    )
+
+    if (pairwiseStats.length > 0 && omnibusRow !== null) {
+      // Deduplicate pairwise rows that may come from multiple plates/scope
+      // when viewing "All" plates. Keep the row with the smallest p_adj
+      // for each unordered group pair.
+      const pairMap = new Map()
+      for (const r of pairwiseStats) {
+        const key = [String(r.group1), String(r.group2)].sort(naturalCompare).join("||")
+        const existing = pairMap.get(key)
+        if (!existing || (Number.isFinite(Number(r.p_adj)) && Number(r.p_adj) < Number(existing.p_adj))) {
+          pairMap.set(key, r)
+        }
+      }
+      pairwiseStats = Array.from(pairMap.values())
+
+      const significantPairs = pairwiseStats.filter(r => Number.isFinite(Number(r.p_adj)) && Number(r.p_adj) <= 0.05)
+      const significantPairSet = new Set(significantPairs.map(r => [String(r.group1), String(r.group2)].sort(naturalCompare).join("||")))
+      const significantDegree = new Map(currentSeriesValues.map(groupId => [groupId, 0]))
+
+      significantPairs.forEach(row => {
+        const group1 = String(row.group1)
+        const group2 = String(row.group2)
+        significantDegree.set(group1, (significantDegree.get(group1) || 0) + 1)
+        significantDegree.set(group2, (significantDegree.get(group2) || 0) + 1)
+      })
+
+      const orderedSeries = currentSeriesValues.slice().sort((a, b) => {
+        const degreeA = significantDegree.get(a) || 0
+        const degreeB = significantDegree.get(b) || 0
+        if (degreeA !== degreeB) return degreeB - degreeA
+
+        const seriesA = pairwiseStats.filter(r => String(r.group1) === a || String(r.group2) === a).map(r => Number(r.median1)).filter(Number.isFinite)
+        const seriesB = pairwiseStats.filter(r => String(r.group1) === b || String(r.group2) === b).map(r => Number(r.median1)).filter(Number.isFinite)
+        const medianA = seriesA.length > 0 ? d3.median(seriesA) : Number.POSITIVE_INFINITY
+        const medianB = seriesB.length > 0 ? d3.median(seriesB) : Number.POSITIVE_INFINITY
+        if (medianA !== medianB) return medianA - medianB
+        return naturalCompare(a, b)
+      })
+
+      const letterGroups = []
+      const lettersBySeries = new Map(currentSeriesValues.map(groupId => [groupId, []]))
+      const pairKey = (a, b) => [a, b].sort(naturalCompare).join("||")
+
+      for (const seriesId of orderedSeries) {
+        const compatibleLetters = letterGroups.filter(letterGroup =>
+          [...letterGroup.members].every(member => !significantPairSet.has(pairKey(seriesId, member)))
+        )
+
+        if (compatibleLetters.length === 0) {
+          const label = significanceLabelForIndex(letterGroups.length)
+          letterGroups.push({label, members: new Set([seriesId])})
+          lettersBySeries.get(seriesId)?.push(label)
+        } else {
+          compatibleLetters.forEach(letterGroup => {
+            letterGroup.members.add(seriesId)
+            lettersBySeries.get(seriesId)?.push(letterGroup.label)
+          })
+        }
+      }
+
+      // Use both CSV-derived medians and the plotted AUC values when
+      // computing label positions so significance labels don't force the
+      // axis to expand far beyond the actual plotted points.
+      const csvAucValues = (metricField === "value")
+        ? csvStatsRows
+            .filter(r => String(r.comparison_type || "") === "pairwise")
+            .flatMap(r => [Number(r.median1), Number(r.median2)])
+            .filter(Number.isFinite)
+        : []
+
+      const dataAucValues = (Array.isArray(aucData) ? aucData.map(d => Number(d.auc_value)).filter(Number.isFinite) : [])
+
+      const aucValues = [...csvAucValues, ...dataAucValues].filter(Number.isFinite)
+
+      const aucMax = aucValues.length > 0 ? d3.max(aucValues) : null
+      const aucMin = aucValues.length > 0 ? d3.min(aucValues) : null
+      const aucSpan = Number.isFinite(aucMax) && Number.isFinite(aucMin) ? Math.max(aucMax - aucMin, Math.abs(aucMax) || 1) : 1
+      const labelY = Number.isFinite(aucMax) ? aucMax + aucSpan * 0.08 : 1
+      const labelStep = aucSpan * 0.018
+
+      return {
+        relevantStats: [omnibusRow, ...pairwiseStats],
+        pairwiseStats,
+        significantPairs,
+        kwBest: omnibusRow,
+        analysisUnitType: String(omnibusRow.analysis_unit_type || "trajectory / AUC"),
+        aucSignificanceLabels: orderedSeries.map((seriesId, index) => ({
+          series_id: seriesId,
+          sig_label: (lettersBySeries.get(seriesId) || []).join(""),
+          label_y: labelY + index * labelStep
+        })),
+        aucSignificanceNote: `Significance notation: groups sharing a letter are not significantly different by ${String(omnibusRow.p_adjust_method || "Tukey")}-adjusted pairwise model comparisons (p_adj > 0.05). Different letters indicate at least one significant pairwise difference (p_adj <= 0.05).`,
+        modelClass: String(omnibusRow.model_class || "lm"),
+        pAdjustMethod: String(omnibusRow.p_adjust_method || "Tukey"),
+        formatP: v => {
+          if (v == null || v === "" || Number.isNaN(Number(v))) return "NA"
+          const n = Number(v)
+          if (!Number.isFinite(n)) return "NA"
+          if (n < 0.001) return n.toExponential(2)
+          return n.toFixed(3)
+        }
+      }
+    }
+  }
+
+  if (!aucPlotMode || !activeGroupCol || activeAggregationMode === "Individual replicates") {
     return {
       relevantStats: [],
       pairwiseStats: [],
@@ -1313,6 +1659,8 @@ aucStatsContext = (() => {
       analysisUnitType: "unknown",
       aucSignificanceLabels: [],
       aucSignificanceNote: null,
+      modelClass: "unknown",
+      pAdjustMethod: "tukey",
       formatP: v => Number.isFinite(Number(v)) ? (Number(v) < 0.001 ? Number(v).toExponential(2) : Number(v).toFixed(3)) : "NA"
     }
   }
@@ -1326,6 +1674,21 @@ aucStatsContext = (() => {
   }
 
   const groupIds = [...groupMap.keys()].sort(naturalCompare)
+
+  if (groupIds.length < 2) {
+    return {
+      relevantStats: [],
+      pairwiseStats: [],
+      significantPairs: [],
+      kwBest: null,
+      analysisUnitType: "unknown",
+      aucSignificanceLabels: [],
+      aucSignificanceNote: null,
+      modelClass: "unknown",
+      pAdjustMethod: "BH",
+      formatP: v => Number.isFinite(Number(v)) ? (Number(v) < 0.001 ? Number(v).toExponential(2) : Number(v).toFixed(3)) : "NA"
+    }
+  }
   const groupValues = groupIds.map(groupId => groupMap.get(groupId) || [])
   const omnibus = kruskalWallisTest(groupValues)
 
@@ -1432,13 +1795,19 @@ aucStatsContext = (() => {
       p_value: omnibus.p_value,
       p_adj: omnibus.p_value
     },
-    analysisUnitType: "sample_id / well",
+    analysisUnitType: activeWithinGroupCol !== null
+      ? `${activeWithinGroupCol} within ${activeGroupCol} = ${activeGroupVal} / AUC`
+      : "sample_id / well",
+    modelClass: "Kruskal-Wallis",
+    pAdjustMethod: "BH",
     aucSignificanceLabels: orderedSeries.map((seriesId, index) => ({
       series_id: seriesId,
       sig_label: (lettersBySeries.get(seriesId) || []).join(""),
       label_y: labelY + index * labelStep
     })),
-    aucSignificanceNote: `Significance notation: groups sharing a letter are not significantly different after BH-adjusted pairwise Wilcoxon tests (p_adj > 0.05). Different letters indicate at least one significant pairwise difference (p_adj <= 0.05).`,
+    aucSignificanceNote: activeWithinGroupCol !== null
+      ? `Significance notation (${activeWithinGroupCol} within ${activeGroupCol} = ${activeGroupVal}): groups sharing a letter are not significantly different after BH-adjusted pairwise Wilcoxon tests (p_adj > 0.05). Different letters indicate at least one significant pairwise difference (p_adj <= 0.05).`
+      : `Significance notation: groups sharing a letter are not significantly different after BH-adjusted pairwise Wilcoxon tests (p_adj > 0.05). Different letters indicate at least one significant pairwise difference (p_adj <= 0.05).`,
     formatP: v => {
       if (v == null || v === "" || Number.isNaN(Number(v))) return "NA"
       const n = Number(v)
@@ -2300,7 +2669,9 @@ groupUnavailable
         statsHeader.style.marginBottom = "0.35rem"
         statsHeader.style.marginTop = "1rem"
         statsHeader.style.fontSize = "1rem"
-        statsHeader.textContent = "Statistical Comparisons (AUC by Group)"
+        statsHeader.textContent = activeWithinGroupCol !== null
+          ? `Statistical Comparisons (AUC by ${activeWithinGroupCol} within ${activeGroupCol} = ${activeGroupVal})`
+          : "Statistical Comparisons (AUC by Group)"
         statsWrap.appendChild(statsHeader)
 
         const statDesc = document.createElement("div")
@@ -2308,7 +2679,9 @@ groupUnavailable
         statDesc.style.color = "#374151"
         statDesc.style.fontSize = "0.92rem"
         statDesc.style.lineHeight = "1.4"
-        statDesc.innerHTML = `<strong>Tests computed:</strong> Kruskal-Wallis (omnibus test across all groups), and pairwise Wilcoxon rank-sum tests with Benjamini–Hochberg p-value adjustment (blanks excluded). The replicate unit is <code>sample_id</code> when available; otherwise the analysis falls back to wells. The summary below answers whether the groups differ overall, and which group pairs differ after adjustment.`
+        statDesc.innerHTML = activeWithinGroupCol !== null
+          ? `<strong>Tests computed:</strong> ${aucStatsContext.modelClass || "Kruskal-Wallis"} omnibus test and ${aucStatsContext.pAdjustMethod || "BH"}-adjusted pairwise Wilcoxon comparisons of <code>${activeWithinGroupCol}</code> levels within <code>${activeGroupCol} = ${activeGroupVal}</code> (blanks excluded). The summary below answers whether the within-group levels differ overall, and which pairs differ after adjustment.`
+          : `<strong>Tests computed:</strong> ${aucStatsContext.modelClass || "model-based"} omnibus test across all groups, and ${aucStatsContext.pAdjustMethod || "Tukey"}-adjusted pairwise comparisons (blanks excluded). The replicate unit is <code>sample_id</code> when available; otherwise the analysis falls back to wells. The summary below answers whether the groups differ overall, and which group pairs differ after adjustment.`
         statsWrap.appendChild(statDesc)
 
         if (aucStatsContext.relevantStats.length === 0) {
@@ -2328,12 +2701,12 @@ groupUnavailable
           summary.style.lineHeight = "1.45"
 
           const kwText = aucStatsContext.kwBest
-            ? `Omnibus result: ${Number(aucStatsContext.kwBest.p_adj) < 0.05 ? "groups differ" : "no evidence that groups differ"} (Kruskal-Wallis p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_value)}, BH-adjusted p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_adj)}).`
+            ? `Omnibus result: ${Number(aucStatsContext.kwBest.p_adj) < 0.05 ? "groups differ" : "no evidence that groups differ"} (${aucStatsContext.modelClass || "model"} p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_value)}, ${aucStatsContext.pAdjustMethod || "Tukey"}-adjusted p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_adj)}).`
             : "Omnibus result: unavailable for this selection."
 
           const sigPairText = aucStatsContext.significantPairs.length > 0
-            ? `Pairwise differences after BH correction: ${aucStatsContext.significantPairs.map(r => `${r.group1} vs ${r.group2} (p_adj = ${aucStatsContext.formatP(r.p_adj)})`).join(", ")}.`
-            : "Pairwise differences after BH correction: none detected at the 0.05 threshold."
+            ? `Pairwise differences after ${aucStatsContext.pAdjustMethod || "Tukey"} correction: ${aucStatsContext.significantPairs.map(r => `${r.group1} vs ${r.group2} (p_adj = ${aucStatsContext.formatP(r.p_adj)})`).join(", ")}.`
+            : `Pairwise differences after ${aucStatsContext.pAdjustMethod || "Tukey"} correction: none detected at the 0.05 threshold.`
 
           summary.innerHTML = `<strong>${kwText}</strong><br>${sigPairText}<br><span style="color:#6b7280">Analysis unit: ${aucStatsContext.analysisUnitType}.</span>`
           statsWrap.appendChild(summary)
