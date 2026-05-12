@@ -1830,6 +1830,45 @@ groupUnavailable
       subtitleWrap.style.lineHeight = "1.35"
       subtitleWrap.style.fontWeight = "600"
 
+      const contextBar = document.createElement("div")
+      contextBar.style.display = "flex"
+      contextBar.style.flexWrap = "wrap"
+      contextBar.style.gap = "0.4rem"
+      contextBar.style.marginBottom = "0.45rem"
+
+      const contextPill = (label, value) => {
+        const pill = document.createElement("span")
+        pill.style.display = "inline-flex"
+        pill.style.alignItems = "center"
+        pill.style.gap = "0.25rem"
+        pill.style.padding = "0.22rem 0.5rem"
+        pill.style.border = "1px solid #d1d5db"
+        pill.style.borderRadius = "6px"
+        pill.style.background = "#f9fafb"
+        pill.style.color = "#111827"
+        pill.style.fontSize = "0.86rem"
+        pill.style.fontWeight = "600"
+        pill.style.maxWidth = "100%"
+
+        const labelEl = document.createElement("span")
+        labelEl.textContent = `${label}:`
+        labelEl.style.color = "#4b5563"
+        labelEl.style.fontWeight = "500"
+
+        const valueEl = document.createElement("span")
+        valueEl.textContent = value
+        valueEl.style.overflowWrap = "anywhere"
+
+        pill.appendChild(labelEl)
+        pill.appendChild(valueEl)
+        return pill
+      }
+
+      contextBar.appendChild(contextPill("Experiment", activeExperimentSel))
+      contextBar.appendChild(contextPill("Plate", activePlateSel))
+      contextBar.appendChild(contextPill("View", dataViewSel))
+      subtitleWrap.appendChild(contextBar)
+
       const groupingLine = document.createElement("div")
       groupingLine.textContent = groupingMessage
       subtitleWrap.appendChild(groupingLine)
