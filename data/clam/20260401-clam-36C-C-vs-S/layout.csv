@@ -1,4 +1,4 @@
-plate_ID,plate_well,is_blank,family_ID.group,sample_ID.group,treatment.group,"exclude_from_analysis,exclude_reason",,width_mm.measurement,length_mm.measurement,weight_mg.measurement,area_cm2.measurement,imageJ_ID
+plate_ID,plate_well,is_blank,family_ID.group,sample_ID.group,treatment.group,exclude_from_analysis,exclude_reason,width_mm.measurement,length_mm.measurement,weight_mg.measurement,area_cm2.measurement,imageJ_ID
 plate-G,A01,FALSE,TWEED,,SELECTED,FALSE,,,,,1.585,3
 plate-G,A02,FALSE,BLUE,,SELECTED,FALSE,,,,,1.311,4
 plate-G,A03,FALSE,TWEED,,CONTROL,TRUE,volume loss,,,,1.83,1
