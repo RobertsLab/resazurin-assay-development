@@ -2700,8 +2700,9 @@ groupUnavailable
           summary.style.fontSize = "0.92rem"
           summary.style.lineHeight = "1.45"
 
+          const groupsLabel = effectiveSeriesValues.length > 0 ? effectiveSeriesValues.join(", ") : "groups"
           const kwText = aucStatsContext.kwBest
-            ? `Omnibus result: ${Number(aucStatsContext.kwBest.p_adj) < 0.05 ? "groups differ" : "no evidence that groups differ"} (${aucStatsContext.modelClass || "model"} p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_value)}, ${aucStatsContext.pAdjustMethod || "Tukey"}-adjusted p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_adj)}).`
+            ? `Omnibus result (${groupsLabel}): ${Number(aucStatsContext.kwBest.p_adj) < 0.05 ? "groups differ" : "no evidence that groups differ"} (${aucStatsContext.modelClass || "model"} p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_value)}, ${aucStatsContext.pAdjustMethod || "Tukey"}-adjusted p = ${aucStatsContext.formatP(aucStatsContext.kwBest.p_adj)}).`
             : "Omnibus result: unavailable for this selection."
 
           const sigPairText = aucStatsContext.significantPairs.length > 0
