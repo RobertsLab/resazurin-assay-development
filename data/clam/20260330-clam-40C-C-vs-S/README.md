@@ -6,7 +6,7 @@
 
 Control clams (`C`) compared with selected clams (`S`) at 40<sup>o</sup>C.
 
-Two plates per treatment were measured: "blue" and "red". The colors do not have any meaning for the experiment.
+Two plates per treatment were measured: "blue" and "red", representing the "BLUE" and "TWEED" coloration of the clams.
 
 Clams were processed in 24-well plates and submerged in `2.2mL` of resazurin working solution; prepared by Sam White 20260330:
 
