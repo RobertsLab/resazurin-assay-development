@@ -1,193 +1,73 @@
-plate_ID	plate_well	is_blank	family_ID.group	sample_ID.group	treatment.group	width_mm.measurement	length_mm.measurement	weight_mg.measurement	area_mm2.measurement	imageJ_ID
-plate-A	A01	TRUE								
-plate-A	A02	TRUE								
-plate-A	A03	FALSE								
-plate-A	A04	FALSE								
-plate-A	A05	FALSE								
-plate-A	A06	FALSE								
-plate-A	A07	FALSE								
-plate-A	A08	FALSE								
-plate-A	A09	FALSE								
-plate-A	A10	FALSE								
-plate-A	A11	FALSE								
-plate-A	A12	FALSE								
-plate-B	B01	TRUE								
-plate-B	B02	TRUE								
-plate-B	B03	FALSE								
-plate-B	B04	FALSE								
-plate-B	B05	FALSE								
-plate-B	B06	FALSE								
-plate-B	B07	FALSE								
-plate-B	B08	FALSE								
-plate-B	B09	FALSE								
-plate-B	B10	FALSE								
-plate-B	B11	FALSE								
-plate-B	B12	FALSE								
-	C01									
-	C02									
-	C03									
-	C04									
-	C05									
-	C06									
-	C07									
-	C08									
-	C09									
-	C10									
-	C11									
-	C12									
-	D01									
-	D02									
-	D03									
-	D04									
-	D05									
-	D06									
-	D07									
-	D08									
-	D09									
-	D10									
-	D11									
-	D12									
-	E01									
-	E02									
-	E03									
-	E04									
-	E05									
-	E06									
-	E07									
-	E08									
-	E09									
-	E10									
-	E11									
-	E12									
-	F01									
-	F02									
-	F03									
-	F04									
-	F05									
-	F06									
-	F07									
-	F08									
-	F09									
-	F10									
-	F11									
-	F12									
-	G01									
-	G02									
-	G03									
-	G04									
-	G05									
-	G06									
-	G07									
-	G08									
-	G09									
-	G10									
-	G11									
-	G12									
-	H01									
-	H02									
-	H03									
-	H04									
-	H05									
-	H06									
-	H07									
-	H08									
-	H09									
-	H10									
-	H11									
-	H12									
-	A01									
-	A02									
-	A03									
-	A04									
-	A05									
-	A06									
-	A07									
-	A08									
-	A09									
-	A10									
-	A11									
-	A12									
-	B01									
-	B02									
-	B03									
-	B04									
-	B05									
-	B06									
-	B07									
-	B08									
-	B09									
-	B10									
-	B11									
-	B12									
-	C01									
-	C02									
-	C03									
-	C04									
-	C05									
-	C06									
-	C07									
-	C08									
-	C09									
-	C10									
-	C11									
-	C12									
-	D01									
-	D02									
-	D03									
-	D04									
-	D05									
-	D06									
-	D07									
-	D08									
-	D09									
-	D10									
-	D11									
-	D12									
-	E01									
-	E02									
-	E03									
-	E04									
-	E05									
-	E06									
-	E07									
-	E08									
-	E09									
-	E10									
-	E11									
-	E12									
-	F01									
-	F02									
-	F03									
-	F04									
-	F05									
-	F06									
-	F07									
-	F08									
-	F09									
-	F10									
-	F11									
-	F12									
-	G01									
-	G02									
-	G03									
-	G04									
-	G05									
-	G06									
-	G07									
-	G08									
-	G09									
-	G10									
-	G11									
-	G12									
-	H01									
-	H02									
-	H03									
-	H04									
-	H05									
-	H06									
-	H07									
-	H08									
-	H09									
-	H10									
-	H11									
-	H12									
+plate_ID,plate_well,is_blank,family_ID.group,sample_ID.group,treatment.group,width_mm.measurement,length_mm.measurement,weight_mg.measurement,area_mm2.measurement,imageJ_ID
+plate-A,A01,,,1,,,,,,
+plate-A,A02,,,2,,,,,,
+plate-A,A03,,,3,,,,,,
+plate-A,A04,,,4,,,,,,
+plate-A,B01,,,5,,,,,,
+plate-A,B02,,,6,,,,,,
+plate-A,B03,,,7,,,,,,
+plate-A,B04,,,8,,,,,,
+plate-A,C01,,,9,,,,,,
+plate-A,C02,,,10,,,,,,
+plate-A,C03,,,11,,,,,,
+plate-A,C04,,,,,,,,,
+plate-B,A01,,,12,,,,,,
+plate-B,A02,,,13,,,,,,
+plate-B,A03,,,14,,,,,,
+plate-B,A04,,,15,,,,,,
+plate-B,B01,,,16,,,,,,
+plate-B,B02,,,17,,,,,,
+plate-B,B03,,,18,,,,,,
+plate-B,B04,,,19,,,,,,
+plate-B,C01,,,20,,,,,,
+plate-B,C02,,,21,,,,,,
+plate-B,C03,,,,,,,,,
+plate-B,C04,,,22,,,,,,
+plate-C,A01,,,23,,,,,,
+plate-C,A02,,,24,,,,,,
+plate-C,A03,,,25,,,,,,
+plate-C,A04,,,26,,,,,,
+plate-C,B01,,,27,,,,,,
+plate-C,B02,,,28,,,,,,
+plate-C,B03,,,29,,,,,,
+plate-C,B04,,,30,,,,,,
+plate-C,C01,,,,,,,,,
+plate-C,C02,,,31,,,,,,
+plate-C,C03,,,32,,,,,,
+plate-C,C04,,,33,,,,,,
+plate-D,A01,,,34,,,,,,
+plate-D,A02,,,35,,,,,,
+plate-D,A03,,,36,,,,,,
+plate-D,A04,,,37,,,,,,
+plate-D,B01,,,38,,,,,,
+plate-D,B02,,,39,,,,,,
+plate-D,B03,,,40,,,,,,
+plate-D,B04,,,41,,,,,,
+plate-D,C01,,,42,,,,,,
+plate-D,C02,,,,,,,,,
+plate-D,C03,,,43,,,,,,
+plate-D,C04,,,44,,,,,,
+plate-E,A01,,,45,,,,,,
+plate-E,A02,,,46,,,,,,
+plate-E,A03,,,47,,,,,,
+plate-E,A04,,,48,,,,,,
+plate-E,B01,,,49,,,,,,
+plate-E,B02,,,50,,,,,,
+plate-E,B03,,,51,,,,,,
+plate-E,B04,,,52,,,,,,
+plate-E,C01,,,,,,,,,
+plate-E,C02,,,53,,,,,,
+plate-E,C03,,,54,,,,,,
+plate-E,C04,,,55,,,,,,
+plate-F,A01,,,56,,,,,,
+plate-F,A02,,,57,,,,,,
+plate-F,A03,,,58,,,,,,
+plate-F,A04,,,59,,,,,,
+plate-F,B01,,,60,,,,,,
+plate-F,B02,,,61,,,,,,
+plate-F,B03,,,62,,,,,,
+plate-F,B04,,,63,,,,,,
+plate-F,C01,,,64,,,,,,
+plate-F,C02,,,,,,,,,
+plate-F,C03,,,65,,,,,,
+plate-F,C04,,,66,,,,,,
