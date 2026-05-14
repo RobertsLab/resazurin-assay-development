@@ -897,7 +897,12 @@ stats_out <- if (has_emmeans) {
   group_candidates <- names(plate_data_out)[str_detect(names(plate_data_out), "_group$")]
 
   map_dfr(group_candidates, function(group_col) {
-    fit_auc_emmeans_stats(plate_data_out, group_col)
+    per_plate <- fit_auc_emmeans_stats(plate_data_out, group_col,
+                                       scope_cols = c("experiment_dir", "plate_id"))
+    exp_level <- fit_auc_emmeans_stats(plate_data_out, group_col,
+                                       scope_cols = c("experiment_dir")) %>%
+      mutate(plate_id = NA_character_)
+    bind_rows(per_plate, exp_level)
   }) %>%
     mutate(metric = "auc") %>%
     select(
@@ -1523,13 +1528,20 @@ aucStatsContext = (() => {
   const statsArr = Array.isArray(stats) ? stats : []
   const currentSeriesValues = effectiveSeriesValues.filter(validGroupValue)
 
-  const csvStatsRows = statsArr.filter(row =>
+  const allCsvStatsRows = statsArr.filter(row =>
     row != null &&
     String(row.metric || "") === "auc" &&
     String(row.group_col || "") === String(activeGroupCol || "") &&
     String(row.experiment_dir || "") === String(activeExperimentSel || "") &&
     (activePlateSel === "All" || String(row.plate_id || "") === String(activePlateSel || ""))
   )
+
+  // When viewing "All" plates, prefer experiment-level stats (plate_id empty/null)
+  // over per-plate stats. Fall back to per-plate if no experiment-level rows exist.
+  const expLevelRows = allCsvStatsRows.filter(r => !r.plate_id || String(r.plate_id).trim() === "")
+  const csvStatsRows = (activePlateSel === "All" && expLevelRows.length > 0)
+    ? expLevelRows
+    : allCsvStatsRows.filter(r => r.plate_id && String(r.plate_id).trim() !== "")
 
   if (
     aucPlotMode &&
@@ -2064,7 +2076,12 @@ kruskalWallisTest = groups => {
   const k = groupSizes.length
   const h = (12 / (n * (n + 1))) * hSum - 3 * (n + 1)
   const df = k - 1
-  const p = df > 0 ? Math.min(1, Math.exp(-0.5 * Math.max(h, 0))) : NaN
+  // Wilson-Hilferty chi-squared approximation (accurate for df >= 1)
+  let p = NaN
+  if (df > 0 && h >= 0) {
+    const z = ((h / df) ** (1 / 3) - (1 - 2 / (9 * df))) / Math.sqrt(2 / (9 * df))
+    p = Math.min(1, 1 - normalCdf(z))
+  }
   return {statistic: h, p_value: p}
 }
 
