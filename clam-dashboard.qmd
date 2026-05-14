@@ -901,7 +901,7 @@ stats_out <- if (has_emmeans) {
                                        scope_cols = c("experiment_dir", "plate_id"))
     exp_level <- fit_auc_emmeans_stats(plate_data_out, group_col,
                                        scope_cols = c("experiment_dir")) %>%
-      mutate(plate_id = NA_character_)
+      mutate(plate_id = "")
     bind_rows(per_plate, exp_level)
   }) %>%
     mutate(metric = "auc") %>%
@@ -1536,12 +1536,13 @@ aucStatsContext = (() => {
     (activePlateSel === "All" || String(row.plate_id || "") === String(activePlateSel || ""))
   )
 
-  // When viewing "All" plates, prefer experiment-level stats (plate_id empty/null)
+  // When viewing "All" plates, prefer experiment-level stats (plate_id null/""/NA)
   // over per-plate stats. Fall back to per-plate if no experiment-level rows exist.
-  const expLevelRows = allCsvStatsRows.filter(r => !r.plate_id || String(r.plate_id).trim() === "")
+  const isExpLevel = r => !r.plate_id || String(r.plate_id).trim() === "" || String(r.plate_id).trim() === "NA"
+  const expLevelRows = allCsvStatsRows.filter(isExpLevel)
   const csvStatsRows = (activePlateSel === "All" && expLevelRows.length > 0)
     ? expLevelRows
-    : allCsvStatsRows.filter(r => r.plate_id && String(r.plate_id).trim() !== "")
+    : allCsvStatsRows.filter(r => !isExpLevel(r))
 
   if (
     aucPlotMode &&
