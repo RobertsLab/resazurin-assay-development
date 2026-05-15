@@ -1146,6 +1146,11 @@ boxPlotMode = plotStyleSel === "Box plot"
 aucPlotMode = plotStyleSel === "AUC summary (total area per trajectory)"
 cumAucPlotMode = plotStyleSel === "Cumulative AUC over time (running area)"
 
+viewof aucYScaleSel = Inputs.select(["Auto", "Linear", "Log"], {
+  label: "Y axis scale",
+  value: "Auto"
+})
+
 viewof aggregationSel = (boxPlotMode || aucPlotMode)
   ? Inputs.select(["All", ...effectiveSeriesValues], {
       label: "Group display",
@@ -1522,6 +1527,15 @@ aucData = (() => {
   }
 
   return out
+})()
+
+useAucLogScale = (() => {
+  const vals = aucData.map(d => Number(d.auc_value)).filter(Number.isFinite)
+  if (vals.length === 0) return false
+  const allPositive = vals.every(v => v > 0)
+  if (aucYScaleSel === "Log") return allPositive
+  if (aucYScaleSel === "Linear") return false
+  return allPositive && d3.max(vals) / d3.min(vals) > 100
 })()
 
 aucStatsContext = (() => {
@@ -2620,6 +2634,15 @@ groupUnavailable
         }
 
       if (aucPlotMode) {
+        const aucVals = aucData.map(d => Number(d.auc_value)).filter(Number.isFinite)
+        const aucLogMax = aucVals.length > 0 ? d3.max(aucVals) : 1
+        const sigLabels = (useAucLogScale && aucStatsContext.aucSignificanceLabels.length > 0)
+          ? aucStatsContext.aucSignificanceLabels.map((row, i) => ({
+              ...row,
+              label_y: aucLogMax * Math.pow(1.15, i + 1)
+            }))
+          : aucStatsContext.aucSignificanceLabels
+
         const plotNode = Plot.plot({
           height: 420,
           style: {
@@ -2634,7 +2657,7 @@ groupUnavailable
           y: {
             label: `Total AUC (${aucMetricDescription})`,
             grid: true,
-            zero: true,
+            ...(useAucLogScale ? {type: "log"} : {zero: true}),
             nice: true
           },
           color: {
@@ -2663,8 +2686,8 @@ groupUnavailable
               title: aucTooltipTitle,
               tip: true
             }),
-            ...(aucStatsContext.aucSignificanceLabels.length > 0
-              ? [Plot.text(aucStatsContext.aucSignificanceLabels, {
+            ...(sigLabels.length > 0
+              ? [Plot.text(sigLabels, {
                   x: "series_id",
                   y: "label_y",
                   text: "sig_label",
