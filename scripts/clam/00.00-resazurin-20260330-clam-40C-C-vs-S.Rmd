@@ -163,8 +163,8 @@ auc_y_label <- function(metric_name) {
 proj_root <- rprojroot::find_rstudio_root_file()
 data_dir  <- file.path(proj_root, "data", "clam",
                         "20260330-clam-40C-C-vs-S")
-fig_dir   <- file.path(proj_root, "figures", "clam",
-                        "20260330-clam-40C-C-vs-S")
+fig_dir   <- file.path(proj_root, "output", "clam",
+                        "20260330-clam-40C-C-vs-S", "figures")
 out_dir   <- file.path(proj_root, "output", "clam",
                         "20260330-clam-40C-C-vs-S")
 
@@ -186,6 +186,53 @@ plate_raw <- map_dfr(plate_files, function(path) {
 })
 
 str(plate_raw)
+```
+
+## Plate consistency check
+
+Checks that every plate has the same number of wells at every timepoint.
+The expected well count is the mode across all plate × timepoint reads.
+Any plate with at least one deviating read is flagged and dropped entirely
+before any further analysis — removing only the aberrant timepoint would
+break the fold-change baseline calculation.
+
+```{r plate-consistency-check, results='asis'}
+well_counts <- plate_raw %>%
+  group_by(plate_id, time_hr) %>%
+  summarise(n_wells = n_distinct(well_id), .groups = "drop")
+
+expected_n_wells <- as.integer(
+  names(which.max(table(well_counts$n_wells)))
+)
+
+inconsistent_reads <- well_counts %>%
+  filter(n_wells != expected_n_wells) %>%
+  arrange(plate_id, time_hr)
+
+inconsistent_plate_ids <- unique(inconsistent_reads$plate_id)
+
+if (nrow(inconsistent_reads) > 0) {
+  cat("**Plate consistency check FAILED.**",
+      "Expected", expected_n_wells, "wells per plate-timepoint read.",
+      length(inconsistent_plate_ids),
+      "plate(s) have at least one deviating read and are excluded",
+      "from all analyses:\n\n")
+  cat(knitr::kable(
+    inconsistent_reads,
+    col.names = c("Plate", "Time (h)", "Wells read"),
+    caption   = paste("Expected:", expected_n_wells, "wells per read")
+  ), sep = "\n")
+  cat("\n")
+  plate_raw <- plate_raw %>%
+    filter(!plate_id %in% inconsistent_plate_ids)
+  message(length(inconsistent_plate_ids),
+          " plate(s) removed from plate_raw: ",
+          paste(inconsistent_plate_ids, collapse = ", "))
+} else {
+  cat("Plate consistency check passed: all",
+      n_distinct(well_counts$plate_id), "plates have",
+      expected_n_wells, "wells at every timepoint.\n")
+}
 ```
 
 ## Layout file
@@ -280,8 +327,18 @@ str(dat)
 ## Data frame
 
 ```{r raw-fluor-df}
+# Wells in the plate reader output that have no layout entry get all-NA group
+# columns after the join. Keep only wells assigned to at least one group.
+active_gc <- intersect(group_cols, names(dat))
+
 raw_df <- dat %>%
-  filter(!is_blank) %>%
+  filter(
+    !is_blank,
+    if (length(active_gc) > 0)
+      if_any(all_of(active_gc), ~ !is.na(.))
+    else
+      TRUE
+  ) %>%
   mutate(
     trace_id = if_else(
       !is.na(sample_id_group) & trimws(as.character(sample_id_group)) != "",
@@ -451,13 +508,10 @@ excluded_wells <- dat %>%
   arrange(plate_id, well_id)
 
 if (nrow(excluded_wells) > 0) {
-  print(knitr::kable(excluded_wells,
-                     col.names = c("Plate", "Well", "Sample",
-                                   "Family", "Treatment",
-                                   rep("Reason",
-                                       "exclude_reason" %in%
-                                         names(excluded_wells))
-                                   )[seq_len(ncol(excluded_wells))]))
+  col_names <- c("Plate", "Well", "Sample", "Family", "Treatment")
+  if ("exclude_reason" %in% names(excluded_wells))
+    col_names <- c(col_names, "Reason")
+  cat(knitr::kable(excluded_wells, col.names = col_names), sep = "\n")
 } else {
   cat("No wells are excluded from analysis.\n")
 }
@@ -1097,7 +1151,7 @@ for (met in metrics_to_test) {
       levels = sort(unique(paste(family_id_group, treatment_group, sep = ":")))
     ))
   grps     <- levels(df_p$x)
-  fill_map <- setNames(fam_colours[str_extract(grps, "^[^:]+")], grps)
+  fill_map <- setNames(make_palette(length(grps)), grps)
   p <- ggplot(df_p, aes(x = x, y = AUC, fill = x)) +
     geom_boxplot(alpha = 0.6, outlier.shape = NA) +
     geom_jitter(width = 0.15, alpha = 0.4, size = 1.5) +
