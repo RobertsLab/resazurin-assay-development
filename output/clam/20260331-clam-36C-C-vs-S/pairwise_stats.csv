@@ -1,0 +1,9 @@
+contrast,estimate,SE,df,t.ratio,p.value,comparison,metric
+blue control - tweed control,27.19143312721711,11.532768176182676,62,2.357754245279334,0.0962327237394921,family:treatment,metabolism_per_area_cm2_measurement
+blue control - blue selected,27.68917252310256,11.706202993582211,62,2.3653419078998392,0.0946391513311895,family:treatment,metabolism_per_area_cm2_measurement
+blue control - tweed selected,30.58927684498611,11.532768176182685,62,2.6523794094949955,0.04852347076031793,family:treatment,metabolism_per_area_cm2_measurement
+tweed control - blue selected,0.4977393958854499,11.532768176182685,62,0.043158709884880415,0.9999707994997062,family:treatment,metabolism_per_area_cm2_measurement
+tweed control - tweed selected,3.3978437177689997,11.356685039402606,62,0.2991932686325283,0.9905996948296258,family:treatment,metabolism_per_area_cm2_measurement
+blue selected - tweed selected,2.90010432188355,11.532768176182687,62,0.2514664543307829,0.9943612861762182,family:treatment,metabolism_per_area_cm2_measurement
+blue - tweed,15.04576872455033,8.154898583231189,62,1.8449976503066203,0.06981525332125106,family,metabolism_per_area_cm2_measurement
+control - selected,15.54350812043578,8.15489858323119,62,1.9060332831603435,0.061284167632060356,treatment,metabolism_per_area_cm2_measurement
