@@ -1,7 +1,7 @@
 ---
 title: "00.00-resazurin-20260330-clam-40C-C-vs-S"
 author: "Sam White"
-date: "2026-05-11"
+date: "2026-03-30"
 output:
   github_document:
     toc: true
@@ -25,7 +25,14 @@ output:
 # Setup
 
 ```{r setup}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,         # Display code chunks
+  eval = TRUE,        # Evaluate code chunks
+  warning = FALSE,     # Hide warnings
+  message = FALSE,     # Hide messages
+  comment = "",         # Prevents appending '##' to beginning of lines in code output
+  results = 'hold'     # Holds output so it's all printed together after code chunk
+)
 ```
 
 ```{r libraries}
