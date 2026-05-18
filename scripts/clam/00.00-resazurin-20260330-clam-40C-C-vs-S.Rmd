@@ -696,8 +696,13 @@ run_ts_stats <- function(df, value_col) {
       individual = factor(sample_id_group)
     )
 
+  if (nrow(df) == 0) return(NULL)
+
   if (has_family)    df <- df %>% mutate(family    = factor(family_id_group))
   if (has_treatment) df <- df %>% mutate(treatment = factor(treatment_group))
+
+  if (has_family    && length(unique(na.omit(df$family)))    < 2) return(NULL)
+  if (has_treatment && length(unique(na.omit(df$treatment))) < 2) return(NULL)
 
   fixed <- if (has_family && has_treatment)
     paste0(value_col, " ~ time_f * family * treatment")
