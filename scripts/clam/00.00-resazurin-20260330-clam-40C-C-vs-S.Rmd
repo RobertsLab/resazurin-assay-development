@@ -43,6 +43,7 @@ library(lmerTest)
 library(emmeans)
 library(multcompView)
 library(cowplot)
+library(colorspace)   # qualitative_hcl() for large palettes
 ```
 
 # Helper Functions
@@ -292,30 +293,34 @@ raw_df <- dat %>%
 families   <- sort(unique(na.omit(raw_df$family_id_group)))
 treatments <- sort(unique(na.omit(raw_df$treatment_group)))
 
-# Colorblind-friendly Okabe-Ito palette (8 distinct colours)
-okabe_ito <- c(
-  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
-  "#0072B2", "#D55E00", "#CC79A7", "#000000"
-)
 n_fam <- length(families)
 n_trt <- length(treatments)
 
-# Families get the first N slots; treatments get the next M slots (wrap if needed)
-fam_colours <- setNames(
-  okabe_ito[(seq_len(n_fam) - 1L) %% length(okabe_ito) + 1L],
-  families
+# Palette strategy:
+#   <= 7 groups : Okabe-Ito (gold standard for colorblind-safe figures).
+#   >  7 groups : colorspace::qualitative_hcl("Dynamic") scales to any N
+#                 using perceptually uniform HCL space — no colour collisions.
+# Black (#000000) is excluded from both and reserved for blank wells.
+okabe_ito_7 <- c(
+  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
+  "#0072B2", "#D55E00", "#CC79A7"
 )
-trt_colours <- setNames(
-  okabe_ito[(n_fam + seq_len(n_trt) - 1L) %% length(okabe_ito) + 1L],
-  treatments
-)
+make_palette <- function(n) {
+  if (n == 0L) return(character(0))
+  if (n <= length(okabe_ito_7)) return(okabe_ito_7[seq_len(n)])
+  colorspace::qualitative_hcl(n, palette = "Dynamic")
+}
+
+all_colours   <- make_palette(n_fam + n_trt)
+fam_colours   <- setNames(all_colours[seq_len(n_fam)], families)
+trt_colours   <- setNames(all_colours[n_fam + seq_len(n_trt)], treatments)
+
 lty_pool <- c("solid", "dashed", "dotted", "dotdash", "longdash")
 trt_linetypes <- setNames(
   lty_pool[(seq_len(n_trt) - 1L) %% length(lty_pool) + 1L],
   treatments
 )
-# Blank wells get neutral grey so they don't collide with family colours
-plate_well_colours <- c(blank = "grey40", fam_colours)
+plate_well_colours <- c(blank = "black", fam_colours)
 
 str(raw_df)
 ```
