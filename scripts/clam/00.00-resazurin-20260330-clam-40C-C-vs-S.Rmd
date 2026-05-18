@@ -262,6 +262,7 @@ dat <- plate_raw %>%
   left_join(
     layout_clean %>%
       select(plate_id, well_id, is_blank, exclude_from_analysis,
+             any_of("exclude_reason"),
              all_of(group_cols), all_of(measurement_cols)),
     by = c("plate_id", "well_id")
   ) %>%
@@ -279,7 +280,7 @@ str(dat)
 
 ```{r raw-fluor-df}
 raw_df <- dat %>%
-  filter(!is_blank, !exclude_from_analysis) %>%
+  filter(!is_blank) %>%
   mutate(
     trace_id = if_else(
       !is.na(sample_id_group) & trimws(as.character(sample_id_group)) != "",
@@ -288,7 +289,33 @@ raw_df <- dat %>%
     )
   )
 
-families <- sort(unique(raw_df$family_id_group))
+families   <- sort(unique(na.omit(raw_df$family_id_group)))
+treatments <- sort(unique(na.omit(raw_df$treatment_group)))
+
+# Colorblind-friendly Okabe-Ito palette (8 distinct colours)
+okabe_ito <- c(
+  "#E69F00", "#56B4E9", "#009E73", "#F0E442",
+  "#0072B2", "#D55E00", "#CC79A7", "#000000"
+)
+n_fam <- length(families)
+n_trt <- length(treatments)
+
+# Families get the first N slots; treatments get the next M slots (wrap if needed)
+fam_colours <- setNames(
+  okabe_ito[(seq_len(n_fam) - 1L) %% length(okabe_ito) + 1L],
+  families
+)
+trt_colours <- setNames(
+  okabe_ito[(n_fam + seq_len(n_trt) - 1L) %% length(okabe_ito) + 1L],
+  treatments
+)
+lty_pool <- c("solid", "dashed", "dotted", "dotdash", "longdash")
+trt_linetypes <- setNames(
+  lty_pool[(seq_len(n_trt) - 1L) %% length(lty_pool) + 1L],
+  treatments
+)
+# Blank wells get neutral grey so they don't collide with family colours
+plate_well_colours <- c(blank = "grey40", fam_colours)
 
 str(raw_df)
 ```
@@ -296,12 +323,6 @@ str(raw_df)
 ## Raw fluorescence by plate (including blanks)
 
 ```{r raw-fluor-by-plate, fig.width=10, fig.height=8}
-plate_well_colours <- c(
-  "blank" = "black",
-  "blue"  = "#2166ac",
-  "tweed" = "#d6604d"
-)
-
 p_raw_plates <- dat %>%
   filter(is.finite(time_hr), is.finite(value)) %>%
   mutate(
@@ -315,9 +336,10 @@ p_raw_plates <- dat %>%
   geom_point(size = 1, alpha = 0.7) +
   facet_wrap(~ plate_id) +
   scale_colour_manual(
-    values = plate_well_colours,
-    name   = "Group",
-    breaks = c("blank", "blue", "tweed")
+    values   = plate_well_colours,
+    name     = "Group",
+    breaks   = names(plate_well_colours),
+    na.value = "grey80"
   ) +
   labs(x = "Time (h)", y = "Raw fluorescence (RFU)") +
   theme_classic(base_size = 12) +
@@ -352,15 +374,9 @@ p_raw_mean <- ggplot(raw_family_summary,
               alpha = 0.15, colour = NA) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
-  scale_colour_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
-  scale_fill_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
-  scale_linetype_manual(
-    values = c("control" = "solid", "selected" = "dashed"),
-    name = "Treatment") +
+  scale_colour_manual(values = fam_colours, name = "Family") +
+  scale_fill_manual(values = fam_colours, name = "Family") +
+  scale_linetype_manual(values = trt_linetypes, name = "Treatment") +
   labs(x = "Time (h)", y = "Mean raw fluorescence (RFU ± SE)") +
   theme_classic(base_size = 13)
 
@@ -378,9 +394,7 @@ p_raw_by_family <- raw_df %>%
   geom_line(alpha = 0.6) +
   geom_point(size = 1.2, alpha = 0.7) +
   facet_wrap(~ family_id_group) +
-  scale_colour_manual(
-    values = c("control" = "#4393c3", "selected" = "#d6604d"),
-    name = "Treatment") +
+  scale_colour_manual(values = trt_colours, name = "Treatment") +
   labs(x = "Time (h)", y = "Raw fluorescence (RFU)") +
   theme_classic(base_size = 12) +
   theme(strip.background = element_blank(),
@@ -400,9 +414,7 @@ p_raw_by_treatment <- raw_df %>%
   geom_line(alpha = 0.6) +
   geom_point(size = 1.2, alpha = 0.7) +
   facet_wrap(~ treatment_group) +
-  scale_colour_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
+  scale_colour_manual(values = fam_colours, name = "Family") +
   labs(x = "Time (h)", y = "Raw fluorescence (RFU)") +
   theme_classic(base_size = 12) +
   theme(strip.background = element_blank(),
@@ -411,6 +423,39 @@ p_raw_by_treatment <- raw_df %>%
 p_raw_by_treatment
 ggsave(file.path(fig_dir, "raw_individual_by_treatment.png"),
        p_raw_by_treatment, width = 10, height = 5)
+```
+
+## Excluded samples
+
+Wells flagged `exclude_from_analysis = TRUE` appear in the raw fluorescence
+plots above but are omitted from all analyses that follow.
+
+```{r excluded-wells, results='asis'}
+excluded_wells <- dat %>%
+  filter(!is_blank, exclude_from_analysis) %>%
+  mutate(
+    sample = if_else(
+      !is.na(sample_id_group) & trimws(as.character(sample_id_group)) != "",
+      as.character(sample_id_group),
+      paste(plate_id, well_id, sep = "_")
+    )
+  ) %>%
+  select(plate_id, well_id, sample, family_id_group, treatment_group,
+         any_of("exclude_reason")) %>%
+  distinct() %>%
+  arrange(plate_id, well_id)
+
+if (nrow(excluded_wells) > 0) {
+  print(knitr::kable(excluded_wells,
+                     col.names = c("Plate", "Well", "Sample",
+                                   "Family", "Treatment",
+                                   rep("Reason",
+                                       "exclude_reason" %in%
+                                         names(excluded_wells))
+                                   )[seq_len(ncol(excluded_wells))]))
+} else {
+  cat("No wells are excluded from analysis.\n")
+}
 ```
 
 # Blank Correction via Fold-Change Normalization
@@ -497,15 +542,9 @@ p_bc_fc_mean <- ggplot(bc_fc_summary,
               alpha = 0.15, colour = NA) +
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
-  scale_colour_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
-  scale_fill_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
-  scale_linetype_manual(
-    values = c("control" = "solid", "selected" = "dashed"),
-    name = "Treatment") +
+  scale_colour_manual(values = fam_colours, name = "Family") +
+  scale_fill_manual(values = fam_colours, name = "Family") +
+  scale_linetype_manual(values = trt_linetypes, name = "Treatment") +
   labs(x = "Time (h)",
        y = "Mean blank-corrected fold-change (± SE)") +
   theme_classic(base_size = 13)
@@ -524,9 +563,7 @@ p_bc_fc_by_family <- samples %>%
   geom_line(alpha = 0.6) +
   geom_point(size = 1.2, alpha = 0.7) +
   facet_wrap(~ family_id_group) +
-  scale_colour_manual(
-    values = c("control" = "#4393c3", "selected" = "#d6604d"),
-    name = "Treatment") +
+  scale_colour_manual(values = trt_colours, name = "Treatment") +
   labs(x = "Time (h)", y = "Blank-corrected fold-change") +
   theme_classic(base_size = 12) +
   theme(strip.background = element_blank(),
@@ -546,9 +583,7 @@ p_bc_fc_by_treatment <- samples %>%
   geom_line(alpha = 0.6) +
   geom_point(size = 1.2, alpha = 0.7) +
   facet_wrap(~ treatment_group) +
-  scale_colour_manual(
-    values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-    name = "Family") +
+  scale_colour_manual(values = fam_colours, name = "Family") +
   labs(x = "Time (h)", y = "Blank-corrected fold-change") +
   theme_classic(base_size = 12) +
   theme(strip.background = element_blank(),
@@ -615,15 +650,9 @@ if (nrow(metabolism_df) > 0) {
                   alpha = 0.15, colour = NA) +
       geom_line(linewidth = 1) +
       geom_point(size = 2) +
-      scale_colour_manual(
-        values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-        name = "Family") +
-      scale_fill_manual(
-        values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-        name = "Family") +
-      scale_linetype_manual(
-        values = c("control" = "solid", "selected" = "dashed"),
-        name = "Treatment") +
+      scale_colour_manual(values = fam_colours, name = "Family") +
+      scale_fill_manual(values = fam_colours, name = "Family") +
+      scale_linetype_manual(values = trt_linetypes, name = "Treatment") +
       labs(x = "Time (h)",
            y = paste0(metabolism_y_label(col), " (± SE)")) +
       theme_classic(base_size = 13)
@@ -652,9 +681,7 @@ if (nrow(metabolism_df) > 0) {
       geom_line(alpha = 0.6) +
       geom_point(size = 1.2, alpha = 0.7) +
       facet_wrap(~ family_id_group) +
-      scale_colour_manual(
-        values = c("control" = "#4393c3", "selected" = "#d6604d"),
-        name = "Treatment") +
+      scale_colour_manual(values = trt_colours, name = "Treatment") +
       labs(x = "Time (h)", y = metabolism_y_label(col)) +
       theme_classic(base_size = 12) +
       theme(strip.background = element_blank(),
@@ -672,9 +699,7 @@ if (nrow(metabolism_df) > 0) {
       geom_line(alpha = 0.6) +
       geom_point(size = 1.2, alpha = 0.7) +
       facet_wrap(~ treatment_group) +
-      scale_colour_manual(
-        values = c("blue" = "#2166ac", "tweed" = "#d6604d"),
-        name = "Family") +
+      scale_colour_manual(values = fam_colours, name = "Family") +
       labs(x = "Time (h)", y = metabolism_y_label(col)) +
       theme_classic(base_size = 12) +
       theme(strip.background = element_blank(),
@@ -1009,9 +1034,6 @@ add_sig_brackets <- function(p, pairs_df, group_levels, y_vals) {
 ```
 
 ```{r auc-boxplots, fig.width=6, fig.height=5}
-fam_colours <- c("blue" = "#2166ac", "tweed" = "#d6604d")
-trt_colours <- c("control" = "#4393c3", "selected" = "#b2182b")
-
 for (met in metrics_to_test) {
   df      <- auc_all %>% filter(metric == met)
   stats   <- stats_results[[met]]
