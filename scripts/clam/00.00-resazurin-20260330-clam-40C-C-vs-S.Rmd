@@ -243,6 +243,11 @@ active_meas_cols <- measurement_cols[
   sapply(measurement_cols, function(col)
     any(is.finite(layout_clean[[col]]), na.rm = TRUE))]
 
+# Normalise group values to lowercase so they match colour scale definitions
+layout_clean <- layout_clean %>%
+  mutate(across(all_of(group_cols),
+                ~ str_to_lower(trimws(as.character(.x)))))
+
 message("Group columns: ", paste(group_cols, collapse = ", "))
 message("Active measurement columns: ",
         paste(active_meas_cols, collapse = ", "))
@@ -275,7 +280,13 @@ str(dat)
 ```{r raw-fluor-df}
 raw_df <- dat %>%
   filter(!is_blank, !exclude_from_analysis) %>%
-  mutate(trace_id = sample_id_group)
+  mutate(
+    trace_id = if_else(
+      !is.na(sample_id_group) & trimws(as.character(sample_id_group)) != "",
+      as.character(sample_id_group),
+      paste(plate_id, well_id, sep = "_")
+    )
+  )
 
 families <- sort(unique(raw_df$family_id_group))
 
@@ -448,7 +459,13 @@ str(blank_fc_ref)
 ```{r corrected-fc}
 samples <- dat_fc %>%
   filter(!is_blank, !exclude_from_analysis) %>%
-  mutate(trace_id = sample_id_group) %>%
+  mutate(
+    trace_id = if_else(
+      !is.na(sample_id_group) & trimws(as.character(sample_id_group)) != "",
+      as.character(sample_id_group),
+      paste(plate_id, well_id, sep = "_")
+    )
+  ) %>%
   left_join(blank_fc_ref, by = c("plate_id", "time_hr")) %>%
   mutate(corrected_fc = fold_change - mean_blank_fc)
 
@@ -693,7 +710,7 @@ run_ts_stats <- function(df, value_col) {
     filter(is.finite(.data[[value_col]]), is.finite(time_hr)) %>%
     mutate(
       time_f     = factor(time_hr),
-      individual = factor(sample_id_group)
+      individual = factor(trace_id)
     )
 
   if (nrow(df) == 0) return(NULL)
@@ -800,7 +817,7 @@ compute_auc <- function(df, value_col, group_vars) {
 
 # Only include grouping columns that are actually present in the data
 individual_vars <- intersect(
-  c("sample_id_group", "family_id_group", "treatment_group"),
+  c("trace_id", "family_id_group", "treatment_group"),
   names(metabolism_df)
 )
 
