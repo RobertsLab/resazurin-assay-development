@@ -208,11 +208,23 @@ layout_clean <- layout_raw %>%
   mutate(
     plate_id = str_remove(str_to_lower(plate_id), "^plate-"),
     well_id  = normalize_well_id(plate_well),
-    is_blank = toupper(trimws(is_blank)) %in%
-      c("TRUE", "T", "1", "YES", "Y"),
-    exclude_from_analysis =
-      toupper(trimws(exclude_from_analysis)) %in%
-      c("TRUE", "T", "1", "YES", "Y")
+    is_blank = if ("is_blank" %in% names(layout_raw))
+      toupper(trimws(is_blank)) %in% c("TRUE", "T", "1", "YES", "Y")
+    else
+      FALSE
+  )
+
+found_exclude_col <- intersect(
+  c("exclude_from_analysis", "exclude", "omit", "not_analyzed"),
+  names(layout_clean)
+)[1]
+layout_clean <- layout_clean %>%
+  mutate(
+    exclude_from_analysis = if (!is.na(found_exclude_col))
+      toupper(trimws(.data[[found_exclude_col]])) %in%
+        c("TRUE", "T", "1", "YES", "Y")
+    else
+      FALSE
   )
 
 # Identify measurement columns and group columns
