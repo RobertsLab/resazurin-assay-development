@@ -162,15 +162,15 @@ trapezoid_auc <- function(time_hr, value) {
   auc
 }
 
-fit_auc_emmeans_stats <- function(data, group_col, scope_cols = c("experiment_dir", "plate_id")) {
-  if (!has_emmeans || !group_col %in% names(data)) {
+fit_auc_emmeans_stats <- function(data, group_col, scope_cols = c("experiment_dir", "plate_id"), value_col = "value") {
+  if (!has_emmeans || !group_col %in% names(data) || !value_col %in% names(data)) {
     return(tibble())
   }
 
   trace_data <- data %>%
     filter(
       is.finite(time_hr),
-      is.finite(value),
+      is.finite(.data[[value_col]]),
       !is_blank,
       !exclude_from_analysis
     ) %>%
@@ -184,9 +184,9 @@ fit_auc_emmeans_stats <- function(data, group_col, scope_cols = c("experiment_di
     group_by(experiment_dir, plate_id, trace_id) %>%
     arrange(time_hr, read_datetime, source_name, .by_group = TRUE) %>%
     summarise(
-      auc_value = trapezoid_auc(time_hr, value),
+      auc_value = trapezoid_auc(time_hr, .data[[value_col]]),
       group_value = first_non_empty(.data[[group_col]]),
-      n_timepoints = sum(is.finite(time_hr) & is.finite(value)),
+      n_timepoints = sum(is.finite(time_hr) & is.finite(.data[[value_col]])),
       .groups = "drop"
     ) %>%
     filter(
@@ -893,20 +893,82 @@ plate_data_out <- plate_data %>%
     normalized_value
   )
 
+active_measurement_cols <- intersect(
+  measurement_cols,
+  names(plate_data_out)[sapply(names(plate_data_out), function(col)
+    any(is.finite(plate_data_out[[col]]))
+  )]
+)
+
+if (length(active_measurement_cols) > 0) {
+  initial_vals <- plate_data_out %>%
+    filter(!is_blank, !exclude_from_analysis, is.finite(time_hr), is.finite(value)) %>%
+    group_by(experiment_dir, plate_id, well_id) %>%
+    slice_min(time_hr, n = 1, with_ties = FALSE) %>%
+    select(experiment_dir, plate_id, well_id, value_initial = value) %>%
+    ungroup()
+
+  plate_data_out <- plate_data_out %>%
+    left_join(initial_vals, by = c("experiment_dir", "plate_id", "well_id"))
+
+  for (mc in active_measurement_cols) {
+    meas_norm_col  <- paste0("meas_norm_", mc)
+    paper_col      <- paste0("paper_metabolism_", mc)
+    plate_data_out <- plate_data_out %>%
+      mutate(
+        !!meas_norm_col := if_else(
+          is.finite(.data[[mc]]) & .data[[mc]] > 0 & is.finite(value) & value > 0,
+          value / .data[[mc]],
+          NA_real_
+        ),
+        !!paper_col := if_else(
+          is.finite(.data[[mc]]) & .data[[mc]] > 0 &
+            is.finite(value_initial) & value_initial > 0 &
+            is.finite(value),
+          (value / value_initial) / .data[[mc]],
+          NA_real_
+        )
+      )
+  }
+}
+
 stats_out <- if (has_emmeans) {
   group_candidates <- names(plate_data_out)[str_detect(names(plate_data_out), "_group$")]
 
-  map_dfr(group_candidates, function(group_col) {
-    per_plate <- fit_auc_emmeans_stats(plate_data_out, group_col,
-                                       scope_cols = c("experiment_dir", "plate_id"))
-    exp_level <- fit_auc_emmeans_stats(plate_data_out, group_col,
-                                       scope_cols = c("experiment_dir")) %>%
-      mutate(plate_id = "")
-    bind_rows(per_plate, exp_level)
+  view_list <- list(
+    list(data_view = "raw",        value_col = "value",           measurement_col = NA_character_),
+    list(data_view = "normalized", value_col = "normalized_value", measurement_col = NA_character_),
+    list(data_view = "delta",      value_col = "delta_value",      measurement_col = NA_character_)
+  )
+  for (mc in active_measurement_cols) {
+    view_list <- c(view_list, list(
+      list(data_view = "measurement_normalized", value_col = paste0("meas_norm_", mc),     measurement_col = mc),
+      list(data_view = "paper_metabolism",       value_col = paste0("paper_metabolism_", mc), measurement_col = mc)
+    ))
+  }
+
+  map_dfr(view_list, function(view) {
+    if (!view$value_col %in% names(plate_data_out)) return(tibble())
+    map_dfr(group_candidates, function(group_col) {
+      per_plate <- fit_auc_emmeans_stats(plate_data_out, group_col,
+                                         scope_cols = c("experiment_dir", "plate_id"),
+                                         value_col = view$value_col)
+      exp_level <- fit_auc_emmeans_stats(plate_data_out, group_col,
+                                          scope_cols = c("experiment_dir"),
+                                          value_col = view$value_col) %>%
+        mutate(plate_id = "")
+      bind_rows(per_plate, exp_level)
+    }) %>%
+      mutate(
+        metric          = "auc",
+        data_view       = view$data_view,
+        measurement_col = view$measurement_col
+      )
   }) %>%
-    mutate(metric = "auc") %>%
     select(
       metric,
+      data_view,
+      measurement_col,
       experiment_dir,
       plate_id,
       group_col,
@@ -1542,9 +1604,22 @@ aucStatsContext = (() => {
   const statsArr = Array.isArray(stats) ? stats : []
   const currentSeriesValues = effectiveSeriesValues.filter(validGroupValue)
 
-  const allCsvStatsRows = statsArr.filter(row =>
+  const dataViewToCsvView = {
+    "Raw fluorescence": "raw",
+    "Normalized fluorescence": "normalized",
+    "Delta fluorescence": "delta",
+    "Measurement-normalized fluorescence": "measurement_normalized",
+    "Paper metabolism (fold-change / selected measurement)": "paper_metabolism"
+  }
+  const csvDataView = dataViewToCsvView[dataViewSel] || null
+  const csvNeedsMeasurement = csvDataView === "measurement_normalized" || csvDataView === "paper_metabolism"
+  const csvMeasurementCol = csvNeedsMeasurement ? (activeMeasurementCol || null) : null
+
+  const allCsvStatsRows = (csvDataView === null || (csvNeedsMeasurement && csvMeasurementCol === null)) ? [] : statsArr.filter(row =>
     row != null &&
     String(row.metric || "") === "auc" &&
+    String(row.data_view || "raw") === csvDataView &&
+    (!csvNeedsMeasurement || String(row.measurement_col || "") === String(csvMeasurementCol)) &&
     String(row.group_col || "") === String(activeGroupCol || "") &&
     String(row.experiment_dir || "") === String(activeExperimentSel || "") &&
     (activePlateSel === "All" || String(row.plate_id || "") === String(activePlateSel || ""))
