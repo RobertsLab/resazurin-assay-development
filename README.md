@@ -3,7 +3,15 @@
 
 This repository contains all code, data, and documentation for the development and application of the resazurin assay to measure oyster metabolic responses to environmental stress. The project integrates multiple experimental datasets, analysis scripts, and outputs, supporting research in oyster health, aquaculture, and genetics.
 
-See our [landing page](https://robertslab.github.io/resazurin-assay-development/) for information on resazurin protocols, recent findings, experimental design tools, and data explor apps! 
+See our [landing page](https://robertslab.github.io/resazurin-assay-development/) for information on resazurin protocols, recent findings, experimental design tools, and data explor apps!
+
+## Manuscript 
+
+This repository contains data to accompany the manuscript: 
+
+Huffmyer et al. (2026) From Blue to Pink: Resazurin as a High-Throughput Proxy for Metabolic Rate in Oysters
+
+Data that is included in this manuscript includes the directories listed in "respository structure" below. 
 
 ## Clam dashboard
 
@@ -27,26 +35,26 @@ resazurin-assay-development/
 ├── resazurin-assay-development.Rproj # RStudio project file
 │
 ├── data/                      # Raw and processed data for all projects
-│   ├── 10k-seed/              # Data for 10K Seed Project
+│   ├── 10k-seed/              # Data for large seed thermal stress project
 │   ├── oxygen-correlation/    # Data for oxygen-resazurin correlation
-│   ├── spat-stress/           # Data for Spat Stress Project
+│   ├── spat-stress/           # Data for small seed thermal stress project
 │   ├── testing/               # Data for method validation/testing
-│   ├── thermal-curve/         # Data for thermal curve project
-│   └── usda-families/         # Data for USDA Families Project
+│   ├── thermal-curve/         # Data for resazurin thermal curve project
+│   └── usda-families/         # Data for family metabolic responses project
 │
 ├── scripts/                   # RMarkdown analysis scripts
-│   ├── 10k-seed/              # Analyses for 10K Seed Project
+│   ├── 10k-seed/              # Analyses for large seed thermal stress project
 │   ├── oxygen-correlation/    # Oxygen-resazurin analyses
-│   ├── spat-stress/           # Analyses for Spat Stress Project
+│   ├── spat-stress/           # Analyses for small seed thermal stress project
 │   ├── testing/               # Method validation scripts
-│   ├── thermal-curve/         # USDA thermal curve analyses
-│   └── usda-families/         # USDA Families analyses
+│   ├── thermal-curve/         # resazurin thermal curve project
+│   └── usda-families/         # family metabolic responses project
 │
 ├── figures/                   # Figures and diagrams
 │   ├── resazurin-applications-diagram.md # Visual schematic
 │   └── ...                    # Project-specific figures
 │
-├── output/                    # Analysis outputs (tables, processed data)
+├── output/                    # Analysis outputs for each project (tables, processed data)
 │   ├── 10k-seed/
 │   ├── oxygen-correlation/
 │   ├── spat-stress/
@@ -63,24 +71,24 @@ resazurin-assay-development/
 
 ## Project Connections
 
-- **10K Seed Project**: Examines oyster seed response to thermal stress, connecting acute temperature effects to resazurin measurements and mortality. [Related repo](https://github.com/RobertsLab/10K-seed-Cgigas)
-- **Spat Stress Project**: Explores thermal stress response in spat. [Related repo](https://github.com/RobertsLab/polyIC-larvae)
-- **USDA Families Project**: Investigates genetic variation in stress response among oyster families, comparing absorbance and fluorescence modes.
-- **Oxygen Correlation**: Links resazurin assay results to direct oxygen consumption measurements for validation.
-- **Thermal Curve**: Analyzes metabolic responses across temperature gradients in USDA families.
+- **Large seed thermal stress project**: Examines oyster seed response to thermal stress, connecting acute temperature effects to resazurin measurements and mortality. [Related repo](https://github.com/RobertsLab/10K-seed-Cgigas)
+- **Small seed thermal stress project**: Explores thermal stress response in spat. [Related repo](https://github.com/RobertsLab/polyIC-larvae)
+- **Family metabolic responses project**: Investigates genetic variation in stress response among oyster families, comparing absorbance and fluorescence modes.
+- **Oxygen correlation**: Links resazurin assay results to direct oxygen consumption measurements for validation.
+- **Resazurin thermal curve**: Analyzes metabolic responses across temperature gradients in USDA families.
 - **Testing**: Contains method validation and protocol optimization scripts.
 
 ## Purpose of Key Scripts
 
-- `scripts/10k-seed/resazurin-analysis-10k-seed.Rmd`: Analyzes metabolic rate data for 10K Seed Project.
-- `scripts/10k-seed/survival-analysis-10k-seed.Rmd`: Survival analysis based on resazurin data.
+- `scripts/10k-seed/resazurin-analysis-10k-seed.Rmd`: Analyzes metabolic rate data for large seed thermal stress Project.
+- `scripts/10k-seed/survival-analysis-10k-seed.Rmd`: Survival analysis based on resazurin data in large seed thermal stress project.
 - `scripts/oxygen-correlation/oxygen-rate-extraction.Rmd`: Extracts respiration rates from oxygen data.
 - `scripts/oxygen-correlation/oxygen-resazurin-correlations.Rmd`: Correlates oxygen and resazurin measurements.
 - `scripts/oxygen-correlation/resazurin-analysis.Rmd`: Analyzes individual oyster resazurin data for oxygen comparison.
-- `scripts/spat-stress/resazurin-analysis-spat-stress.Rmd`: Analyzes spat stress project data.
+- `scripts/spat-stress/resazurin-analysis-spat-stress.Rmd`: Analyzes small seed thermal stress project data.
 - `scripts/testing/shell-vs-open.Rmd`: Compares empty shell vs live animal metabolic rates.
-- `scripts/thermal-curve/thermal-curve-analysis.Rmd`: Analyzes thermal curve data for USDA families.
-- `scripts/usda-families/resazurin-analysis-usda-families.Rmd`: Analysis of metabolic rates between USDA families.
+- `scripts/thermal-curve/thermal-curve-analysis.Rmd`: Analyzes resazurin thermal curve data.
+- `scripts/usda-families/resazurin-analysis-usda-families.Rmd`: Analysis of metabolic rates between different families.
 
 ## Data Organization
 
