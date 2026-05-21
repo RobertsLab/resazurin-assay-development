@@ -646,6 +646,19 @@ plot3a<-ggplot(slope_summary, aes(x = family, y = percent_change, color=mortalit
 ggsave(plot3a, filename="figures/usda-families/fl_family_percent_change_mortality.png", width=6, height=6, units="in")
 ```
 
+Calculate total percent mortality for each family. 
+```{r}
+head(mortality)
+
+mortality%>%
+  mutate(family = str_extract(sample, "[A-Za-z]"))%>%
+  group_by(family, mortality) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  group_by(family) %>%
+  mutate(percentage = (n / sum(n)) * 100)
+  
+```
+
 ## Size and mortality effects 
 
 Calculate AUC prior to size normalization. 

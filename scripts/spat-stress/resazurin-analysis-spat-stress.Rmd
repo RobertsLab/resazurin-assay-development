@@ -298,6 +298,7 @@ anova(model)
 #rand(model)
 
 qqPlot(residuals(model))
+leveneTest((value.mm)^(1/3) ~ timepoint * temperature, data=full_data)
 ```
 
 View posthoc effects. 
@@ -448,7 +449,7 @@ plot3<-ggplot(surv_model_data, aes(x = temperature, y = predicted_mortality, col
 First re do the analysis of metabolism over time with only live oysters. 
 ```{r}
 model<-full_data%>%
-  filter(mortality==0)%>%
+  dplyr::filter(mortality==0)%>%
   
   lmer((value.mm)^(1/3) ~ timepoint * temperature * (1|date:plate:well) + (1|holding_tank) + (1|spat_treatment), data=.)
 
@@ -457,6 +458,7 @@ anova(model)
 #rand(model)
 
 qqPlot(residuals(model))
+leveneTest((value.mm)^(1/3) ~ timepoint * temperature, data=full_data%>%filter(mortality==0))
 ```
 
 Plot metabolic rates at 42°C (treatment with highest mortality) for those that lived and those that died in each treatment. 
@@ -481,6 +483,7 @@ summary(mortality_model)
 anova(mortality_model)
 
 qqPlot(residuals(mortality_model))
+leveneTest((value.mm)^(1/3) ~ timepoint * mortality, data=data_42C)
 ```
 
 Time and mortality is significant 
@@ -547,6 +550,7 @@ tpc_model<-aov((AUC)^(1/3) ~ mortality, data=auc_data)
 summary(tpc_model)
 anova(tpc_model)
 qqPlot(residuals(tpc_model))
+leveneTest((AUC)^(1/3) ~ mortality, data=auc_data)
 ```
 
 # Metabolic rates across thermal range 

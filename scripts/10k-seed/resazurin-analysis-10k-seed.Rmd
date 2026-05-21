@@ -14,10 +14,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
-ADD plots for time of death (1, 2, 3, or 4 h) 
-
-
 # Set up 
 
 Set up workspace, set options, and load required packages.    
@@ -477,6 +473,7 @@ summary(model)
 anova(model)
 
 qqPlot(residuals(model))
+leveneTest(AUC ~ temperature, data=auc_data)
 ```
 
 ## Analysis of metabolic rates in oysters that died during the 4 h trial
@@ -584,6 +581,7 @@ summary(model3)
 anova(model3)
 
 qqPlot(residuals(model3))
+leveneTest(sqrt(value.mm) ~ time * incubation.mortality, data=high_4h_data)
 ```
 
 ### Plot data 
@@ -661,6 +659,7 @@ summary(model4)
 anova(model4)
 
 qqPlot(residuals(model4))
+leveneTest(AUC ~ incubation.mortality, data=auc_data_dead)
 ```
 
 Post hoc test 

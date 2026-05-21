@@ -311,6 +311,7 @@ anova(model)
 #rand(model)
 
 qqPlot(residuals(model))
+leveneTest((value.mm)^(1/3) ~ timepoint * temperature, data=full_data)
 ```
 
 View posthoc effects. 
@@ -397,6 +398,7 @@ tpc_model<-aov((AUC)^(1/3) ~ temperature, data=auc_data)
 
 summary(tpc_model)
 qqPlot(residuals(tpc_model))
+leveneTest((AUC)^(1/3) ~ temperature, data=auc_data)
 ```
 
 Posthoc test.  
