@@ -1,0 +1,1 @@
+9 pacific oysters incubated at 36C for 3 hours in 5ml resazurin working solution. Working solution transfered to 15ml conicals after heat stress. One set stored at room temp, one stored on ice. Resazurin flourescense measured periodically.
