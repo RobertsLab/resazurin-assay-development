@@ -4,14 +4,14 @@ Software Version	3.16.10
 
 
 
-Experiment File Path:	C:\Users\Public\Documents\20250528-mgig-36C\Experiment1.xpt
+Experiment File Path:	
 Protocol File Path:	C:\Users\Public\Documents\Protocols\resazurin_12well.prt
 
 
 
-Plate Number	Plate 52
-Date	5/28/2026
-Time	12:40:53 PM
+Plate Number	Plate 1
+Date	6/1/2026
+Time	11:32:08 AM
 Reader Type:	Synergy HTX
 Reader Serial Number:	25030704
 Reading Type	Reader
@@ -32,11 +32,11 @@ Read	Fluorescence Endpoint
 
 
 
-Actual Temperature:	25.9
+Actual Temperature:	21.9
 
 Results
 	1	2	3	4
-A	242	232	263	64	528/20,590/20
-B	276	259	0	0	528/20,590/20
-C	259	338	205	67	528/20,590/20
+A	258	250	283	72	528/20,590/20
+B	297	283	0	0	528/20,590/20
+C	280	360	222	75	528/20,590/20
 
