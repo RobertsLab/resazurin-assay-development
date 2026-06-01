@@ -339,6 +339,19 @@ if (nrow(excluded_wells) > 0) {
 ```{r raw-fluor-df}
 storage_colours <- c(ice = "#56B4E9", room_temp = "#E69F00")
 
+individual_colours <- c(
+  "1"  = "#E69F00",
+  "2"  = "#56B4E9",
+  "3"  = "#009E73",
+  "5"  = "#F0E442",
+  "6"  = "#0072B2",
+  "9"  = "#D55E00",
+  "10" = "#CC79A7",
+  "11" = "#999999"
+)
+storage_shapes    <- c(ice = 16, room_temp = 17)
+storage_linetypes <- c(ice = "solid", room_temp = "dashed")
+
 raw_df <- dat %>%
   filter(!is_blank, !exclude_from_analysis, !is.na(storage)) %>%
   mutate(
@@ -398,6 +411,32 @@ p_raw_by_storage <- raw_df %>%
 p_raw_by_storage
 ggsave(file.path(fig_dir, "raw_individual_by_storage.png"),
        p_raw_by_storage, width = 8, height = 5)
+```
+
+## Paired individual raw fluorescence traces (both storage conditions)
+
+```{r raw-paired-individuals, fig.width=9, fig.height=5}
+p_raw_paired <- raw_df %>%
+  mutate(sample_id_group = as.character(sample_id_group)) %>%
+  ggplot(aes(x = time_hr, y = value,
+             group = trace_id,
+             colour = sample_id_group,
+             shape  = storage,
+             linetype = storage)) +
+  geom_line(alpha = 0.7, linewidth = 0.8) +
+  geom_point(size = 2.5, alpha = 0.9) +
+  scale_colour_manual(values = individual_colours, name = "Individual") +
+  scale_shape_manual(values = storage_shapes,    name = "Storage") +
+  scale_linetype_manual(values = storage_linetypes, name = "Storage") +
+  labs(x = "Time (h)", y = "Raw fluorescence (RFU)") +
+  theme_classic(base_size = 12) +
+  guides(colour = guide_legend(order = 1, ncol = 2),
+         shape  = guide_legend(order = 2),
+         linetype = guide_legend(order = 2))
+
+p_raw_paired
+ggsave(file.path(fig_dir, "raw_paired_individuals.png"),
+       p_raw_paired, width = 9, height = 5)
 ```
 
 ## Mean raw fluorescence by storage condition
@@ -488,6 +527,32 @@ p_fc_by_storage <- samples %>%
 p_fc_by_storage
 ggsave(file.path(fig_dir, "fold_change_by_storage.png"),
        p_fc_by_storage, width = 8, height = 5)
+```
+
+## Paired individual traces (both storage conditions)
+
+```{r fc-paired-individuals, fig.width=9, fig.height=5}
+p_fc_paired <- samples %>%
+  mutate(sample_id_group = as.character(sample_id_group)) %>%
+  ggplot(aes(x = time_hr, y = fold_change,
+             group = trace_id,
+             colour = sample_id_group,
+             shape  = storage,
+             linetype = storage)) +
+  geom_line(alpha = 0.7, linewidth = 0.8) +
+  geom_point(size = 2.5, alpha = 0.9) +
+  scale_colour_manual(values = individual_colours, name = "Individual") +
+  scale_shape_manual(values = storage_shapes,    name = "Storage") +
+  scale_linetype_manual(values = storage_linetypes, name = "Storage") +
+  labs(x = "Time (h)", y = "Fold-change (relative to T0)") +
+  theme_classic(base_size = 12) +
+  guides(colour = guide_legend(order = 1, ncol = 2),
+         shape  = guide_legend(order = 2),
+         linetype = guide_legend(order = 2))
+
+p_fc_paired
+ggsave(file.path(fig_dir, "fold_change_paired_individuals.png"),
+       p_fc_paired, width = 9, height = 5)
 ```
 
 ## Mean fold-change by storage condition
