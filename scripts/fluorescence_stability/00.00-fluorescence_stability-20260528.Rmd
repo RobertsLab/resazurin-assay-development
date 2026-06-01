@@ -632,30 +632,36 @@ model <- lmer(
 anova_res <- anova(model, type = 3, ddf = "Satterthwaite")
 ```
 
-## ANOVA
+## ANOVA table
 
-```{r stats-anova, results='asis'}
-cat("**Type III ANOVA (Satterthwaite approximation):**\n\n")
-print(anova_res)
+```{r stats-anova}
+knitr::kable(
+  as.data.frame(anova_res),
+  digits  = c(0, 0, 2, 2, 4),
+  caption = "Type III ANOVA (Satterthwaite approximation). Key terms: **storage** = overall ice vs. room-temp difference; **time_f:storage** interaction = whether trajectories diverged between conditions."
+)
 ```
 
-## Pairwise comparisons
+## Timepoint pairwise comparisons (within each storage condition)
 
-```{r stats-pairs, results='asis'}
+```{r stats-pairs-time}
 # Timepoint comparisons within each storage condition
 emm_time_by_storage <- emmeans(model, ~ time_f | storage)
 pairs_time <- as.data.frame(pairs(emm_time_by_storage, adjust = "tukey"))
 
-cat("**Timepoint pairwise comparisons within each storage condition",
-    "(Tukey):**\n\n")
-print(pairs_time)
+knitr::kable(pairs_time, digits = 4,
+  caption = "Tukey-adjusted pairwise comparisons between timepoints, within each storage condition.")
+```
 
+## Storage condition comparisons (ice vs. room-temp at each timepoint)
+
+```{r stats-pairs-storage}
 # Storage condition at each timepoint
 emm_storage_by_time <- emmeans(model, ~ storage | time_f)
 pairs_storage <- as.data.frame(pairs(emm_storage_by_time, adjust = "tukey"))
 
-cat("\n\n**Ice vs room-temperature at each timepoint (Tukey):**\n\n")
-print(pairs_storage)
+knitr::kable(pairs_storage, digits = 4,
+  caption = "Tukey-adjusted pairwise comparisons between ice and room-temperature storage at each timepoint.")
 ```
 
 ## Box plots with letter annotations
@@ -706,6 +712,56 @@ for (stor in c("ice", "room_temp")) {
     p, width = 6, height = 5
   )
 }
+```
+
+## Ice vs. room-temp comparison at each timepoint
+
+Significance brackets indicate Tukey-adjusted p-values from `pairs_storage`.
+Stars: \*\*\* p < 0.001, \*\* p < 0.01, \* p < 0.05, ns = not significant.
+
+```{r boxplot-storage-by-time, fig.width=8, fig.height=5}
+sig_label <- function(p) {
+  case_when(p < 0.001 ~ "***", p < 0.01 ~ "**", p < 0.05 ~ "*", TRUE ~ "ns")
+}
+
+# y positions for brackets: just above the max per timepoint
+bracket_df <- pairs_storage %>%
+  mutate(
+    time_f = factor(time_f),
+    sig    = sig_label(p.value)
+  ) %>%
+  left_join(
+    model_df %>%
+      group_by(time_f) %>%
+      summarise(y_max = max(fold_change, na.rm = TRUE), .groups = "drop"),
+    by = "time_f"
+  ) %>%
+  mutate(
+    y_bracket = y_max + diff(range(model_df$fold_change, na.rm = TRUE)) * 0.08
+  )
+
+p_storage_compare <- ggplot(model_df,
+    aes(x = storage, y = fold_change, fill = storage)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) +
+  geom_jitter(aes(colour = storage), width = 0.15, alpha = 0.4, size = 1.5) +
+  geom_text(
+    data = bracket_df,
+    aes(x = 1.5, y = y_bracket, label = sig),
+    inherit.aes = FALSE, size = 4
+  ) +
+  facet_wrap(~ time_f, nrow = 1,
+             labeller = labeller(time_f = function(x) paste0("T", x, "h"))) +
+  scale_fill_manual(values   = storage_colours, name = "Storage") +
+  scale_colour_manual(values = storage_colours, name = "Storage") +
+  scale_x_discrete(labels = c(ice = "Ice", room_temp = "Room temp")) +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.18))) +
+  labs(x = NULL, y = "Fold-change (relative to T0)") +
+  theme_classic(base_size = 12) +
+  theme(legend.position = "bottom")
+
+p_storage_compare
+ggsave(file.path(fig_dir, "boxplot_storage_by_timepoint.png"),
+       p_storage_compare, width = 8, height = 5)
 ```
 
 # Save Output Data
