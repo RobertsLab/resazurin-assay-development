@@ -440,6 +440,51 @@ ggsave(file.path(fig_dir, "raw_paired_individuals.png"),
        p_raw_paired, width = 9, height = 5)
 ```
 
+## T0 vs. T96 raw fluorescence by individual
+
+```{r raw-t0-t96-ice, fig.width=10, fig.height=6}
+t0_t96_df <- raw_df %>%
+  filter(time_hr %in% c(0, 96)) %>%
+  mutate(
+    timepoint      = factor(paste0("T", time_hr), levels = c("T0", "T96")),
+    sample_id_group = factor(sample_id_group)
+  )
+
+p_t0_t96_ice <- t0_t96_df %>%
+  filter(storage == "ice") %>%
+  ggplot(aes(x = sample_id_group, y = value,
+             fill = sample_id_group)) +
+  geom_col(width = 0.7) +
+  facet_wrap(~ timepoint, nrow = 1) +
+  scale_fill_manual(values = individual_colours, name = "Individual") +
+  labs(x = "Individual", y = "Raw fluorescence (RFU)",
+       title = "Ice storage — T0 vs. T96 by individual") +
+  theme_classic(base_size = 12) +
+  theme(strip.background = element_blank())
+
+p_t0_t96_ice
+ggsave(file.path(fig_dir, "raw_t0_t96_ice.png"),
+       p_t0_t96_ice, width = 10, height = 6)
+```
+
+```{r raw-t0-t96-roomtemp, fig.width=10, fig.height=6}
+p_t0_t96_rt <- t0_t96_df %>%
+  filter(storage == "room_temp") %>%
+  ggplot(aes(x = sample_id_group, y = value,
+             fill = sample_id_group)) +
+  geom_col(width = 0.7) +
+  facet_wrap(~ timepoint, nrow = 1) +
+  scale_fill_manual(values = individual_colours, name = "Individual") +
+  labs(x = "Individual", y = "Raw fluorescence (RFU)",
+       title = "Room temperature storage — T0 vs. T96 by individual") +
+  theme_classic(base_size = 12) +
+  theme(strip.background = element_blank())
+
+p_t0_t96_rt
+ggsave(file.path(fig_dir, "raw_t0_t96_roomtemp.png"),
+       p_t0_t96_rt, width = 10, height = 6)
+```
+
 ## Mean raw fluorescence by storage condition
 
 ```{r raw-mean-by-storage, fig.width=8, fig.height=5}
