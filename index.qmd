@@ -5,7 +5,7 @@ author:
   - Ariana Huffmyer
   - Louis Plough (USDA)
   - Steven Roberts
-date-modified: 2025-12-31 # UPDATE
+date-modified: 2026-06-27 # UPDATE
 date-modified-format: "Updated on MMMM D, YYYY"
 editor: 
   markdown: 
@@ -25,17 +25,14 @@ Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/).
 ::: callout-note
 ## 📖 New: Manuscript
 
-Huffmyer AS, N Ozguner, M Baird, C Elvrum, C Kounellas, D Dicksion, SJ White, L Plough, MR Gavery, N Krebs, W Walton, J Small, M Pitsenbarger, H Ealy-Whitfield, S Roberts. **From blue to pink: Resazurin as a high-throughput proxy for metabolic rate in oysters**. In review. PeerJ.
+Huffmyer AS, N Ozguner, M Baird, C Elvrum, C Kounellas, D Dicksion, SJ
+White, L Plough, MR Gavery, N Krebs, W Walton, J Small, M Pitsenbarger,
+H Ealy-Whitfield, S Roberts. **From blue to pink: Resazurin as a
+high-throughput proxy for metabolic rate in oysters**. In review. PeerJ.
 Available on bioRxiv at <http://doi.org/10.1101/2025.11.06.686367>.
-
 :::
 
 ------------------------------------------------------------------------
-
-# Clam Dashboard
-
-Explore auto-updated clam plate-reader time-series at the [Clam Dashboard](clam-dashboard.qmd).
-The dashboard rebuilds from files in `data/clam` and supports whole-plate and individual well views over time.
 
 # Summary
 
@@ -78,11 +75,6 @@ distinct metabolic signatures.\
 • **High sensitivity measurements** — fluorescence measurements provide
 highly sensitive measurements of oyster metabolism.
 
-# Video Demo
-
-::: {style="width:75%; margin:auto;"}
-{{< video http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov >}}
-:::
 
 # Preparing solutions
 
@@ -99,58 +91,6 @@ below to calculate the solutions required! See our [Canonical
 Protocol](https://robertslab.github.io/resources/protocols/resazurin-assay/)
 for further details.
 
-### Solutions required
-
-1.  Stock resazurin solution 
-
-To make the resazurin stock solution (10 mL) mix the following. We will
-use this solution for multiple trials. 
-
--   [0.5 g resazurin
-    salt](https://www.thermofisher.com/order/catalog/product/R12204)
-
--   10 mL DI water
-
--   10 µL DMSO
-
-Store in a dark fridge or freezer. 
-
-2.  Working resazurin solution
-
-First, determine the volume of resazurin required depending on the size
-of your organism and the container size. Here are some examples that we
-have used before. We recommend performing preliminary trials to ensure
-that a change in resazurin fluorescence can be detected over the time
-scale desired. This protocol was developed to detect a change in
-resazurin fluorescence within 5 hours in small seed (\<7mm) and larger
-seed (10-30mm). 
-
--   Small seed (\<7mm length): trials conducted in 96 well plates (250uL
-  volume in each well)
-
--   Medium seed (15-40 mm length): trials conducted in small plastic
-    cups (20 mL volume) or 12, 24, or 48-well plates
-
--   Large seed/adults (\>40 mm length): trials can be conducted in
-    tripour cups, beakers, or plastic cups. Scale volume appropriately.
-    The animals should be fully submerged. 
-
-Use the calculator below to calculate the formula for your working
-solution.
-
-The working solution requires the following: 
-
--   Filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt
-    or filtered (\<1um) seawater) 
-
--   Resazurin stock solution as made above in step 1 
-
--   DMSO
-
--   Antibiotic solution [100x Penn/Strep & 100x
-    Fungizone](https://us.vwr.com/store/product/4648458/null) - this
-    should be kept frozen in a dark freezer and thawed before use (thaw
-    in the dark or cover with aluminum foil)
 
 # Interactive Recipe Calculator
 
@@ -281,12 +221,11 @@ analysis.](figures/images/end_plate.jpeg){width="75%"}
 ![Testing multiple plates with hundreds to thousands of oysters is
 achievable with the resazurin
 assay.](figures/images/plates.jpeg){width="75%"}
-
 :::
 
 # Recent Slidedecks
 
-![](https://github.com/AHuffmyer/ASH_Putnam_Lab_Notebook/blob/master/images/NotebookImages/oysters/resazurin/pcsga_talk.png?raw=true){width="300px"}  
+![](https://github.com/AHuffmyer/ASH_Putnam_Lab_Notebook/blob/master/images/NotebookImages/oysters/resazurin/pcsga_talk.png?raw=true){width="300px"}
 
 [📄 View PCSGA 2025 talk
 (PDF)](https://github.com/AHuffmyer/presentations/blob/master/2025/Huffmyer_PCSGA_2025.pdf)
@@ -300,13 +239,3 @@ assay.](figures/images/plates.jpeg){width="75%"}
 
 Direct link: <http://resazur.in/explorer>
 
-*Embedded below (may take a moment to load):*
-
-::: {style="position:relative;width:100%;padding-bottom:120%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;"}
-<iframe
-    src="http://resazur.in/explorer"
-    title="Resazurin Trials Explorer"
-    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"
-    loading="lazy"
-  ></iframe>
-:::

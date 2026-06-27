@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.42">
+<meta name="generator" content="quarto-1.6.40">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -72,14 +72,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-b53751a350365c71b6c909e95f209ed1.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-8ea72dc5fed832574809a9c94082fbbb.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-06494af806bb6afb141a70c825356349.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-0b320d439d4281706461178833927986.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<script src="site_libs/quarto-contrib/videojs/video.min.js"></script>
-<link href="site_libs/quarto-contrib/videojs/video-js.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6bd9cfa162949bde0a231f530c97869d.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-b2511bcbb01c2159fd96a78deb42ffd9.min.css" rel="prefetch" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -128,10 +126,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Technical Documentation</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./clam-dashboard.html"> 
-<span class="menu-text">Clam Dashboard</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./public-summary.html"> 
@@ -188,7 +182,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 31, 2025</p>
+      <p class="date-modified">June 27, 2026</p>
     </div>
   </div>
     
@@ -215,10 +209,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <hr>
-<section id="clam-dashboard" class="level1">
-<h1>Clam Dashboard</h1>
-<p>Explore auto-updated clam plate-reader time-series at the <a href="./clam-dashboard.html">Clam Dashboard</a>. The dashboard rebuilds from files in <code>data/clam</code> and supports whole-plate and individual well views over time.</p>
-</section>
 <section id="summary" class="level1">
 <h1>Summary</h1>
 <p>This protocol uses a resazurin-based assay to measure individual metabolic responses to elevated temperature stress over a 4-5-hour period. Resazurin is a redox-sensitive dye that fluoresces as it is reduced by cellular respiration, providing a proxy for metabolic activity. Individuals are incubated in a resazurin working solution at a high temperature (e.g., ~42°C), and metabolic activity is monitored through fluorescence measurements taken at hourly intervals. Fluorescence measurements are conducted using an excitation wavelength of 530 nm (e.g., a 528/20 nm bandpass filter) and an emission wavelength of 590 nm (e.g., a 590/20 nm bandpass filter) using a fluorescence plate reader.</p>
@@ -238,135 +228,104 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 • <strong>Parental and ploidy effects matter</strong> — offspring stress resistance is affected by parental histry, and diploid vs triploid oysters show distinct metabolic signatures.<br>
 • <strong>High sensitivity measurements</strong> — fluorescence measurements provide highly sensitive measurements of oyster metabolism.</p>
 </section>
-<section id="video-demo" class="level1">
-<h1>Video Demo</h1>
-<div style="width:75%; margin:auto;">
-<div class="quarto-video"><video id="video_shortcode_videojs_video1" class="video-js vjs-default-skin vjs-fluid" controls="" preload="auto" data-setup="{}" title=""><source src="http://gannet.fish.washington.edu/seashell/snaps/resazurin_01.mov"></video></div>
-</div>
-</section>
 <section id="preparing-solutions" class="level1">
 <h1>Preparing solutions</h1>
 <p>To prepare the resazurin assay solutions, first make a stock by combining resazurin salt with water and a small amount of DMSO. Store this stock in a dark refrigerator or freezer. The working solution consists primarily of seawater (about 98.5%), with small proportions of resazurin stock (0.2%), DMSO (0.1%), and an antibiotic/antifungal solution (1%). Adjust the total volume based on the number and size of organisms being tested, ensuring animals are fully submerged. Trials are typically scaled for small (≤7 mm), medium (15–40 mm), or large (&gt;40 mm) seed using appropriately sized containers. See our widget below to calculate the solutions required! See our <a href="https://robertslab.github.io/resources/protocols/resazurin-assay/">Canonical Protocol</a> for further details.</p>
-<section id="solutions-required" class="level3">
-<h3 class="anchored" data-anchor-id="solutions-required">Solutions required</h3>
-<ol type="1">
-<li>Stock resazurin solution&nbsp;</li>
-</ol>
-<p>To make the resazurin stock solution (10 mL) mix the following. We will use this solution for multiple trials.&nbsp;</p>
-<ul>
-<li><p><a href="https://www.thermofisher.com/order/catalog/product/R12204">0.5 g resazurin salt</a></p></li>
-<li><p>10 mL DI water</p></li>
-<li><p>10 µL DMSO</p></li>
-</ul>
-<p>Store in a dark fridge or freezer.&nbsp;</p>
-<ol start="2" type="1">
-<li>Working resazurin solution</li>
-</ol>
-<p>First, determine the volume of resazurin required depending on the size of your organism and the container size. Here are some examples that we have used before. We recommend performing preliminary trials to ensure that a change in resazurin fluorescence can be detected over the time scale desired. This protocol was developed to detect a change in resazurin fluorescence within 5 hours in small seed (&lt;7mm) and larger seed (10-30mm).&nbsp;</p>
-<ul>
-<li><p>Small seed (&lt;7mm length): trials conducted in 96 well plates (300uL volume in each well)</p></li>
-<li><p>Medium seed (15-40 mm length): trials conducted in small plastic cups (20 mL volume) or 12, 24, or 48-well plates</p></li>
-<li><p>Large seed/adults (&gt;40 mm length): trials can be conducted in tripour cups, beakers, or plastic cups. Scale volume appropriately. The animals should be fully submerged.&nbsp;</p></li>
-</ul>
-<p>Use the calculator below to calculate the formula for your working solution.</p>
-<p>The working solution requires the following:&nbsp;</p>
-<ul>
-<li><p>Filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered (&lt;1um) seawater)&nbsp;</p></li>
-<li><p>Resazurin stock solution as made above in step 1&nbsp;</p></li>
-<li><p>DMSO</p></li>
-<li><p>Antibiotic solution&nbsp;<a href="https://us.vwr.com/store/product/4648458/null">100x Penn/Strep &amp; 100x Fungizone</a>&nbsp;- this should be kept frozen in a dark freezer and thawed before use (thaw in the dark or cover with aluminum foil)</p></li>
-</ul>
-</section>
 </section>
 <section id="interactive-recipe-calculator" class="level1">
 <h1>Interactive Recipe Calculator</h1>
 <p>Use this calculator to automatically determine the required amounts of each ingredient based on your experimental setup.</p>
 <div class="cell">
-<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="164" data-source-offset="-19"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 163;"><span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>viewof plateType <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
-<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>  [</span>
-<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>    <span class="st">"96-well plate (35 mL per plate)"</span><span class="op">,</span></span>
-<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>    <span class="st">"48-well plate (25 mL per plate)"</span><span class="op">,</span> </span>
-<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>    <span class="st">"24-well plate (15 mL per plate)"</span><span class="op">,</span></span>
-<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>    <span class="st">"12-well plate (10 mL per plate)"</span><span class="op">,</span></span>
-<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Custom volume"</span></span>
-<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
-<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>  {</span>
-<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Plate type:"</span><span class="op">,</span></span>
-<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">"96-well plate (35 mL per plate)"</span></span>
-<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>viewof numPlates <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">80</span>]<span class="op">,</span> {</span>
-<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of plates:"</span><span class="op">,</span></span>
-<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span></span>
-<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>viewof customVolume <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">2000</span>]<span class="op">,</span> {</span>
-<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Custom total volume (mL):"</span><span class="op">,</span></span>
-<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">35</span><span class="op">,</span></span>
-<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
-<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a>  <span class="dt">disabled</span><span class="op">:</span> plateType <span class="op">!==</span> <span class="st">"Custom volume"</span></span>
-<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>viewof extraPercent <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">20</span>]<span class="op">,</span> {</span>
-<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Extra volume for safety (%):"</span><span class="op">,</span></span>
-<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span></span>
-<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">5</span></span>
-<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a><span class="co">// Calculations</span></span>
-<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>plateVolumes <span class="op">=</span> <span class="kw">new</span> <span class="bu">Map</span>([</span>
-<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"96-well plate (35 mL per plate)"</span><span class="op">,</span> <span class="dv">35</span>]<span class="op">,</span></span>
-<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"48-well plate (25 mL per plate)"</span><span class="op">,</span> <span class="dv">25</span>]<span class="op">,</span></span>
-<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"24-well plate (15 mL per plate)"</span><span class="op">,</span> <span class="dv">15</span>]<span class="op">,</span> </span>
-<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"12-well plate (10 mL per plate)"</span><span class="op">,</span> <span class="dv">10</span>]<span class="op">,</span></span>
-<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Custom volume"</span><span class="op">,</span> customVolume]</span>
-<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>baseVolume <span class="op">=</span> plateVolumes<span class="op">.</span><span class="fu">get</span>(plateType) <span class="op">*</span> numPlates</span>
-<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>totalVolume <span class="op">=</span> baseVolume <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> extraPercent <span class="op">/</span> <span class="dv">100</span>)</span>
-<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>seawaterVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.98666</span></span>
-<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>resazurinVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.00222</span></span>
-<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>dmsoVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.001</span></span>
-<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>antibioticVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.01</span></span>
-<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a><span class="co">// Helper function to format volumes appropriately</span></span>
-<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">formatVolume</span>(volume) {</span>
-<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (volume <span class="op">&gt;=</span> <span class="dv">1</span>) {</span>
-<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> volume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>) <span class="op">+</span> <span class="st">" mL"</span><span class="op">;</span></span>
-<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (volume <span class="op">*</span> <span class="dv">1000</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">0</span>) <span class="op">+</span> <span class="st">" µL"</span><span class="op">;</span></span>
-<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a><span class="co">// Display results</span></span>
-<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`</span></span>
-<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;"&gt;</span></span>
-<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;h3 style="color: #2c3e50; margin-top: 0;"&gt;📋 Recipe for </span><span class="sc">${</span>totalVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL Working Solution&lt;/h3&gt;</span></span>
-<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
-<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;"&gt;</span></span>
-<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Experimental setup:&lt;/strong&gt; </span><span class="sc">${</span>numPlates<span class="sc">}</span><span class="vs"> × </span><span class="sc">${</span>plateType<span class="op">.</span><span class="fu">split</span>(<span class="st">' ('</span>)[<span class="dv">0</span>]<span class="sc">}</span><span class="vs"> </span></span>
-<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>plateType <span class="op">!==</span> <span class="st">"Custom volume"</span> <span class="op">?</span> <span class="vs">`(</span><span class="sc">${</span>baseVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL base volume)`</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}</span><span class="vs">&lt;/p&gt;</span></span>
-<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Safety margin:&lt;/strong&gt; +</span><span class="sc">${</span>extraPercent<span class="sc">}</span><span class="vs">% extra volume&lt;/p&gt;</span></span>
-<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px;"&gt;</span></span>
-<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;h4 style="color: #27ae60; margin-top: 0;"&gt;🧪 Required Ingredients:&lt;/h4&gt;</span></span>
-<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;ul style="font-size: 16px; line-height: 1.8;"&gt;</span></span>
-<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(seawaterVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered &amp;lt;1μm seawater)&lt;/li&gt;</span></span>
-<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(resazurinVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; resazurin stock solution (from step 1 above)&lt;/li&gt;</span></span>
-<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(dmsoVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; DMSO&lt;/li&gt;</span></span>
-<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(antibioticVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; antibiotic solution (100x Penn/Strep &amp; 100x Fungizone)&lt;/li&gt;</span></span>
-<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/ul&gt;</span></span>
-<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
-<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px;"&gt;</span></span>
-<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;💡 Tip:&lt;/strong&gt; Remember to thaw the antibiotic solution in the dark before use, and store the resazurin stock solution in a dark fridge or freezer.</span></span>
-<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
-<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;</span></span>
-<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code hidden" id="cb1" data-startfrom="104" data-source-offset="-19"><pre class="sourceCode js code-with-copy"><code class="sourceCode javascript" style="counter-reset: source-line 103;"><span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>viewof plateType <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">select</span>(</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>  [</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    <span class="st">"96-well plate (0.250 mL/well)"</span><span class="op">,</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>    <span class="st">"48-well plate (1 mL/well)"</span><span class="op">,</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>    <span class="st">"24-well plate (2 mL/well)"</span><span class="op">,</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>    <span class="st">"12-well plate (4 mL/well)"</span><span class="op">,</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>    <span class="st">"6-well plate (10 mL/well)"</span><span class="op">,</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Custom volume"</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>  ]<span class="op">,</span></span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>    <span class="dt">label</span><span class="op">:</span> <span class="st">"Plate type:"</span><span class="op">,</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>    <span class="dt">value</span><span class="op">:</span> <span class="st">"96-well plate (0.250 mL/well)"</span></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>viewof numPlates <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">80</span>]<span class="op">,</span> {</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Number of plates:"</span><span class="op">,</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>viewof customVolume <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">1</span><span class="op">,</span> <span class="dv">20000</span>]<span class="op">,</span> {</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Custom total volume (mL):"</span><span class="op">,</span></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">35</span><span class="op">,</span></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">1</span><span class="op">,</span></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a>  <span class="dt">disabled</span><span class="op">:</span> plateType <span class="op">!==</span> <span class="st">"Custom volume"</span></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>viewof extraPercent <span class="op">=</span> Inputs<span class="op">.</span><span class="fu">range</span>([<span class="dv">0</span><span class="op">,</span> <span class="dv">20</span>]<span class="op">,</span> {</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>  <span class="dt">label</span><span class="op">:</span> <span class="st">"Extra volume for safety (%):"</span><span class="op">,</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>  <span class="dt">value</span><span class="op">:</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>  <span class="dt">step</span><span class="op">:</span> <span class="dv">5</span></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a><span class="co">// Calculations</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>plateConfigs <span class="op">=</span> <span class="kw">new</span> <span class="bu">Map</span>([</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"96-well plate (0.250 mL/well)"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="dv">96</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="fl">0.250</span> }]<span class="op">,</span></span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"48-well plate (1 mL/well)"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="dv">48</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="dv">1</span> }]<span class="op">,</span></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"24-well plate (2 mL/well)"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="dv">24</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="dv">2</span> }]<span class="op">,</span> </span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"12-well plate (4 mL/well)"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="dv">12</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="dv">4</span> }]<span class="op">,</span></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"6-well plate (10 mL/well)"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="dv">6</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="dv">10</span> }]<span class="op">,</span></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>  [<span class="st">"Custom volume"</span><span class="op">,</span> { <span class="dt">wells</span><span class="op">:</span> <span class="kw">null</span><span class="op">,</span> <span class="dt">wellVolume</span><span class="op">:</span> <span class="kw">null</span> }]</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>plateConfig <span class="op">=</span> plateConfigs<span class="op">.</span><span class="fu">get</span>(plateType)</span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>plateVolume <span class="op">=</span> plateType <span class="op">===</span> <span class="st">"Custom volume"</span> <span class="op">?</span> customVolume <span class="op">:</span> plateConfig<span class="op">.</span><span class="at">wells</span> <span class="op">*</span> plateConfig<span class="op">.</span><span class="at">wellVolume</span></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a>totalBaseVolume <span class="op">=</span> plateVolume <span class="op">*</span> numPlates</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>totalVolume <span class="op">=</span> totalBaseVolume <span class="op">*</span> (<span class="dv">1</span> <span class="op">+</span> extraPercent <span class="op">/</span> <span class="dv">100</span>)</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>seawaterVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.98666</span></span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>resazurinVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.00222</span></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>dmsoVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.001</span></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>antibioticVolume <span class="op">=</span> totalVolume <span class="op">*</span> <span class="fl">0.01</span></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a><span class="co">// Helper function to format volumes appropriately</span></span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">formatVolume</span>(volume) {</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (volume <span class="op">&gt;=</span> <span class="dv">1</span>) {</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> volume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">2</span>) <span class="op">+</span> <span class="st">" mL"</span><span class="op">;</span></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (volume <span class="op">*</span> <span class="dv">1000</span>)<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">0</span>) <span class="op">+</span> <span class="st">" µL"</span><span class="op">;</span></span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="co">// Display results</span></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a><span class="fu">html</span><span class="vs">`</span></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;"&gt;</span></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;h3 style="color: #2c3e50; margin-top: 0;"&gt;📋 Recipe for </span><span class="sc">${</span>totalVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL Working Solution&lt;/h3&gt;</span></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;"&gt;</span></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Experimental setup:&lt;/strong&gt; </span><span class="sc">${</span>numPlates<span class="sc">}</span><span class="vs"> × </span><span class="sc">${</span>plateType<span class="sc">}</span><span class="vs"> </span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a><span class="vs">    </span><span class="sc">${</span>plateType <span class="op">!==</span> <span class="st">"Custom volume"</span> <span class="op">?</span> <span class="vs">`(</span><span class="sc">${</span>plateConfig<span class="op">.</span><span class="at">wells</span><span class="sc">}</span><span class="vs"> wells × </span><span class="sc">${</span>plateConfig<span class="op">.</span><span class="at">wellVolume</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs"> mL/well = </span><span class="sc">${</span>plateVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL per plate; </span><span class="sc">${</span>numPlates<span class="sc">}</span><span class="vs"> plates = </span><span class="sc">${</span>totalBaseVolume<span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">1</span>)<span class="sc">}</span><span class="vs"> mL before safety)`</span> <span class="op">:</span> <span class="st">''</span><span class="sc">}</span><span class="vs">&lt;/p&gt;</span></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Per-well default:&lt;/strong&gt; </span><span class="sc">${</span>plateType <span class="op">===</span> <span class="st">"Custom volume"</span> <span class="op">?</span> <span class="st">"Custom volume"</span> <span class="op">:</span> <span class="vs">`</span><span class="sc">${</span>plateConfig<span class="op">.</span><span class="at">wellVolume</span><span class="op">.</span><span class="fu">toFixed</span>(<span class="dv">3</span>)<span class="sc">}</span><span class="vs"> mL per well`</span><span class="sc">}</span><span class="vs">&lt;/p&gt;</span></span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;p&gt;&lt;strong&gt;Safety margin:&lt;/strong&gt; +</span><span class="sc">${</span>extraPercent<span class="sc">}</span><span class="vs">% extra volume&lt;/p&gt;</span></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: white; padding: 15px; border-radius: 5px;"&gt;</span></span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;h4 style="color: #27ae60; margin-top: 0;"&gt;🧪 Required Ingredients:&lt;/h4&gt;</span></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;ul style="font-size: 16px; line-height: 1.8;"&gt;</span></span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(seawaterVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; filtered seawater (DI water with Instant Ocean adjusted to 23-25 ppt or filtered &amp;lt;1μm seawater)&lt;/li&gt;</span></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(resazurinVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; resazurin stock solution (from step 1 above)&lt;/li&gt;</span></span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(dmsoVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; DMSO&lt;/li&gt;</span></span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a><span class="vs">      &lt;li&gt;&lt;strong&gt;</span><span class="sc">${</span><span class="fu">formatVolume</span>(antibioticVolume)<span class="sc">}</span><span class="vs">&lt;/strong&gt; antibiotic solution (100x Penn/Strep &amp; 100x Fungizone)&lt;/li&gt;</span></span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;/ul&gt;</span></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a><span class="vs">  </span></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;div style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px;"&gt;</span></span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a><span class="vs">    &lt;strong&gt;💡 Tip:&lt;/strong&gt; Remember to thaw the antibiotic solution in the dark before use, and store the resazurin stock solution in a dark fridge or freezer.</span></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a><span class="vs">  &lt;/div&gt;</span></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a><span class="vs">&lt;/div&gt;</span></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a><span class="vs">`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <div id="ojs-cell-1-1" data-nodetype="declaration">
@@ -453,7 +412,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display">
 <div>
-<div id="ojs-cell-1-13" data-nodetype="expression">
+<div id="ojs-cell-1-13" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-14" data-nodetype="declaration">
+
+</div>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<div id="ojs-cell-1-15" data-nodetype="expression">
 
 </div>
 </div>
@@ -510,18 +483,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-explorer" class="level1">
 <h1>Data Explorer</h1>
 <p>Direct link: <a href="http://resazur.in/explorer" class="uri">http://resazur.in/explorer</a></p>
-<p><em>Embedded below (may take a moment to load):</em></p>
-<div style="position:relative;width:100%;padding-bottom:120%;height:0;overflow:hidden;border:1px solid #ccc;border-radius:6px;">
-<iframe src="http://resazur.in/explorer" title="Resazurin Trials Explorer" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" loading="lazy">
-</iframe>
-</div>
 
 
 </section>
 
 </main> <!-- /main -->
 <script type="ojs-module-contents">
-eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxuLy8gSW5wdXQgY29udHJvbHNcbnZpZXdvZiBwbGF0ZVR5cGUgPSBJbnB1dHMuc2VsZWN0KFxuICBbXG4gICAgXCI5Ni13ZWxsIHBsYXRlICgzNSBtTCBwZXIgcGxhdGUpXCIsXG4gICAgXCI0OC13ZWxsIHBsYXRlICgyNSBtTCBwZXIgcGxhdGUpXCIsIFxuICAgIFwiMjQtd2VsbCBwbGF0ZSAoMTUgbUwgcGVyIHBsYXRlKVwiLFxuICAgIFwiMTItd2VsbCBwbGF0ZSAoMTAgbUwgcGVyIHBsYXRlKVwiLFxuICAgIFwiQ3VzdG9tIHZvbHVtZVwiXG4gIF0sXG4gIHtcbiAgICBsYWJlbDogXCJQbGF0ZSB0eXBlOlwiLFxuICAgIHZhbHVlOiBcIjk2LXdlbGwgcGxhdGUgKDM1IG1MIHBlciBwbGF0ZSlcIlxuICB9XG4pXG5cbnZpZXdvZiBudW1QbGF0ZXMgPSBJbnB1dHMucmFuZ2UoWzEsIDgwXSwge1xuICBsYWJlbDogXCJOdW1iZXIgb2YgcGxhdGVzOlwiLFxuICB2YWx1ZTogMSxcbiAgc3RlcDogMVxufSlcblxudmlld29mIGN1c3RvbVZvbHVtZSA9IElucHV0cy5yYW5nZShbMSwgMjAwMF0sIHtcbiAgbGFiZWw6IFwiQ3VzdG9tIHRvdGFsIHZvbHVtZSAobUwpOlwiLFxuICB2YWx1ZTogMzUsXG4gIHN0ZXA6IDEsXG4gIGRpc2FibGVkOiBwbGF0ZVR5cGUgIT09IFwiQ3VzdG9tIHZvbHVtZVwiXG59KVxuXG52aWV3b2YgZXh0cmFQZXJjZW50ID0gSW5wdXRzLnJhbmdlKFswLCAyMF0sIHtcbiAgbGFiZWw6IFwiRXh0cmEgdm9sdW1lIGZvciBzYWZldHkgKCUpOlwiLFxuICB2YWx1ZTogMTAsXG4gIHN0ZXA6IDVcbn0pXG5cbi8vIENhbGN1bGF0aW9uc1xucGxhdGVWb2x1bWVzID0gbmV3IE1hcChbXG4gIFtcIjk2LXdlbGwgcGxhdGUgKDM1IG1MIHBlciBwbGF0ZSlcIiwgMzVdLFxuICBbXCI0OC13ZWxsIHBsYXRlICgyNSBtTCBwZXIgcGxhdGUpXCIsIDI1XSxcbiAgW1wiMjQtd2VsbCBwbGF0ZSAoMTUgbUwgcGVyIHBsYXRlKVwiLCAxNV0sIFxuICBbXCIxMi13ZWxsIHBsYXRlICgxMCBtTCBwZXIgcGxhdGUpXCIsIDEwXSxcbiAgW1wiQ3VzdG9tIHZvbHVtZVwiLCBjdXN0b21Wb2x1bWVdXG5dKVxuXG5iYXNlVm9sdW1lID0gcGxhdGVWb2x1bWVzLmdldChwbGF0ZVR5cGUpICogbnVtUGxhdGVzXG50b3RhbFZvbHVtZSA9IGJhc2VWb2x1bWUgKiAoMSArIGV4dHJhUGVyY2VudCAvIDEwMClcblxuc2Vhd2F0ZXJWb2x1bWUgPSB0b3RhbFZvbHVtZSAqIDAuOTg2NjZcbnJlc2F6dXJpblZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC4wMDIyMlxuZG1zb1ZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC4wMDFcbmFudGliaW90aWNWb2x1bWUgPSB0b3RhbFZvbHVtZSAqIDAuMDFcblxuLy8gSGVscGVyIGZ1bmN0aW9uIHRvIGZvcm1hdCB2b2x1bWVzIGFwcHJvcHJpYXRlbHlcbmZ1bmN0aW9uIGZvcm1hdFZvbHVtZSh2b2x1bWUpIHtcbiAgaWYgKHZvbHVtZSA+PSAxKSB7XG4gICAgcmV0dXJuIHZvbHVtZS50b0ZpeGVkKDIpICsgXCIgbUxcIjtcbiAgfSBlbHNlIHtcbiAgICByZXR1cm4gKHZvbHVtZSAqIDEwMDApLnRvRml4ZWQoMCkgKyBcIiDCtUxcIjtcbiAgfVxufVxuXG4vLyBEaXNwbGF5IHJlc3VsdHNcbmh0bWxgXG48ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogI2Y4ZjlmYTsgcGFkZGluZzogMjBweDsgYm9yZGVyLXJhZGl1czogOHB4OyBtYXJnaW46IDIwcHggMDtcIj5cbiAgPGgzIHN0eWxlPVwiY29sb3I6ICMyYzNlNTA7IG1hcmdpbi10b3A6IDA7XCI+8J+TiyBSZWNpcGUgZm9yICR7dG90YWxWb2x1bWUudG9GaXhlZCgxKX0gbUwgV29ya2luZyBTb2x1dGlvbjwvaDM+XG4gIFxuICA8ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogd2hpdGU7IHBhZGRpbmc6IDE1cHg7IGJvcmRlci1yYWRpdXM6IDVweDsgbWFyZ2luOiAxMHB4IDA7XCI+XG4gICAgPHA+PHN0cm9uZz5FeHBlcmltZW50YWwgc2V0dXA6PC9zdHJvbmc+ICR7bnVtUGxhdGVzfSDDlyAke3BsYXRlVHlwZS5zcGxpdCgnICgnKVswXX0gXG4gICAgJHtwbGF0ZVR5cGUgIT09IFwiQ3VzdG9tIHZvbHVtZVwiID8gYCgke2Jhc2VWb2x1bWUudG9GaXhlZCgxKX0gbUwgYmFzZSB2b2x1bWUpYCA6ICcnfTwvcD5cbiAgICA8cD48c3Ryb25nPlNhZmV0eSBtYXJnaW46PC9zdHJvbmc+ICske2V4dHJhUGVyY2VudH0lIGV4dHJhIHZvbHVtZTwvcD5cbiAgPC9kaXY+XG5cbiAgPGRpdiBzdHlsZT1cImJhY2tncm91bmQ6IHdoaXRlOyBwYWRkaW5nOiAxNXB4OyBib3JkZXItcmFkaXVzOiA1cHg7XCI+XG4gICAgPGg0IHN0eWxlPVwiY29sb3I6ICMyN2FlNjA7IG1hcmdpbi10b3A6IDA7XCI+8J+nqiBSZXF1aXJlZCBJbmdyZWRpZW50czo8L2g0PlxuICAgIDx1bCBzdHlsZT1cImZvbnQtc2l6ZTogMTZweDsgbGluZS1oZWlnaHQ6IDEuODtcIj5cbiAgICAgIDxsaT48c3Ryb25nPiR7Zm9ybWF0Vm9sdW1lKHNlYXdhdGVyVm9sdW1lKX08L3N0cm9uZz4gZmlsdGVyZWQgc2Vhd2F0ZXIgKERJIHdhdGVyIHdpdGggSW5zdGFudCBPY2VhbiBhZGp1c3RlZCB0byAyMy0yNSBwcHQgb3IgZmlsdGVyZWQgJmx0OzHOvG0gc2Vhd2F0ZXIpPC9saT5cbiAgICAgIDxsaT48c3Ryb25nPiR7Zm9ybWF0Vm9sdW1lKHJlc2F6dXJpblZvbHVtZSl9PC9zdHJvbmc+IHJlc2F6dXJpbiBzdG9jayBzb2x1dGlvbiAoZnJvbSBzdGVwIDEgYWJvdmUpPC9saT5cbiAgICAgIDxsaT48c3Ryb25nPiR7Zm9ybWF0Vm9sdW1lKGRtc29Wb2x1bWUpfTwvc3Ryb25nPiBETVNPPC9saT5cbiAgICAgIDxsaT48c3Ryb25nPiR7Zm9ybWF0Vm9sdW1lKGFudGliaW90aWNWb2x1bWUpfTwvc3Ryb25nPiBhbnRpYmlvdGljIHNvbHV0aW9uICgxMDB4IFBlbm4vU3RyZXAgJiAxMDB4IEZ1bmdpem9uZSk8L2xpPlxuICAgIDwvdWw+XG4gIDwvZGl2PlxuICBcbiAgPGRpdiBzdHlsZT1cImJhY2tncm91bmQ6ICNmZmYzY2Q7IHBhZGRpbmc6IDEwcHg7IGJvcmRlci1yYWRpdXM6IDVweDsgbWFyZ2luLXRvcDogMTVweDsgZm9udC1zaXplOiAxNHB4O1wiPlxuICAgIDxzdHJvbmc+8J+SoSBUaXA6PC9zdHJvbmc+IFJlbWVtYmVyIHRvIHRoYXcgdGhlIGFudGliaW90aWMgc29sdXRpb24gaW4gdGhlIGRhcmsgYmVmb3JlIHVzZSwgYW5kIHN0b3JlIHRoZSByZXNhenVyaW4gc3RvY2sgc29sdXRpb24gaW4gYSBkYXJrIGZyaWRnZSBvciBmcmVlemVyLlxuICA8L2Rpdj5cbjwvZGl2PlxuYFxuIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdwbGF0ZVR5cGUnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnbnVtUGxhdGVzJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ2N1c3RvbVZvbHVtZScpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdleHRyYVBlcmNlbnQnKSJ9XX0=
+eyJjb250ZW50cyI6W3sibWV0aG9kTmFtZSI6ImludGVycHJldCIsImNlbGxOYW1lIjoib2pzLWNlbGwtMSIsImlubGluZSI6ZmFsc2UsInNvdXJjZSI6IlxuLy8gSW5wdXQgY29udHJvbHNcbnZpZXdvZiBwbGF0ZVR5cGUgPSBJbnB1dHMuc2VsZWN0KFxuICBbXG4gICAgXCI5Ni13ZWxsIHBsYXRlICgwLjI1MCBtTC93ZWxsKVwiLFxuICAgIFwiNDgtd2VsbCBwbGF0ZSAoMSBtTC93ZWxsKVwiLFxuICAgIFwiMjQtd2VsbCBwbGF0ZSAoMiBtTC93ZWxsKVwiLFxuICAgIFwiMTItd2VsbCBwbGF0ZSAoNCBtTC93ZWxsKVwiLFxuICAgIFwiNi13ZWxsIHBsYXRlICgxMCBtTC93ZWxsKVwiLFxuICAgIFwiQ3VzdG9tIHZvbHVtZVwiXG4gIF0sXG4gIHtcbiAgICBsYWJlbDogXCJQbGF0ZSB0eXBlOlwiLFxuICAgIHZhbHVlOiBcIjk2LXdlbGwgcGxhdGUgKDAuMjUwIG1ML3dlbGwpXCJcbiAgfVxuKVxuXG52aWV3b2YgbnVtUGxhdGVzID0gSW5wdXRzLnJhbmdlKFsxLCA4MF0sIHtcbiAgbGFiZWw6IFwiTnVtYmVyIG9mIHBsYXRlczpcIixcbiAgdmFsdWU6IDEsXG4gIHN0ZXA6IDFcbn0pXG5cbnZpZXdvZiBjdXN0b21Wb2x1bWUgPSBJbnB1dHMucmFuZ2UoWzEsIDIwMDAwXSwge1xuICBsYWJlbDogXCJDdXN0b20gdG90YWwgdm9sdW1lIChtTCk6XCIsXG4gIHZhbHVlOiAzNSxcbiAgc3RlcDogMSxcbiAgZGlzYWJsZWQ6IHBsYXRlVHlwZSAhPT0gXCJDdXN0b20gdm9sdW1lXCJcbn0pXG5cbnZpZXdvZiBleHRyYVBlcmNlbnQgPSBJbnB1dHMucmFuZ2UoWzAsIDIwXSwge1xuICBsYWJlbDogXCJFeHRyYSB2b2x1bWUgZm9yIHNhZmV0eSAoJSk6XCIsXG4gIHZhbHVlOiAxMCxcbiAgc3RlcDogNVxufSlcblxuLy8gQ2FsY3VsYXRpb25zXG5wbGF0ZUNvbmZpZ3MgPSBuZXcgTWFwKFtcbiAgW1wiOTYtd2VsbCBwbGF0ZSAoMC4yNTAgbUwvd2VsbClcIiwgeyB3ZWxsczogOTYsIHdlbGxWb2x1bWU6IDAuMjUwIH1dLFxuICBbXCI0OC13ZWxsIHBsYXRlICgxIG1ML3dlbGwpXCIsIHsgd2VsbHM6IDQ4LCB3ZWxsVm9sdW1lOiAxIH1dLFxuICBbXCIyNC13ZWxsIHBsYXRlICgyIG1ML3dlbGwpXCIsIHsgd2VsbHM6IDI0LCB3ZWxsVm9sdW1lOiAyIH1dLCBcbiAgW1wiMTItd2VsbCBwbGF0ZSAoNCBtTC93ZWxsKVwiLCB7IHdlbGxzOiAxMiwgd2VsbFZvbHVtZTogNCB9XSxcbiAgW1wiNi13ZWxsIHBsYXRlICgxMCBtTC93ZWxsKVwiLCB7IHdlbGxzOiA2LCB3ZWxsVm9sdW1lOiAxMCB9XSxcbiAgW1wiQ3VzdG9tIHZvbHVtZVwiLCB7IHdlbGxzOiBudWxsLCB3ZWxsVm9sdW1lOiBudWxsIH1dXG5dKVxuXG5wbGF0ZUNvbmZpZyA9IHBsYXRlQ29uZmlncy5nZXQocGxhdGVUeXBlKVxucGxhdGVWb2x1bWUgPSBwbGF0ZVR5cGUgPT09IFwiQ3VzdG9tIHZvbHVtZVwiID8gY3VzdG9tVm9sdW1lIDogcGxhdGVDb25maWcud2VsbHMgKiBwbGF0ZUNvbmZpZy53ZWxsVm9sdW1lXG50b3RhbEJhc2VWb2x1bWUgPSBwbGF0ZVZvbHVtZSAqIG51bVBsYXRlc1xudG90YWxWb2x1bWUgPSB0b3RhbEJhc2VWb2x1bWUgKiAoMSArIGV4dHJhUGVyY2VudCAvIDEwMClcblxuc2Vhd2F0ZXJWb2x1bWUgPSB0b3RhbFZvbHVtZSAqIDAuOTg2NjZcbnJlc2F6dXJpblZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC4wMDIyMlxuZG1zb1ZvbHVtZSA9IHRvdGFsVm9sdW1lICogMC4wMDFcbmFudGliaW90aWNWb2x1bWUgPSB0b3RhbFZvbHVtZSAqIDAuMDFcblxuLy8gSGVscGVyIGZ1bmN0aW9uIHRvIGZvcm1hdCB2b2x1bWVzIGFwcHJvcHJpYXRlbHlcbmZ1bmN0aW9uIGZvcm1hdFZvbHVtZSh2b2x1bWUpIHtcbiAgaWYgKHZvbHVtZSA+PSAxKSB7XG4gICAgcmV0dXJuIHZvbHVtZS50b0ZpeGVkKDIpICsgXCIgbUxcIjtcbiAgfSBlbHNlIHtcbiAgICByZXR1cm4gKHZvbHVtZSAqIDEwMDApLnRvRml4ZWQoMCkgKyBcIiDCtUxcIjtcbiAgfVxufVxuXG4vLyBEaXNwbGF5IHJlc3VsdHNcbmh0bWxgXG48ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogI2Y4ZjlmYTsgcGFkZGluZzogMjBweDsgYm9yZGVyLXJhZGl1czogOHB4OyBtYXJnaW46IDIwcHggMDtcIj5cbiAgPGgzIHN0eWxlPVwiY29sb3I6ICMyYzNlNTA7IG1hcmdpbi10b3A6IDA7XCI+8J+TiyBSZWNpcGUgZm9yICR7dG90YWxWb2x1bWUudG9GaXhlZCgxKX0gbUwgV29ya2luZyBTb2x1dGlvbjwvaDM+XG4gIFxuICA8ZGl2IHN0eWxlPVwiYmFja2dyb3VuZDogd2hpdGU7IHBhZGRpbmc6IDE1cHg7IGJvcmRlci1yYWRpdXM6IDVweDsgbWFyZ2luOiAxMHB4IDA7XCI+XG4gICAgPHA+PHN0cm9uZz5FeHBlcmltZW50YWwgc2V0dXA6PC9zdHJvbmc+ICR7bnVtUGxhdGVzfSDDlyAke3BsYXRlVHlwZX0gXG4gICAgJHtwbGF0ZVR5cGUgIT09IFwiQ3VzdG9tIHZvbHVtZVwiID8gYCgke3BsYXRlQ29uZmlnLndlbGxzfSB3ZWxscyDDlyAke3BsYXRlQ29uZmlnLndlbGxWb2x1bWUudG9GaXhlZCgzKX0gbUwvd2VsbCA9ICR7cGxhdGVWb2x1bWUudG9GaXhlZCgxKX0gbUwgcGVyIHBsYXRlOyAke251bVBsYXRlc30gcGxhdGVzID0gJHt0b3RhbEJhc2VWb2x1bWUudG9GaXhlZCgxKX0gbUwgYmVmb3JlIHNhZmV0eSlgIDogJyd9PC9wPlxuICAgIDxwPjxzdHJvbmc+UGVyLXdlbGwgZGVmYXVsdDo8L3N0cm9uZz4gJHtwbGF0ZVR5cGUgPT09IFwiQ3VzdG9tIHZvbHVtZVwiID8gXCJDdXN0b20gdm9sdW1lXCIgOiBgJHtwbGF0ZUNvbmZpZy53ZWxsVm9sdW1lLnRvRml4ZWQoMyl9IG1MIHBlciB3ZWxsYH08L3A+XG4gICAgPHA+PHN0cm9uZz5TYWZldHkgbWFyZ2luOjwvc3Ryb25nPiArJHtleHRyYVBlcmNlbnR9JSBleHRyYSB2b2x1bWU8L3A+XG4gIDwvZGl2PlxuXG4gIDxkaXYgc3R5bGU9XCJiYWNrZ3JvdW5kOiB3aGl0ZTsgcGFkZGluZzogMTVweDsgYm9yZGVyLXJhZGl1czogNXB4O1wiPlxuICAgIDxoNCBzdHlsZT1cImNvbG9yOiAjMjdhZTYwOyBtYXJnaW4tdG9wOiAwO1wiPvCfp6ogUmVxdWlyZWQgSW5ncmVkaWVudHM6PC9oND5cbiAgICA8dWwgc3R5bGU9XCJmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAxLjg7XCI+XG4gICAgICA8bGk+PHN0cm9uZz4ke2Zvcm1hdFZvbHVtZShzZWF3YXRlclZvbHVtZSl9PC9zdHJvbmc+IGZpbHRlcmVkIHNlYXdhdGVyIChESSB3YXRlciB3aXRoIEluc3RhbnQgT2NlYW4gYWRqdXN0ZWQgdG8gMjMtMjUgcHB0IG9yIGZpbHRlcmVkICZsdDsxzrxtIHNlYXdhdGVyKTwvbGk+XG4gICAgICA8bGk+PHN0cm9uZz4ke2Zvcm1hdFZvbHVtZShyZXNhenVyaW5Wb2x1bWUpfTwvc3Ryb25nPiByZXNhenVyaW4gc3RvY2sgc29sdXRpb24gKGZyb20gc3RlcCAxIGFib3ZlKTwvbGk+XG4gICAgICA8bGk+PHN0cm9uZz4ke2Zvcm1hdFZvbHVtZShkbXNvVm9sdW1lKX08L3N0cm9uZz4gRE1TTzwvbGk+XG4gICAgICA8bGk+PHN0cm9uZz4ke2Zvcm1hdFZvbHVtZShhbnRpYmlvdGljVm9sdW1lKX08L3N0cm9uZz4gYW50aWJpb3RpYyBzb2x1dGlvbiAoMTAweCBQZW5uL1N0cmVwICYgMTAweCBGdW5naXpvbmUpPC9saT5cbiAgICA8L3VsPlxuICA8L2Rpdj5cbiAgXG4gIDxkaXYgc3R5bGU9XCJiYWNrZ3JvdW5kOiAjZmZmM2NkOyBwYWRkaW5nOiAxMHB4OyBib3JkZXItcmFkaXVzOiA1cHg7IG1hcmdpbi10b3A6IDE1cHg7IGZvbnQtc2l6ZTogMTRweDtcIj5cbiAgICA8c3Ryb25nPvCfkqEgVGlwOjwvc3Ryb25nPiBSZW1lbWJlciB0byB0aGF3IHRoZSBhbnRpYmlvdGljIHNvbHV0aW9uIGluIHRoZSBkYXJrIGJlZm9yZSB1c2UsIGFuZCBzdG9yZSB0aGUgcmVzYXp1cmluIHN0b2NrIHNvbHV0aW9uIGluIGEgZGFyayBmcmlkZ2Ugb3IgZnJlZXplci5cbiAgPC9kaXY+XG48L2Rpdj5cbmBcbiJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgncGxhdGVUeXBlJykifSx7Im1ldGhvZE5hbWUiOiJpbnRlcnByZXRRdWlldCIsInNvdXJjZSI6InNoaW55SW5wdXQoJ251bVBsYXRlcycpIn0seyJtZXRob2ROYW1lIjoiaW50ZXJwcmV0UXVpZXQiLCJzb3VyY2UiOiJzaGlueUlucHV0KCdjdXN0b21Wb2x1bWUnKSJ9LHsibWV0aG9kTmFtZSI6ImludGVycHJldFF1aWV0Iiwic291cmNlIjoic2hpbnlJbnB1dCgnZXh0cmFQZXJjZW50JykifV19
 </script>
 <script type="module">
 if (window.location.protocol === "file:") { alert("The OJS runtime does not work with file:// URLs. Please use a web server to view this document."); }
@@ -1093,7 +1061,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>videojs(video_shortcode_videojs_video1);</script>
 
 
 
