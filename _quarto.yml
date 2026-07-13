@@ -5,7 +5,6 @@ project:
     - index.qmd
     - public-summary.qmd
     - clam-dashboard.qmd
-    - reporting-summary.md
     - figures/resazurin-applications-diagram.md
 
 website:

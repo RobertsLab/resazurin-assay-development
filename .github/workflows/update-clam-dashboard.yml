@@ -46,6 +46,7 @@ jobs:
         run: |
           mkdir -p docs
           if [ -f index.html ]; then cp index.html docs/index.html; fi
+          echo "oyster.pink" > docs/CNAME
 
       - name: Setup Pages
         if: github.ref == 'refs/heads/main'
