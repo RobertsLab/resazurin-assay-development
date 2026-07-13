@@ -119,7 +119,8 @@ viewof plateType = Inputs.select(
 viewof numPlates = Inputs.range([1, 80], {
   label: "Number of plates:",
   value: 1,
-  step: 1
+  step: 1,
+  disabled: plateType === "Custom volume"
 })
 
 viewof customVolume = Inputs.range([1, 20000], {
@@ -147,7 +148,8 @@ plateConfigs = new Map([
 
 plateConfig = plateConfigs.get(plateType)
 plateVolume = plateType === "Custom volume" ? customVolume : plateConfig.wells * plateConfig.wellVolume
-totalBaseVolume = plateVolume * numPlates
+effectiveNumPlates = plateType === "Custom volume" ? 1 : numPlates
+totalBaseVolume = plateVolume * effectiveNumPlates
 totalVolume = totalBaseVolume * (1 + extraPercent / 100)
 
 seawaterVolume = totalVolume * 0.98666
@@ -170,8 +172,8 @@ html`
   <h3 style="color: #2c3e50; margin-top: 0;">📋 Recipe for ${totalVolume.toFixed(1)} mL Working Solution</h3>
   
   <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
-    <p><strong>Experimental setup:</strong> ${numPlates} × ${plateType} 
-    ${plateType !== "Custom volume" ? `(${plateConfig.wells} wells × ${plateConfig.wellVolume.toFixed(3)} mL/well = ${plateVolume.toFixed(1)} mL per plate; ${numPlates} plates = ${totalBaseVolume.toFixed(1)} mL before safety)` : ''}</p>
+    <p><strong>Experimental setup:</strong> ${effectiveNumPlates} × ${plateType}
+    ${plateType !== "Custom volume" ? `(${plateConfig.wells} wells × ${plateConfig.wellVolume.toFixed(3)} mL/well = ${plateVolume.toFixed(1)} mL per plate; ${effectiveNumPlates} plates = ${totalBaseVolume.toFixed(1)} mL before safety)` : ''}</p>
     <p><strong>Per-well default:</strong> ${plateType === "Custom volume" ? "Custom volume" : `${plateConfig.wellVolume.toFixed(3)} mL per well`}</p>
     <p><strong>Safety margin:</strong> +${extraPercent}% extra volume</p>
   </div>
