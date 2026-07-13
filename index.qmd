@@ -168,7 +168,7 @@ function formatVolume(volume) {
 
 // Display results
 html`
-<div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+<div style="background: #f8f9fa; color: #212529; padding: 20px; border-radius: 8px; margin: 20px 0;">
   <h3 style="color: #2c3e50; margin-top: 0;">📋 Recipe for ${totalVolume.toFixed(1)} mL Working Solution</h3>
   
   <div style="background: white; padding: 15px; border-radius: 5px; margin: 10px 0;">
